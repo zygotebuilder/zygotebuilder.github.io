@@ -1,219 +1,75 @@
 
 <html lang="en">
 <head>
-  <meta charset="UTF-8"></meta>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
-  <title>Mirror Simulator</title>
+  <meta charset="UTF-8">
+  <title>Physics-Accurate Mirror Simulator</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #f0f0f0;
-    }
-    canvas {
-      border: 1px solid #333;
-      background-color: white;
-      margin-top: 20px;
-    }
-    .controls {
-      margin-top: 20px;
-    }
-    label {
-      margin-left: 10px;
-    }
-    select, input {
-      margin-left: 5px;
-      margin-right: 10px;
-    }
+    body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f8f9fa; }
+    canvas { border: 2px solid #333; background-color: white; margin-top: 10px; cursor: crosshair; }
+    .controls { margin: 15px; padding: 10px; background: #ddd; border-radius: 8px; }
   </style>
 </head>
 <body>
-  <h2> Mirror Simulator</h2>
+  <h2>Mirror Simulator (Spherical Optics)</h2>
   <div class="controls">
-    <label for="mirrorType">Mirror Type:</label>
-    <select id="mirrorType">
-      <option value="concave">Concave</option>
-      <option value="convex">Convex</option>
-      <option value="plane">Plane</option>
-    </select>
-
-    <label for="objectPreset">Object Position:</label>
-    <select id="objectPreset">
-      <option value="custom">Custom</option>
-      <option value="infinity">At Infinity</option>
-      <option value="beyondC">Beyond C</option>
-      <option value="atC">At C</option>
-      <option value="betweenCF">Between C and F</option>
-      <option value="atF">At F</option>
-      <option value="betweenFandP">Between F and Pole</option>
-    </select>
-
-    <label for="objectDistance">Object Distance (cm):</label>
-    <input id="objectDistance" max="200" min="1" type="range" value="100" />
-    <span id="distanceValue">100</span>
+    <label>Mirror Type: </label>
+    <select id="mirrorType"><option value="concave">Concave</option><option value="convex">Convex</option></select>
+    <label>Object Distance (u): </label>
+    <input id="objectDistance" type="range" min="20" max="180" value="100" />
+    <span id="distVal">100</span>px
   </div>
-
-  <canvas height="400" id="mirrorCanvas" width="800"></canvas>
+  <canvas id="canvas" width="800" height="400"></canvas>
 
   <script>
-    const canvas = document.getElementById('mirrorCanvas');
+    const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    const mirrorTypeSelect = document.getElementById('mirrorType');
-    const objectDistanceSlider = document.getElementById('objectDistance');
-    const objectPreset = document.getElementById('objectPreset');
-    const distanceValue = document.getElementById('distanceValue');
+    const f = 100; // Focal length
+    
+    function draw() {
+      const type = document.getElementById('mirrorType').value;
+      const u = parseInt(document.getElementById('objectDistance').value);
+      document.getElementById('distVal').innerText = u;
+      
+      ctx.clearRect(0, 0, 800, 400);
+      const axisY = 200;
+      const poleX = 400;
 
-    const poleX = 400; // Center of canvas
-    const focalLength = 50; // pixels
-    const radius = 2 * focalLength;
+      // Draw Axis
+      ctx.beginPath(); ctx.moveTo(0, axisY); ctx.lineTo(800, axisY); ctx.stroke();
 
-    function drawSetup(mirrorType, objectDistance) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw principal axis
+      // Mirror Logic
+      const isConcave = type === 'concave';
       ctx.beginPath();
-      ctx.moveTo(0, canvas.height / 2);
-      ctx.lineTo(canvas.width, canvas.height / 2);
-      ctx.strokeStyle = '#000';
+      ctx.arc(isConcave ? poleX - f : poleX + f, axisY, f, 
+              isConcave ? -0.3 : 2.84, isConcave ? 0.3 : 3.44);
       ctx.stroke();
 
-      // Draw object
-      const objX = poleX - objectDistance;
-      ctx.beginPath();
-      ctx.moveTo(objX, canvas.height / 2);
-      ctx.lineTo(objX, canvas.height / 2 - 80);
+      // Math: 1/f = 1/v + 1/u => v = (f*u)/(u-f)
+      const u_val = -u; 
+      const f_val = isConcave ? -f : f;
+      const v = (f_val * u_val) / (u_val - f_val);
+      const m = -v / u_val;
+
+      // Draw Object (Height 50)
       ctx.strokeStyle = 'green';
-      ctx.stroke();
-      ctx.fillText('Object', objX - 10, canvas.height / 2 - 90);
+      ctx.beginPath(); ctx.moveTo(poleX - u, axisY); ctx.lineTo(poleX - u, axisY - 50); ctx.stroke();
 
-      // Draw mirror
-      ctx.beginPath();
-      ctx.arc(poleX, canvas.height / 2, 80,
-        mirrorType === 'concave' ? Math.PI / 2 : -Math.PI / 2,
-        mirrorType === 'concave' ? 3 * Math.PI / 2 : -3 * Math.PI / 2);
-      ctx.strokeStyle = 'black';
-      ctx.stroke();
-      ctx.fillText('P', poleX - 5, canvas.height / 2 + 15);
-      if (mirrorType !== 'plane') {
-        ctx.fillText('F', poleX - (mirrorType === 'concave' ? focalLength : -focalLength) - 5, canvas.height / 2 + 15);
-        ctx.fillText('C', poleX - (mirrorType === 'concave' ? radius : -radius) - 5, canvas.height / 2 + 15);
-      }
-
-      calculateAndDrawImage(mirrorType, objectDistance);
-    }
-
-    function calculateAndDrawImage(mirrorType, objectDistance) {
-      let u = -objectDistance;
-      let f, v;
-
-      if (mirrorType === 'concave') f = -focalLength;
-      else if (mirrorType === 'convex') f = focalLength;
-      else f = Infinity;
-
-      if (mirrorType === 'plane') {
-        v = -u;
-      } else {
-        v = (f * u) / (u - f);
-      }
-
-      const imgX = poleX + v;
-      const isVirtual = mirrorType !== 'plane' ? v > 0 : true;
-      const imgHeight = isVirtual ? 80 : -80 * v / u;
-
-      ctx.beginPath();
-      ctx.moveTo(imgX, canvas.height / 2);
-      ctx.lineTo(imgX, canvas.height / 2 - imgHeight);
-      ctx.strokeStyle = isVirtual ? 'blue' : 'red';
-      ctx.setLineDash(isVirtual ? [5, 5] : []);
-      ctx.stroke();
+      // Draw Image
+      ctx.strokeStyle = (v > 0) ? 'rgba(0,0,255,0.5)' : 'red';
+      ctx.setLineDash((v > 0) ? [5, 5] : []);
+      ctx.beginPath(); ctx.moveTo(poleX + v, axisY); ctx.lineTo(poleX + v, axisY - 50 * m); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillText('Image', imgX - 10, canvas.height / 2 - imgHeight - 10);
-
-      // Ray 1: Parallel → F
+      
+      // Draw Rays (Simplified Parallel and Focal)
+      ctx.strokeStyle = 'orange';
       ctx.beginPath();
-      ctx.moveTo(poleX - objectDistance, canvas.height / 2 - 80);
-      ctx.lineTo(poleX, canvas.height / 2 - 80);
-      ctx.strokeStyle = '#999';
+      ctx.moveTo(poleX - u, axisY - 50); ctx.lineTo(poleX, axisY - 50); // Parallel
+      ctx.lineTo(poleX + v, axisY - 50 * m); // Reflected
       ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(poleX, canvas.height / 2 - 80);
-      ctx.lineTo(poleX + (mirrorType === 'concave' ? v : f), canvas.height / 2);
-      ctx.stroke();
-
-      // Ray 2: Through F → Parallel
-      const fX = poleX + (mirrorType === 'concave' ? f : -f);
-      ctx.beginPath();
-      ctx.moveTo(poleX - objectDistance, canvas.height / 2 - 80);
-      ctx.lineTo(fX, canvas.height / 2);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(poleX, canvas.height / 2);
-      ctx.lineTo(poleX + v, canvas.height / 2 - imgHeight);
-      ctx.setLineDash([5, 5]);
-      ctx.stroke();
-      ctx.setLineDash([]);
     }
 
-    function update() {
-      const mirrorType = mirrorTypeSelect.value;
-      const objectDistance = parseInt(objectDistanceSlider.value);
-      distanceValue.textContent = objectDistance;
-      drawSetup(mirrorType, objectDistance);
-    }
-
-    objectDistanceSlider.addEventListener('input', () => {
-      objectPreset.value = 'custom';
-      update();
-    });
-
-    mirrorTypeSelect.addEventListener('change', () => {
-      objectPreset.value = 'custom';
-      update();
-    });
-
-    objectPreset.addEventListener('change', () => {
-      const mirrorType = mirrorTypeSelect.value;
-
-      if (objectPreset.value === 'custom') return;
-
-      const presets = {
-        concave: {
-          infinity: 200,
-          beyondC: radius + 30,
-          atC: radius,
-          betweenCF: (radius + focalLength) / 2,
-          atF: focalLength,
-          betweenFandP: focalLength / 2
-        },
-        convex: {
-          infinity: 200,
-          beyondC: 150,
-          atC: 100,
-          betweenCF: 80,
-          atF: 60,
-          betweenFandP: 40
-        },
-        plane: {
-          infinity: 200,
-          beyondC: 150,
-          atC: 100,
-          betweenCF: 70,
-          atF: 50,
-          betweenFandP: 30
-        }
-      };
-
-      const distance = presets[mirrorType][objectPreset.value];
-      objectDistanceSlider.value = distance;
-      distanceValue.textContent = distance;
-      update();
-    });
-
-    update(); // Initial drawing
+    document.querySelectorAll('select, input').forEach(el => el.addEventListener('input', draw));
+    draw();
   </script>
 </body>
 </html>
