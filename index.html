@@ -1,733 +1,479 @@
-<!-- rebuild -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Zygote</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zygote</title>
 
 <style>
 :root{
-
---bg:#040404;
---bg2:#090b12;
---panel:rgba(255,255,255,.035);
-
---text:#F2F2F2;
---muted:#9EA3AE;
-
---line:rgba(255,255,255,.08);
-
---accent1:#6dd5fa;
---accent2:#7f7fd5;
---accent3:#91eac9;
-
+  --bg:#040404;
+  --bg2:#090b12;
+  --panel:rgba(255,255,255,.035);
+  --text:#F2F2F2;
+  --muted:#9EA3AE;
+  --line:rgba(255,255,255,.08);
+  --accent1:#6dd5fa;
+  --accent2:#7f7fd5;
+  --accent3:#91eac9;
 }
 
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
 html{
-scroll-behavior:smooth;
+  scroll-behavior:smooth;
 }
 
 body{
-
-font-family:
-Inter,
-ui-sans-serif,
-system-ui,
-Segoe UI,
-sans-serif;
-
-color:var(--text);
-
-background:
-radial-gradient(circle at 15% 10%,rgba(109,213,250,.16),transparent 32%),
-radial-gradient(circle at 85% 20%,rgba(127,127,213,.18),transparent 30%),
-radial-gradient(circle at 50% 90%,rgba(145,234,201,.12),transparent 40%),
-linear-gradient(180deg,#0b0c12 0%,#050505 55%,#020202 100%);
-
-min-height:100vh;
-
-overflow-x:hidden;
-
-position:relative;
-
+  font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(109,213,250,.16), transparent 32%),
+    radial-gradient(circle at 85% 20%, rgba(127,127,213,.18), transparent 30%),
+    radial-gradient(circle at 50% 90%, rgba(145,234,201,.12), transparent 40%),
+    linear-gradient(180deg, #0b0c12 0%, #050505 55%, #020202 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
 }
-
 
 /* ambient glow */
-
 body::before{
-
-content:"";
-
-position:fixed;
-
-inset:0;
-
-pointer-events:none;
-
-background:
-
-radial-gradient(circle at 50% 0%,
-rgba(255,255,255,.04),
-transparent 60%),
-
-radial-gradient(circle at 100% 100%,
-rgba(125,249,255,.04),
-transparent 45%);
-
-filter:blur(80px);
-
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.04), transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(125,249,255,.04), transparent 45%);
+  filter:blur(80px);
+  z-index:0;
 }
-
 
 /* subtle grain */
-
 body::after{
-
-content:"";
-
-position:fixed;
-
-inset:0;
-
-pointer-events:none;
-
-opacity:.045;
-
-background-image:
-
-url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
-
-mix-blend-mode:screen;
-
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+  mix-blend-mode:screen;
+  z-index:1;
 }
 
+/* faint scanline texture for a futuristic HUD feel */
+.scanlines{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:2;
+  opacity:.25;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,.015) 0px,
+    rgba(255,255,255,.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
 
 /* ---------- HEADER ---------- */
-
 header{
-
-text-align:center;
-
-padding:120px 24px 70px;
-
-position:relative;
-
+  text-align:center;
+  padding:130px 24px 70px;
+  position:relative;
+  z-index:3;
 }
 
+header .eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-size:.72rem;
+  letter-spacing:.32em;
+  text-transform:uppercase;
+  color:var(--accent1);
+  opacity:.8;
+  margin-bottom:26px;
+}
+
+header .eyebrow::before,
+header .eyebrow::after{
+  content:"";
+  width:26px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--accent1), transparent);
+}
+
+header .logo-wrap{
+  position:relative;
+  width:125px;
+  height:125px;
+  margin:0 auto 34px;
+}
+
+header .logo-ring{
+  position:absolute;
+  inset:-18px;
+  border-radius:50%;
+  border:1px solid rgba(109,213,250,.25);
+  animation:spin 18s linear infinite;
+}
+
+header .logo-ring::before{
+  content:"";
+  position:absolute;
+  top:-3px;
+  left:50%;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent1);
+  box-shadow:0 0 12px 3px rgba(109,213,250,.7);
+  transform:translateX(-50%);
+}
 
 header img{
-
-width:125px;
-
-margin-bottom:34px;
-
-filter:
-
-drop-shadow(0 0 35px rgba(109,213,250,.25));
-
-transition:.6s;
-    animation:
-floatLogo 7s ease-in-out infinite,
-glowPulse 5s ease-in-out infinite;
-
+  width:125px;
+  height:125px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 35px rgba(109,213,250,.25));
+  transition:.6s;
+  animation:floatLogo 7s ease-in-out infinite, glowPulse 5s ease-in-out infinite;
+  position:relative;
+  z-index:1;
 }
 
-header img:hover{
-
-transform:scale(1.05);
-
+header .logo-wrap:hover img{
+  transform:scale(1.06);
 }
+
 header::before{
-
-content:"";
-
-position:absolute;
-
-left:50%;
-
-top:20px;
-
-transform:translateX(-50%);
-
-width:520px;
-
-height:520px;
-
-border-radius:50%;
-
-background:
-
-radial-gradient(circle,
-
-rgba(109,213,250,.12),
-
-rgba(127,127,213,.07),
-
-transparent 72%);
-
-filter:blur(60px);
-
-animation:
-
-orbFloat 12s ease-in-out infinite;
-
-pointer-events:none;
-
-z-index:0;
-
+  content:"";
+  position:absolute;
+  left:50%;
+  top:20px;
+  transform:translateX(-50%);
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(109,213,250,.12), rgba(127,127,213,.07), transparent 72%);
+  filter:blur(60px);
+  animation:orbFloat 12s ease-in-out infinite;
+  pointer-events:none;
+  z-index:-1;
 }
-
 
 header::after{
-
-content:"";
-
-position:absolute;
-
-left:50%;
-
-top:60px;
-
-transform:translateX(-50%);
-
-width:260px;
-
-height:260px;
-
-border-radius:50%;
-
-background:
-
-radial-gradient(circle,
-
-rgba(255,255,255,.08),
-
-transparent 70%);
-
-filter:blur(30px);
-
-opacity:.7;
-
-animation:
-
-haloPulse 6s ease-in-out infinite;
-
-pointer-events:none;
-
+  content:"";
+  position:absolute;
+  left:50%;
+  top:60px;
+  transform:translateX(-50%);
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.08), transparent 70%);
+  filter:blur(30px);
+  opacity:.7;
+  animation:haloPulse 6s ease-in-out infinite;
+  pointer-events:none;
+  z-index:-1;
 }
 
 header h1{
-
-font-size:clamp(3rem,7vw,5rem);
-
-font-weight:600;
-
-letter-spacing:.04em;
-
-background:
-
-linear-gradient(90deg,#ffffff,#d7e7ff,#ffffff);
-
--webkit-background-clip:text;
-
--webkit-text-fill-color:transparent;
-
+  font-size:clamp(3rem, 7vw, 5rem);
+  font-weight:600;
+  letter-spacing:.04em;
+  background:linear-gradient(90deg, #ffffff, #d7e7ff, #ffffff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 
 header p{
-
-max-width:760px;
-
-margin:26px auto 0;
-
-font-size:1.08rem;
-
-line-height:1.95;
-
-color:var(--muted);
-
+  max-width:760px;
+  margin:26px auto 0;
+  font-size:1.08rem;
+  line-height:1.95;
+  color:var(--muted);
 }
-
 
 /* divider */
-
 .divider{
-
-width:180px;
-
-height:2px;
-
-margin:10px auto 70px;
-
-background:
-
-linear-gradient(90deg,
-
-transparent,
-
-rgba(255,255,255,.55),
-
-transparent);
-
-filter:blur(.2px);
-
+  width:180px;
+  height:2px;
+  margin:10px auto 70px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+  filter:blur(.2px);
+  position:relative;
+  z-index:3;
 }
-
 
 /* main */
-
 main{
-
-width:min(920px,92vw);
-
-margin:auto;
-
-display:flex;
-
-flex-direction:column;
-
-gap:18px;
-
+  width:min(920px, 92vw);
+  margin:auto;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  position:relative;
+  z-index:3;
 }
-
 
 /* cards */
-
 .artifact{
-
-display:block;
-
-text-decoration:none;
-
-color:inherit;
-
-padding:28px 34px;
-
-border:1px solid var(--line);
-
-border-radius:24px;
-
-background:
-
-linear-gradient(
-
-145deg,
-
-rgba(255,255,255,.045),
-
-rgba(255,255,255,.015));
-
-backdrop-filter:blur(18px);
-
--webkit-backdrop-filter:blur(18px);
-
-transition:
-
-transform .45s,
-
-border-color .45s,
-
-box-shadow .45s,
-
-background .45s;
-
-position:relative;
-
-overflow:hidden;
-
+  display:block;
+  text-decoration:none;
+  color:inherit;
+  padding:28px 34px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  transition:transform .45s, border-color .45s, box-shadow .45s, background .45s;
+  position:relative;
+  overflow:hidden;
+  opacity:0;
+  transform:translateY(18px);
+  animation:cardIn .7s ease forwards;
 }
 
+.artifact:nth-of-type(1){ animation-delay:.05s; }
+.artifact:nth-of-type(2){ animation-delay:.12s; }
+.artifact:nth-of-type(3){ animation-delay:.19s; }
+.artifact:nth-of-type(4){ animation-delay:.26s; }
+.artifact:nth-of-type(5){ animation-delay:.33s; }
+.artifact:nth-of-type(6){ animation-delay:.40s; }
 
 /* glow */
-
 .artifact::before{
-
-content:"";
-
-position:absolute;
-
-top:-120px;
-
-left:-100px;
-
-width:260px;
-
-height:260px;
-
-border-radius:50%;
-
-background:
-
-radial-gradient(circle,
-
-rgba(109,213,250,.12),
-
-transparent 70%);
-
-transition:.6s;
-
+  content:"";
+  position:absolute;
+  top:-120px;
+  left:-100px;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(109,213,250,.12), transparent 70%);
+  transition:.6s;
 }
 
 .artifact::after{
-
-content:"";
-
-position:absolute;
-
-inset:0;
-
-background:
-
-linear-gradient(
-
-120deg,
-
-transparent,
-
-rgba(255,255,255,.05),
-
-transparent);
-
-transform:translateX(-120%);
-
-transition:1s;
-
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg, transparent, rgba(255,255,255,.05), transparent);
+  transform:translateX(-120%);
+  transition:1s;
 }
 
 .artifact:hover::after{
-
-transform:translateX(120%);
-
+  transform:translateX(120%);
 }
-
 
 .artifact:hover{
-
-transform:
-
-translateY(-8px)
-
-scale(1.01);
-
-border-color:
-
-rgba(255,255,255,.18);
-
-box-shadow:
-
-0 18px 60px rgba(0,0,0,.42),
-
-0 0 25px rgba(109,213,250,.05);
-
+  transform:translateY(-8px) scale(1.01);
+  border-color:rgba(255,255,255,.18);
+  box-shadow:0 18px 60px rgba(0,0,0,.42), 0 0 25px rgba(109,213,250,.05);
 }
 
+.artifact:hover::before{
+  top:-60px;
+  left:-40px;
+}
+
+.artifact:focus-visible{
+  outline:2px solid var(--accent1);
+  outline-offset:4px;
+}
 
 .artifact span{
-
-display:inline-block;
-
-margin-bottom:12px;
-
-font-size:.72rem;
-
-letter-spacing:.24em;
-
-text-transform:uppercase;
-
-color:var(--accent1);
-
-opacity:.95;
-
-font-weight:600;
-
+  display:inline-block;
+  margin-bottom:12px;
+  font-size:.72rem;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--accent1);
+  opacity:.95;
+  font-weight:600;
 }
-
 
 .artifact h2{
-
-font-size:1.6rem;
-
-font-weight:600;
-
-margin-bottom:12px;
-
+  font-size:1.6rem;
+  font-weight:600;
+  margin-bottom:12px;
 }
-
 
 .artifact p{
-
-max-width:620px;
-
-line-height:1.75;
-
-color:var(--muted);
-
-font-size:.98rem;
-
+  max-width:620px;
+  line-height:1.75;
+  color:var(--muted);
+  font-size:.98rem;
 }
 
+.artifact .arrow{
+  position:absolute;
+  right:34px;
+  top:50%;
+  transform:translate(-6px, -50%);
+  opacity:0;
+  transition:.4s;
+  color:var(--accent1);
+  font-size:1.3rem;
+}
+
+.artifact:hover .arrow{
+  opacity:1;
+  transform:translate(0, -50%);
+}
 
 /* footer */
-
 footer{
-
-padding:90px 20px 60px;
-
-text-align:center;
-
-color:#777;
-
-font-size:.88rem;
-
-letter-spacing:.05em;
-
+  padding:90px 20px 60px;
+  text-align:center;
+  color:#777;
+  font-size:.88rem;
+  letter-spacing:.05em;
+  position:relative;
+  z-index:3;
 }
-
 
 /* mobile */
-
 @media(max-width:700px){
-
-header{
-
-padding-top:90px;
-
+  header{
+    padding-top:90px;
+  }
+  .artifact{
+    padding:24px;
+    border-radius:20px;
+  }
+  header img, header .logo-wrap{
+    width:95px;
+    height:95px;
+  }
+  .artifact .arrow{
+    display:none;
+  }
 }
 
-.artifact{
-
-padding:24px;
-
-border-radius:20px;
-
+@keyframes floatLogo{
+  0%{ transform:translateY(0px) rotate(-1deg); }
+  25%{ transform:translateY(-8px) rotate(.5deg); }
+  50%{ transform:translateY(-15px) rotate(1deg); }
+  75%{ transform:translateY(-7px) rotate(-.5deg); }
+  100%{ transform:translateY(0px) rotate(-1deg); }
 }
 
-header img{
-
-width:95px;
-
+@keyframes glowPulse{
+  0%{ filter:drop-shadow(0 0 35px rgba(109,213,250,.20)); }
+  50%{ filter:drop-shadow(0 0 70px rgba(109,213,250,.34)); }
+  100%{ filter:drop-shadow(0 0 35px rgba(109,213,250,.20)); }
 }
 
+@keyframes orbFloat{
+  0%{ transform:translateX(-50%) translateY(0px); }
+  50%{ transform:translateX(-50%) translateY(22px); }
+  100%{ transform:translateX(-50%) translateY(0px); }
 }
 
+@keyframes haloPulse{
+  0%{ opacity:.45; transform:translateX(-50%) scale(1); }
+  50%{ opacity:.9; transform:translateX(-50%) scale(1.15); }
+  100%{ opacity:.45; transform:translateX(-50%) scale(1); }
+}
+
+@keyframes spin{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(360deg); }
+}
+
+@keyframes cardIn{
+  to{ opacity:1; transform:translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
 <body>
 
+<div class="scanlines"></div>
+
 <header>
-    <img src="./Zygote.png" alt="Zygote Logo">
-    <h1>Zygote</h1>
-    <p>
-        A collection of thought experiments disguised as simulations.<br>
-        Not finished. Not optimized. Not 'the best'. It's a 'thing'.
-    </p>
+  <p class="eyebrow">Experimental Lab</p>
+  <div class="logo-wrap">
+    <div class="logo-ring"></div>
+    <img src="./Zygote.png" alt="Zygote logo">
+  </div>
+  <h1>Zygote</h1>
+  <p>
+    A collection of thought experiments disguised as simulations.<br>
+    Not finished. Not optimized. Not 'the best'. It's a 'thing'.
+  </p>
 </header>
 
 <div class="divider"></div>
 
 <main>
-    <a class="artifact" href="./Trajectory%20Lab.html">
-        <span>Physics.</span>
-        <h2>Trajectory Lab</h2>
-        <p>
-           Simply Projectile Motion. No doubts left.
-        </p>
-    </a>
-    
-    <a class="artifact" href="./Clean%20Park%20Game.py">
-        <span>Behavioral System</span>
-        <h2>Clean Park Game</h2>
-        <p>
-            Incentives, decay, and the uncomfortable truth that morality
-            behaves differently in crowds.
-        </p>
-    </a>
+  <a class="artifact" href="./Trajectory%20Lab.html">
+    <span>Physics</span>
+    <h2>Trajectory Lab</h2>
+    <p>Simply projectile motion. No doubts left.</p>
+    <span class="arrow">&rarr;</span>
+  </a>
 
-    <a class="artifact" href="./Comparison%20Matrix.html">
-        <span>Cognitive Tool</span>
-        <h2>Comparison Matrix</h2>
-        <p>
-            When intuition fails, structure steps in — not to decide,
-            but to reveal trade-offs you were avoiding.
-        </p>
-    </a>
+  <a class="artifact" href="./Clean%20Park%20Game.py">
+    <span>Behavioral System</span>
+    <h2>Clean Park Game</h2>
+    <p>Incentives, decay, and the uncomfortable truth that morality behaves differently in crowds.</p>
+    <span class="arrow">&rarr;</span>
+  </a>
 
-    <a class="artifact" href="./Mirror%20Simulator.html">
-        <span>Perception Probe</span>
-        <h2>Mirror Simulator</h2>
-        <p>
-            Observation alters outcomes. The mirror is not neutral.
-            Neither are you.
-        </p>
-    </a>
+  <a class="artifact" href="./Comparison%20Matrix.html">
+    <span>Cognitive Tool</span>
+    <h2>Comparison Matrix</h2>
+    <p>When intuition fails, structure steps in — not to decide, but to reveal trade-offs you were avoiding.</p>
+    <span class="arrow">&rarr;</span>
+  </a>
 
-    <a class="artifact" href="./News%20Headlines.html">
-        <span>Narrative Experiment</span>
-        <h2>News Headlines</h2>
-        <p>
-            Same facts. Different frames. Watch reality bend without breaking.
-        </p>
-    </a>
+  <a class="artifact" href="./Mirror%20Simulator.html">
+    <span>Perception Probe</span>
+    <h2>Mirror Simulator</h2>
+    <p>Observation alters outcomes. The mirror is not neutral. Neither are you.</p>
+    <span class="arrow">&rarr;</span>
+  </a>
 
-    <a class="artifact" href="./Success%20Probability.html">
-        <span>Flawed Model</span>
-        <h2>Success Probability</h2>
-        <p>
-            Effort, luck, burnout, noise — simplified until the simplification
-            itself becomes the lesson.
-        </p>
-    </a>
-    </head>
-    
-@keyframes floatLogo{
+  <a class="artifact" href="./News%20Headlines.html">
+    <span>Narrative Experiment</span>
+    <h2>News Headlines</h2>
+    <p>Same facts. Different frames. Watch reality bend without breaking.</p>
+    <span class="arrow">&rarr;</span>
+  </a>
 
-0%{
-
-transform:
-translateY(0px)
-rotate(-1deg);
-
-}
-
-25%{
-
-transform:
-translateY(-8px)
-rotate(.5deg);
-
-}
-
-50%{
-
-transform:
-translateY(-15px)
-rotate(1deg);
-
-}
-
-75%{
-
-transform:
-translateY(-7px)
-rotate(-.5deg);
-
-}
-
-100%{
-
-transform:
-translateY(0px)
-rotate(-1deg);
-
-}
-
-}
-
-
-
-@keyframes glowPulse{
-
-0%{
-
-filter:
-drop-shadow(0 0 35px rgba(109,213,250,.20));
-
-}
-
-50%{
-
-filter:
-drop-shadow(0 0 70px rgba(109,213,250,.34));
-
-}
-
-100%{
-
-filter:
-drop-shadow(0 0 35px rgba(109,213,250,.20));
-
-}
-
-}
-
-
-
-@keyframes orbFloat{
-
-0%{
-
-transform:
-translateX(-50%)
-translateY(0px);
-
-}
-
-50%{
-
-transform:
-translateX(-50%)
-translateY(22px);
-
-}
-
-100%{
-
-transform:
-translateX(-50%)
-translateY(0px);
-
-}
-
-}
-
-
-
-@keyframes haloPulse{
-
-0%{
-
-opacity:.45;
-
-transform:
-translateX(-50%)
-scale(1);
-
-}
-
-50%{
-
-opacity:.9;
-
-transform:
-translateX(-50%)
-scale(1.15);
-
-}
-
-100%{
-
-opacity:.45;
-
-transform:
-translateX(-50%)
-scale(1);
-
-}
-
-}
-    </style>
-</head>
+  <a class="artifact" href="./Success%20Probability.html">
+    <span>Flawed Model</span>
+    <h2>Success Probability</h2>
+    <p>Effort, luck, burnout, noise — simplified until the simplification itself becomes the lesson.</p>
+    <span class="arrow">&rarr;</span>
+  </a>
+</main>
 
 <footer>
-    Zygote is a beginning, not a destination.
+  Zygote is a beginning, not a destination.
 </footer>
 
 </body>
-    
 </html>
