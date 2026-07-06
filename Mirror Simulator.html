@@ -1,75 +1,702 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Physics-Accurate Mirror Simulator</title>
-  <style>
-    body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f8f9fa; }
-    canvas { border: 2px solid #333; background-color: white; margin-top: 10px; cursor: crosshair; }
-    .controls { margin: 15px; padding: 10px; background: #ddd; border-radius: 8px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mirror Simulator — Zygote</title>
+
+<style>
+:root{
+  --bg:#040404;
+  --text:#F2F2F2;
+  --muted:#9EA3AE;
+  --line:rgba(255,255,255,.08);
+  --accent1:#6dd5fa; /* parallel ray / cyan */
+  --accent2:#c792ea; /* through-focus ray / violet */
+  --accent3:#91eac9; /* pole ray / mint */
+  --real:#ff9f5a;    /* real image */
+  --virtual:#6dd5fa; /* virtual image */
+  --obj:#7CFF9E;      /* object */
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+  font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(109,213,250,.14), transparent 32%),
+    radial-gradient(circle at 85% 15%, rgba(127,127,213,.16), transparent 30%),
+    radial-gradient(circle at 50% 95%, rgba(145,234,201,.10), transparent 40%),
+    linear-gradient(180deg, #0b0c12 0%, #050505 55%, #020202 100%);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:56px 18px 70px;
+}
+
+header{
+  text-align:center;
+  max-width:760px;
+  margin-bottom:34px;
+}
+
+header .eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-size:.7rem;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--accent1);
+  opacity:.85;
+  margin-bottom:18px;
+}
+
+header .eyebrow::before,
+header .eyebrow::after{
+  content:"";
+  width:24px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--accent1), transparent);
+}
+
+h1{
+  font-size:clamp(2.1rem,5vw,3rem);
+  font-weight:600;
+  letter-spacing:.02em;
+  background:linear-gradient(90deg,#ffffff,#d7e7ff,#ffffff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:14px;
+}
+
+header p{
+  color:var(--muted);
+  line-height:1.7;
+  font-size:.98rem;
+}
+
+.stage{
+  width:min(980px, 96vw);
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+
+.panel{
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  padding:22px 26px;
+}
+
+/* controls */
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px 26px;
+  align-items:flex-end;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:150px;
+}
+
+.field label{
+  font-size:.7rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+select, input[type="range"]{
+  accent-color:var(--accent1);
+}
+
+select{
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px 12px;
+  font-size:.92rem;
+  outline:none;
+}
+
+select:focus, input:focus-visible{
+  outline:2px solid var(--accent1);
+  outline-offset:2px;
+}
+
+.slider-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+input[type="range"]{
+  width:200px;
+}
+
+.value-chip{
+  font-variant-numeric:tabular-nums;
+  background:rgba(109,213,250,.12);
+  border:1px solid rgba(109,213,250,.3);
+  color:var(--accent1);
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:.85rem;
+  min-width:64px;
+  text-align:center;
+}
+
+/* canvas */
+.canvas-wrap{
+  display:flex;
+  justify-content:center;
+  overflow-x:auto;
+}
+
+canvas{
+  border-radius:16px;
+  display:block;
+  max-width:100%;
+}
+
+/* info + legend */
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
+  gap:14px;
+  margin-top:4px;
+}
+
+.stat{
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px 14px;
+}
+
+.stat .label{
+  font-size:.68rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.stat .val{
+  font-size:1.05rem;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+
+.tag{
+  display:inline-block;
+  margin-top:6px;
+  font-size:.72rem;
+  padding:2px 8px;
+  border-radius:999px;
+  font-weight:600;
+}
+
+.tag.real{ background:rgba(255,159,90,.15); color:var(--real); }
+.tag.virtual{ background:rgba(109,213,250,.15); color:var(--virtual); }
+
+.legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  margin-top:18px;
+  font-size:.82rem;
+  color:var(--muted);
+}
+
+.legend .swatch{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+.legend .dot{
+  width:14px; height:3px;
+  border-radius:2px;
+  display:inline-block;
+}
+
+.dashed-dot{
+  width:14px;height:0;border-top:3px dashed currentColor;display:inline-block;
+}
+
+.note{
+  margin-top:16px;
+  font-size:.85rem;
+  color:var(--muted);
+  line-height:1.6;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+}
+
+.note strong{ color:var(--text); }
+
+@media(max-width:640px){
+  .controls{ gap:14px 18px; }
+  input[type="range"]{ width:150px; }
+}
+</style>
 </head>
 <body>
-  <h2>Mirror Simulator (Spherical Optics)</h2>
-  <div class="controls">
-    <label>Mirror Type: </label>
-    <select id="mirrorType"><option value="concave">Concave</option><option value="convex">Convex</option></select>
-    <label>Object Distance (u): </label>
-    <input id="objectDistance" type="range" min="20" max="180" value="100" />
-    <span id="distVal">100</span>px
+
+<header>
+  <p class="eyebrow">Perception Probe · Optics</p>
+  <h1>Mirror Simulator</h1>
+  <p>
+    A ray-accurate model of spherical (concave, convex) and plane mirrors.
+    Every ray obeys the mirror equation <strong>1/v + 1/u = 1/f</strong> and the law
+    of reflection — nothing here is faked for looks.
+  </p>
+</header>
+
+<div class="stage">
+
+  <div class="panel controls">
+    <div class="field">
+      <label for="mirrorType">Mirror type</label>
+      <select id="mirrorType">
+        <option value="concave">Concave</option>
+        <option value="convex">Convex</option>
+        <option value="plane">Plane</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="objectPreset">Object position</label>
+      <select id="objectPreset">
+        <option value="custom">Custom</option>
+        <option value="infinity">At infinity</option>
+        <option value="beyondC">Beyond C</option>
+        <option value="atC">At C (2F)</option>
+        <option value="betweenCF">Between C and F</option>
+        <option value="atF">At F</option>
+        <option value="betweenFandP">Between F and pole</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="lightSource">Light source</label>
+      <select id="lightSource">
+        <option value="sun">☀️ Sunlight</option>
+        <option value="torch">🔦 Torch</option>
+        <option value="bulb">💡 Bulb</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="objectDistance">Object distance (cm)</label>
+      <div class="slider-row">
+        <input id="objectDistance" max="300" min="20" type="range" value="170" />
+        <span class="value-chip"><span id="distanceValue">170</span> cm</span>
+      </div>
+    </div>
   </div>
-  <canvas id="canvas" width="800" height="400"></canvas>
 
-  <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const f = 100; // Focal length
-    
-    function draw() {
-      const type = document.getElementById('mirrorType').value;
-      const u = parseInt(document.getElementById('objectDistance').value);
-      document.getElementById('distVal').innerText = u;
-      
-      ctx.clearRect(0, 0, 800, 400);
-      const axisY = 200;
-      const poleX = 400;
+  <div class="panel">
+    <div class="canvas-wrap">
+      <canvas id="mirrorCanvas" width="900" height="460"></canvas>
+    </div>
 
-      // Draw Axis
-      ctx.beginPath(); ctx.moveTo(0, axisY); ctx.lineTo(800, axisY); ctx.stroke();
+    <div class="legend">
+      <span class="swatch" style="color:var(--obj)"><span class="dot" style="background:currentColor"></span>Object</span>
+      <span class="swatch" style="color:var(--accent1)"><span class="dot" style="background:currentColor"></span>Ray 1 — parallel → focus</span>
+      <span class="swatch" style="color:var(--accent2)"><span class="dot" style="background:currentColor"></span>Ray 2 — focus → parallel</span>
+      <span class="swatch" style="color:var(--accent3)"><span class="dot" style="background:currentColor"></span>Ray 3 — through pole (equal angles)</span>
+      <span class="swatch" style="color:var(--real)"><span class="dot" style="background:currentColor"></span>Real image</span>
+      <span class="swatch" style="color:var(--virtual)"><span class="dashed-dot"></span>Virtual image (construction)</span>
+    </div>
 
-      // Mirror Logic
-      const isConcave = type === 'concave';
+    <div class="info-grid" id="infoGrid"></div>
+
+    <p class="note" id="lightNote"></p>
+  </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('mirrorCanvas');
+const ctx = canvas.getContext('2d');
+
+const mirrorTypeSelect = document.getElementById('mirrorType');
+const objectDistanceSlider = document.getElementById('objectDistance');
+const objectPreset = document.getElementById('objectPreset');
+const distanceValue = document.getElementById('distanceValue');
+const lightSourceSelect = document.getElementById('lightSource');
+const infoGrid = document.getElementById('infoGrid');
+const lightNote = document.getElementById('lightNote');
+
+// ---------- Physical / geometric constants (all in "px == cm" units) ----------
+const axisY = 230;
+const poleX = 580;
+const focalLength = 60;      // |f|, magnitude, in px
+const R = 2 * focalLength;   // radius of curvature magnitude
+const OBJ_H = 70;            // object arrow height
+const APERTURE = 90;         // half-height of mirror surface (must exceed OBJ_H)
+const EPS = 1e-3;
+
+const lightMeta = {
+  sun:   { icon:'☀️', label:'Sunlight', tint:'#fff3d6' },
+  torch: { icon:'🔦', label:'Torch',    tint:'#cdeaff' },
+  bulb:  { icon:'💡', label:'Bulb',     tint:'#ffe9b0' }
+};
+
+function toPx(offset, height){
+  return { x: poleX + offset, y: axisY - height };
+}
+
+// ---------- Optics ----------
+function computeOptics(mirrorType, d){
+  const u = -d; // object always in front -> negative per sign convention
+  let f = null;
+  if (mirrorType === 'concave') f = -focalLength;
+  else if (mirrorType === 'convex') f = focalLength;
+
+  if (mirrorType === 'plane'){
+    const v = -u;
+    return { u, f, v, m: 1, imgHeight: OBJ_H, real: false, infinite: false };
+  }
+
+  if (Math.abs(u - f) < EPS){
+    return { u, f, v: null, m: null, imgHeight: null, real: null, infinite: true };
+  }
+
+  const v = (f * u) / (u - f);
+  const m = -v / u;
+  const imgHeight = m * OBJ_H;
+  const real = v < 0;
+  return { u, f, v, m, imgHeight, real, infinite: false };
+}
+
+// ---------- Drawing helpers ----------
+function clear(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const g = ctx.createRadialGradient(poleX, axisY, 40, poleX, axisY, 620);
+  g.addColorStop(0, '#0d1220');
+  g.addColorStop(1, '#04050a');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // faint grid
+  ctx.strokeStyle = 'rgba(255,255,255,.035)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < canvas.width; x += 40){
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += 40){
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+  }
+}
+
+function drawAxis(){
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,.35)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(30, axisY);
+  ctx.lineTo(canvas.width - 20, axisY);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawTick(offset, label, color){
+  const p = toPx(offset, 0);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y - 6);
+  ctx.lineTo(p.x, p.y + 6);
+  ctx.stroke();
+  ctx.font = '13px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, p.x, p.y + 22);
+  ctx.restore();
+}
+
+function drawMirror(mirrorType){
+  ctx.save();
+  ctx.lineWidth = 3.5;
+  ctx.strokeStyle = '#dff2ff';
+  ctx.shadowColor = 'rgba(109,213,250,.85)';
+  ctx.shadowBlur = 14;
+
+  if (mirrorType === 'plane'){
+    ctx.beginPath();
+    ctx.moveTo(poleX, axisY - APERTURE);
+    ctx.lineTo(poleX, axisY + APERTURE);
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(223,242,255,.35)';
+    ctx.lineWidth = 1;
+    for (let y = axisY - APERTURE; y <= axisY + APERTURE; y += 12){
       ctx.beginPath();
-      ctx.arc(isConcave ? poleX - f : poleX + f, axisY, f, 
-              isConcave ? -0.3 : 2.84, isConcave ? 0.3 : 3.44);
-      ctx.stroke();
-
-      // Math: 1/f = 1/v + 1/u => v = (f*u)/(u-f)
-      const u_val = -u; 
-      const f_val = isConcave ? -f : f;
-      const v = (f_val * u_val) / (u_val - f_val);
-      const m = -v / u_val;
-
-      // Draw Object (Height 50)
-      ctx.strokeStyle = 'green';
-      ctx.beginPath(); ctx.moveTo(poleX - u, axisY); ctx.lineTo(poleX - u, axisY - 50); ctx.stroke();
-
-      // Draw Image
-      ctx.strokeStyle = (v > 0) ? 'rgba(0,0,255,0.5)' : 'red';
-      ctx.setLineDash((v > 0) ? [5, 5] : []);
-      ctx.beginPath(); ctx.moveTo(poleX + v, axisY); ctx.lineTo(poleX + v, axisY - 50 * m); ctx.stroke();
-      ctx.setLineDash([]);
-      
-      // Draw Rays (Simplified Parallel and Focal)
-      ctx.strokeStyle = 'orange';
-      ctx.beginPath();
-      ctx.moveTo(poleX - u, axisY - 50); ctx.lineTo(poleX, axisY - 50); // Parallel
-      ctx.lineTo(poleX + v, axisY - 50 * m); // Reflected
+      ctx.moveTo(poleX, y);
+      ctx.lineTo(poleX + 10, y + 10);
       ctx.stroke();
     }
+  } else {
+    const theta = Math.asin(APERTURE / R);
+    ctx.beginPath();
+    if (mirrorType === 'concave'){
+      ctx.arc(poleX - R, axisY, R, -theta, theta, false);
+    } else {
+      ctx.arc(poleX + R, axisY, R, Math.PI - theta, Math.PI + theta, false);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
 
-    document.querySelectorAll('select, input').forEach(el => el.addEventListener('input', draw));
-    draw();
-  </script>
+  drawTick(0, 'P', '#F2F2F2');
+  if (mirrorType !== 'plane'){
+    const fOffset = mirrorType === 'concave' ? -focalLength : focalLength;
+    const cOffset = mirrorType === 'concave' ? -R : R;
+    drawTick(fOffset, 'F', '#91eac9');
+    drawTick(cOffset, 'C', '#c792ea');
+  }
+}
+
+function drawArrow(offset, height, color, dashed){
+  const base = toPx(offset, 0);
+  const tip = toPx(offset, height);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = dashed ? 4 : 8;
+  ctx.setLineDash(dashed ? [7, 6] : []);
+  ctx.beginPath();
+  ctx.moveTo(base.x, base.y);
+  ctx.lineTo(tip.x, tip.y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  const sign = height >= 0 ? 1 : -1;
+  ctx.beginPath();
+  ctx.moveTo(tip.x, tip.y);
+  ctx.lineTo(tip.x - 7, tip.y + sign * 12);
+  ctx.lineTo(tip.x + 7, tip.y + sign * 12);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawSegment(p1, p2, color, dashed){
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 6;
+  ctx.setLineDash(dashed ? [6, 5] : []);
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// Draws one principal ray: object -> mirror hit point -> (through / from image)
+// Correct regardless of real/virtual because hit point, image point are provably
+// collinear for these principal rays (verified via the mirror equation).
+function traceRay(hitHeight, optics, color){
+  const objP = toPx(optics.u, OBJ_H);
+  const hitP = toPx(0, hitHeight);
+  drawSegment(objP, hitP, color, false); // incident ray is always real light
+
+  const imgP = toPx(optics.v, optics.imgHeight);
+  const dir = { x: imgP.x - hitP.x, y: imgP.y - hitP.y };
+  const len = Math.hypot(dir.x, dir.y) || 1;
+  const ux = dir.x / len, uy = dir.y / len;
+
+  if (optics.real){
+    drawSegment(hitP, imgP, color, false);
+    const beyond = { x: imgP.x + ux * 26, y: imgP.y + uy * 26 };
+    drawSegment(imgP, beyond, color, false);
+  } else {
+    drawSegment(hitP, imgP, color, true); // imaginary backward construction
+    const visLen = 250;
+    const fwd = { x: hitP.x - ux * visLen, y: hitP.y - uy * visLen };
+    drawSegment(hitP, fwd, color, false); // real, physically diverging light
+  }
+}
+
+function drawInfinite(optics, mirrorType){
+  // Object sits exactly at the focal point: every outgoing ray leaves parallel
+  // to the principal axis, and the image forms at infinity.
+  const heights = [OBJ_H, OBJ_H * 0.5];
+  const colors = ['#6dd5fa', '#91eac9'];
+  heights.forEach((h, i) => {
+    const objP = toPx(optics.u, OBJ_H);
+    const hitP = toPx(0, h);
+    drawSegment(objP, hitP, colors[i], false);
+    const far = { x: hitP.x - 260, y: hitP.y };
+    drawSegment(hitP, far, colors[i], false);
+  });
+}
+
+function lightIcon(offset, height){
+  const p = toPx(offset, height + 18);
+  const meta = lightMeta[lightSourceSelect.value];
+  ctx.save();
+  ctx.font = '22px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(meta.icon, p.x, p.y);
+  ctx.restore();
+}
+
+function nature(optics, mirrorType){
+  if (mirrorType === 'plane') return 'Virtual · Erect · Same size';
+  if (optics.infinite) return 'Image at infinity';
+  const realTxt = optics.real ? 'Real' : 'Virtual';
+  const erectTxt = optics.m > 0 ? 'Erect' : 'Inverted';
+  const sizeTxt = Math.abs(optics.m) > 1.001 ? 'Magnified'
+                : Math.abs(optics.m) < 0.999 ? 'Diminished'
+                : 'Same size';
+  return `${realTxt} · ${erectTxt} · ${sizeTxt}`;
+}
+
+function updateInfoPanel(optics, mirrorType, d){
+  const uMag = d.toFixed(1);
+  const vTxt = optics.infinite ? '∞' : Math.abs(optics.v).toFixed(1);
+  const mTxt = optics.infinite ? '—' : optics.m.toFixed(2);
+  const tagClass = mirrorType === 'plane' ? 'virtual' : (optics.infinite ? 'virtual' : (optics.real ? 'real' : 'virtual'));
+
+  infoGrid.innerHTML = `
+    <div class="stat">
+      <div class="label">Object distance (u)</div>
+      <div class="val">${uMag} cm</div>
+    </div>
+    <div class="stat">
+      <div class="label">Focal length (f)</div>
+      <div class="val">${mirrorType === 'plane' ? '—' : focalLength + ' cm'}</div>
+    </div>
+    <div class="stat">
+      <div class="label">Image distance (v)</div>
+      <div class="val">${vTxt} cm</div>
+    </div>
+    <div class="stat">
+      <div class="label">Magnification (m)</div>
+      <div class="val">${mTxt}</div>
+      <span class="tag ${tagClass}">${nature(optics, mirrorType)}</span>
+    </div>
+  `;
+
+  const meta = lightMeta[lightSourceSelect.value];
+  lightNote.innerHTML = `<strong>Light source: ${meta.label}.</strong> The rays drawn above trace the same paths no matter which light source illuminates the object — sunlight, a torch, or a bulb all obey the identical law of reflection and the same mirror equation.`;
+}
+
+// ---------- Master draw ----------
+function drawSetup(mirrorType, objectDistance){
+  clear();
+  drawAxis();
+  drawMirror(mirrorType);
+
+  const optics = computeOptics(mirrorType, objectDistance);
+
+  // object
+  drawArrow(optics.u, OBJ_H, getComputedStyleColor('--obj'), false);
+  ctx.save();
+  ctx.fillStyle = '#cfead9';
+  ctx.font = '13px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Object', toPx(optics.u, OBJ_H).x, toPx(optics.u, OBJ_H).y - 24);
+  ctx.restore();
+  lightIcon(optics.u, OBJ_H);
+
+  if (mirrorType !== 'plane' && optics.infinite){
+    drawInfinite(optics, mirrorType);
+    ctx.save();
+    ctx.fillStyle = '#ffd9a0';
+    ctx.font = '15px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Object at focal point — reflected rays exit parallel; image forms at infinity.', 24, 30);
+    ctx.restore();
+    updateInfoPanel(optics, mirrorType, objectDistance);
+    return;
+  }
+
+  // three principal rays
+  traceRay(OBJ_H, optics, getComputedStyleColor('--accent1'));         // parallel -> focus
+  traceRay(mirrorType === 'plane' ? 0 : optics.imgHeight, optics, getComputedStyleColor('--accent2')); // focus -> parallel
+  traceRay(0, optics, getComputedStyleColor('--accent3'));              // through pole
+
+  // image
+  const imgColor = mirrorType === 'plane' ? getComputedStyleColor('--virtual')
+                  : (optics.real ? getComputedStyleColor('--real') : getComputedStyleColor('--virtual'));
+  drawArrow(optics.v, optics.imgHeight, imgColor, !optics.real);
+  ctx.save();
+  ctx.fillStyle = imgColor;
+  ctx.font = '13px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  const ip = toPx(optics.v, optics.imgHeight);
+  ctx.fillText('Image', ip.x, ip.y + (optics.imgHeight >= 0 ? -14 : 26));
+  ctx.restore();
+
+  updateInfoPanel(optics, mirrorType, objectDistance);
+}
+
+function getComputedStyleColor(varName){
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '#ffffff';
+}
+
+// ---------- Presets & interaction ----------
+const presetDistances = {
+  infinity: 300,
+  beyondC: 160,
+  atC: 120,
+  betweenCF: 90,
+  atF: 60,
+  betweenFandP: 30
+};
+
+function update(){
+  const mirrorType = mirrorTypeSelect.value;
+  const objectDistance = parseInt(objectDistanceSlider.value, 10);
+  distanceValue.textContent = objectDistance;
+  drawSetup(mirrorType, objectDistance);
+}
+
+objectDistanceSlider.addEventListener('input', () => {
+  objectPreset.value = 'custom';
+  update();
+});
+
+mirrorTypeSelect.addEventListener('change', () => {
+  objectPreset.value = 'custom';
+  update();
+});
+
+lightSourceSelect.addEventListener('change', update);
+
+objectPreset.addEventListener('change', () => {
+  if (objectPreset.value === 'custom') return;
+  const distance = presetDistances[objectPreset.value];
+  objectDistanceSlider.value = distance;
+  distanceValue.textContent = distance;
+  update();
+});
+
+update();
+</script>
 </body>
 </html>
