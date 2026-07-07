@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Park - A Civic Sense Adventure</title>
+<style>
+  :root {
+    --green-100: #dcfce7;
+    --green-200: #bbf7d0;
+    --green-300: #86efac;
+    --green-400: #4ade80;
+    --green-500: #22c55e;
+    --green-600: #16a34a;
+    --green-700: #15803d;
+    --blue-100: #dbeafe;
+    --blue-500: #3b82f6;
+    --blue-600: #2563eb;
+    --blue-700: #1d4ed8;
+    --orange-100: #ffedd5;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --amber-100: #fef3c7;
+    --amber-200: #fde68a;
+    --amber-300: #fcd34d;
+    --red-400: #f87171;
+    --red-500: #ef4444;
+    --red-600: #dc2626;
+    --pink-400: #f472b6;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  #root {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(to bottom, var(--amber-100), #fff7ed, var(--green-100));
+  }
+
+  .cloud {
+    position: absolute;
+    opacity: 0.65;
+  }
+  .cloud1 { top: 40px; left: 40px; font-size: 60px; opacity: 0.7; }
+  .cloud2 { top: 80px; right: 80px; font-size: 48px; opacity: 0.6; }
+  .cloud3 { top: 128px; left: 33%; font-size: 36px; opacity: 0.5; }
+
+  .screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  .hidden { display: none !important; }
+
+  .card {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    padding: 48px;
+    max-width: 640px;
+    width: 100%;
+    text-align: center;
+    border: 8px solid var(--orange-400);
+  }
+
+  .card.completed { border-color: var(--green-400); }
+
+  h1.title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0 0 16px 0;
+    background: linear-gradient(to right, var(--green-600), var(--orange-600));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+    color: var(--gray-700);
+    margin: 0 0 32px 0;
+  }
+
+  .emoji-big { font-size: 3rem; margin-bottom: 32px; }
+
+  .info-box {
+    background: linear-gradient(to right, var(--orange-100), var(--green-100));
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+  .info-box p {
+    font-size: 1.125rem;
+    color: var(--gray-800);
+    line-height: 1.8;
+    margin: 0;
+  }
+  .green-text { font-weight: 700; color: var(--green-600); }
+  .blue-text { font-weight: 700; color: var(--blue-600); }
+  .orange-text { color: var(--orange-600); }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn {
+    color: #fff;
+    padding: 16px 48px;
+    border-radius: 999px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.15s ease;
+  }
+  .btn:hover { transform: scale(1.05); }
+
+  .btn-green {
+    background: linear-gradient(to right, var(--green-500), var(--green-600));
+  }
+  .btn-green:hover {
+    background: linear-gradient(to right, var(--green-600), var(--green-700));
+  }
+  .btn-orange {
+    background: linear-gradient(to right, var(--orange-500), var(--orange-600));
+  }
+  .btn-orange:hover {
+    background: linear-gradient(to right, var(--orange-600), var(--orange-700));
+  }
+  .btn-red {
+    background: linear-gradient(to right, var(--red-500), var(--red-600));
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: 12px;
+  }
+
+  /* Game screen */
+  .game-wrap { padding: 24px; width: 100%; }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  }
+  .header-left { display: flex; align-items: center; gap: 24px; }
+
+  .pill {
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  }
+  .pill-score { background: linear-gradient(to right, var(--orange-400), var(--orange-500)); }
+  .pill-health {
+    background: linear-gradient(to right, var(--red-400), var(--pink-400));
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .exit-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    height: calc(100vh - 150px);
+  }
+
+  .character-panel {
+    grid-column: span 2;
+    background: linear-gradient(to bottom, var(--amber-200), var(--amber-300));
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--orange-300);
+  }
+  .character-face {
+    font-size: 6rem;
+    margin-bottom: 16px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .cough-text { font-size: 1.5rem; }
+  .cough-heavy { animation: bounce 1s infinite; }
+  .cough-moderate, .cough-light { animation: pulse 2s ease-in-out infinite; }
+  .status-box {
+    margin-top: 16px;
+    text-align: center;
+  }
+  .status-box .inner {
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  }
+  .status-box p {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--gray-700);
+    margin: 0;
+  }
+
+  .park-area {
+    grid-column: span 8;
+    background: linear-gradient(to bottom, var(--green-300), var(--green-200), var(--green-300));
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    position: relative;
+    overflow: hidden;
+    border: 4px solid var(--green-400);
+  }
+  .tree { position: absolute; bottom: 0; font-size: 60px; }
+  .tree-left { left: 20px; }
+  .tree-right { right: 20px; }
+  .flower { position: absolute; top: 20px; font-size: 48px; }
+  .flower-left { left: 25%; }
+  .flower-right { right: 25%; }
+
+  .waste-item {
+    position: absolute;
+    cursor: grab;
+    transition: transform 0.15s ease;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .waste-item:hover { transform: scale(1.1); }
+  .waste-item:active { cursor: grabbing; }
+  .waste-item.touch-dragging {
+    z-index: 999;
+    cursor: grabbing;
+    transition: none;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+  .waste-item .bubble {
+    background: #fff;
+    border-radius: 999px;
+    padding: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    border: 4px solid var(--gray-300);
+  }
+  .waste-item .bubble:hover { border-color: var(--orange-400); }
+  .waste-item .emoji { font-size: 2.25rem; line-height: 1; }
+
+  .instructions-box, .clean-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .instructions-box {
+    background: rgba(255,255,255,0.9);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  }
+  .instructions-box p:first-child {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin: 0 0 8px 0;
+  }
+  .instructions-box p:last-child {
+    font-size: 1.125rem;
+    color: #4b5563;
+    margin: 0;
+  }
+  .clean-box .sparkle { font-size: 6rem; margin-bottom: 16px; }
+  .clean-box p {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--green-700);
+    margin: 0;
+  }
+
+  .bins-panel {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .bin {
+    flex: 1;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    transition: transform 0.15s ease;
+  }
+  .bin:hover { transform: scale(1.05); }
+  .bin.drag-over { outline: 4px dashed #fff; outline-offset: -8px; }
+  .bin-wet {
+    background: linear-gradient(to bottom, var(--green-500), var(--green-600));
+    border: 4px solid var(--green-700);
+  }
+  .bin-dry {
+    background: linear-gradient(to bottom, var(--blue-500), var(--blue-600));
+    border: 4px solid var(--blue-700);
+  }
+  .bin-icon { font-size: 3.5rem; margin-bottom: 12px; }
+  .bin-emoji { font-size: 3.75rem; margin-bottom: 12px; }
+  .bin p:first-of-type { color: #fff; font-weight: 700; font-size: 1.125rem; text-align: center; margin: 0; }
+  .bin .sub { font-size: 0.875rem; text-align: center; margin-top: 8px; }
+  .bin-wet .sub { color: var(--green-100); }
+  .bin-dry .sub { color: var(--blue-100); }
+
+  /* Completion screen */
+  .celebrate { font-size: 8rem; margin-bottom: 24px; animation: bounce 1s infinite; }
+  h2.title2 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0 0 16px 0;
+    background: linear-gradient(to right, var(--green-600), var(--blue-600));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .completed-sub { font-size: 1.875rem; color: var(--gray-700); margin: 0 0 32px 0; }
+  .results-box {
+    background: linear-gradient(to right, var(--green-100), var(--blue-100));
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+  .results-box .emoji-row { font-size: 3.5rem; margin-bottom: 16px; }
+  .results-box .final-score { font-size: 1.875rem; font-weight: 700; color: var(--green-600); margin: 0 0 16px 0; }
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    text-align: left;
+  }
+  .results-grid .stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  }
+  .stat-card.correct p { color: var(--green-600); font-weight: 700; font-size: 1.125rem; margin: 0; }
+  .stat-card.wrong p { color: var(--red-600); font-weight: 700; font-size: 1.125rem; margin: 0; }
+  .button-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  svg.icon { width: 1.5em; height: 1.5em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-lg { width: 4rem; height: 4rem; color: #fff; margin-bottom: 12px; }
+  .icon-md { width: 2rem; height: 2rem; }
+  .icon-sm { width: 1.25rem; height: 1.25rem; }
+
+  @media (max-width: 900px) {
+    .game-grid { grid-template-columns: 1fr; height: auto; }
+    .character-panel, .park-area, .bins-panel { grid-column: span 1; }
+    .park-area { min-height: 400px; }
+    .bins-panel { flex-direction: row; }
+  }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="cloud cloud1">☁️</div>
+  <div class="cloud cloud2">☁️</div>
+  <div class="cloud cloud3">☁️</div>
+
+  <!-- Menu Screen -->
+  <div id="menu-screen" class="screen">
+    <div class="card">
+      <h1 class="title">Clean Park</h1>
+      <p class="subtitle">A Civic Sense Adventure</p>
+      <div class="emoji-big">🏞️🌿</div>
+      <div class="info-box">
+        <p>
+          Help clean the park by sorting waste correctly!<br>
+          <span class="green-text">🟢 Green Bin</span> for wet/organic waste<br>
+          <span class="blue-text">🔵 Blue Bin</span> for dry/recyclable waste<br>
+          <span class="orange-text">Help the person breathe again!</span>
+        </p>
+      </div>
+      <button class="btn btn-green" onclick="startGame()">
+        <svg class="icon icon-md" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Start Playing
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen" class="game-wrap hidden">
+    <div class="header">
+      <div class="header-left">
+        <div class="pill pill-score">Score: <span id="score-display">0</span></div>
+        <div class="pill pill-health">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg>
+          Health: <span id="health-display">0</span>%
+        </div>
+      </div>
+      <button class="btn btn-red exit-btn" onclick="exitToMenu()">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Exit
+      </button>
+    </div>
+
+    <div class="game-grid">
+      <!-- Character -->
+      <div class="character-panel">
+        <div class="character-face" id="character-face">🤢</div>
+        <div class="cough-text" id="cough-text"></div>
+        <div class="status-box">
+          <div class="inner">
+            <p id="status-text">😷 Help Me!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Park Area -->
+      <div class="park-area" id="park-area">
+        <div class="tree tree-left">🌳</div>
+        <div class="tree tree-right">🌳</div>
+        <div class="flower flower-left">🌸</div>
+        <div class="flower flower-right">🌺</div>
+
+        <div id="waste-container"></div>
+
+        <div id="instructions-box" class="instructions-box hidden">
+          <p>🎯 Drag &amp; Drop!</p>
+          <p>Sort the waste into correct bins</p>
+        </div>
+
+        <div id="clean-box" class="clean-box hidden">
+          <div class="sparkle">✨</div>
+          <p>Clean &amp; Green!</p>
+        </div>
+      </div>
+
+      <!-- Bins -->
+      <div class="bins-panel">
+        <div class="bin bin-wet" id="bin-wet">
+          <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
+          <div class="bin-emoji">🟢</div>
+          <p>WET WASTE</p>
+          <p class="sub">Organic</p>
+        </div>
+        <div class="bin bin-dry" id="bin-dry">
+          <svg class="icon icon-lg" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
+          <div class="bin-emoji">🔵</div>
+          <p>DRY WASTE</p>
+          <p class="sub">Recyclable</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completion Screen -->
+  <div id="completed-screen" class="screen hidden">
+    <div class="card completed">
+      <div class="celebrate">🎉</div>
+      <h2 class="title2">Park Cleaned!</h2>
+      <p class="completed-sub">The person can breathe again! 😊</p>
+      <div class="results-box">
+        <div class="emoji-row">😊🌿</div>
+        <p class="final-score">Final Score: <span id="final-score">0</span></p>
+        <div class="results-grid">
+          <div class="stat-card correct">
+            <p>✅ Correct: <span id="correct-count">0</span></p>
+          </div>
+          <div class="stat-card wrong">
+            <p>❌ Wrong: <span id="wrong-count">0</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-green" onclick="startGame()">
+          <svg class="icon icon-md" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          Play Again
+        </button>
+        <button class="btn btn-orange" onclick="exitToMenu()">
+          <svg class="icon icon-md" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          Main Menu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Game state ----
+  const initialItems = [
+    { id: 1, type: 'wet', name: 'Banana Peel', emoji: '🍌', left: '15%', top: '45%' },
+    { id: 2, type: 'dry', name: 'Plastic Bottle', emoji: '🍾', left: '35%', top: '60%' },
+    { id: 3, type: 'wet', name: 'Apple Core', emoji: '🍎', left: '55%', top: '50%' },
+    { id: 4, type: 'dry', name: 'Paper Cup', emoji: '🥤', left: '70%', top: '55%' },
+    { id: 5, type: 'wet', name: 'Orange Peel', emoji: '🍊', left: '25%', top: '70%' },
+    { id: 6, type: 'dry', name: 'Plastic Bag', emoji: '🛍️', left: '80%', top: '45%' },
+    { id: 7, type: 'wet', name: 'Vegetable Scraps', emoji: '🥬', left: '45%', top: '75%' },
+    { id: 8, type: 'dry', name: 'Soda Can', emoji: '🥫', left: '60%', top: '40%' },
+    { id: 9, type: 'wet', name: 'Tea Leaves', emoji: '🍵', left: '10%', top: '55%' },
+    { id: 10, type: 'dry', name: 'Cardboard', emoji: '📦', left: '85%', top: '65%' },
+  ];
+
+  let score = 0;
+  let health = 0;
+  let correctDrops = 0;
+  let wrongDrops = 0;
+  let items = [];
+  let draggedItem = null;
+  let hasStartedDragging = false;
+
+  const menuScreen = document.getElementById('menu-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const completedScreen = document.getElementById('completed-screen');
+
+  const scoreDisplay = document.getElementById('score-display');
+  const healthDisplay = document.getElementById('health-display');
+  const wasteContainer = document.getElementById('waste-container');
+  const instructionsBox = document.getElementById('instructions-box');
+  const cleanBox = document.getElementById('clean-box');
+  const characterFace = document.getElementById('character-face');
+  const coughText = document.getElementById('cough-text');
+  const statusText = document.getElementById('status-text');
+
+  function showScreen(name) {
+    menuScreen.classList.toggle('hidden', name !== 'menu');
+    gameScreen.classList.toggle('hidden', name !== 'playing');
+    completedScreen.classList.toggle('hidden', name !== 'completed');
+  }
+
+  function startGame() {
+    score = 0;
+    health = 0;
+    correctDrops = 0;
+    wrongDrops = 0;
+    hasStartedDragging = false;
+    items = initialItems.map(i => ({ ...i }));
+    showScreen('playing');
+    renderWasteItems();
+    updateHUD();
+  }
+
+  function exitToMenu() {
+    score = 0;
+    health = 0;
+    items = [];
+    correctDrops = 0;
+    wrongDrops = 0;
+    showScreen('menu');
+  }
+
+  function renderWasteItems() {
+    wasteContainer.innerHTML = '';
+    items.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'waste-item';
+      el.style.left = item.left;
+      el.style.top = item.top;
+      el.draggable = true;
+      el.dataset.id = item.id;
+      el.innerHTML = `<div class="bubble"><div class="emoji">${item.emoji}</div></div>`;
+      el.addEventListener('dragstart', () => handleDragStart(item));
+      attachTouchHandlers(el, item);
+      wasteContainer.appendChild(el);
+    });
+
+    if (items.length > 0 && !hasStartedDragging) {
+      instructionsBox.classList.remove('hidden');
+    } else {
+      instructionsBox.classList.add('hidden');
+    }
+
+    if (items.length === 0) {
+      cleanBox.classList.remove('hidden');
+    } else {
+      cleanBox.classList.add('hidden');
+    }
+  }
+
+  // Touch support (native HTML5 drag/drop doesn't work on touchscreens)
+  let touchDragEl = null;
+  let touchDragItem = null;
+
+  function attachTouchHandlers(el, item) {
+    el.addEventListener('touchstart', (e) => {
+      touchDragEl = el;
+      touchDragItem = item;
+      draggedItem = item;
+      hasStartedDragging = true;
+      instructionsBox.classList.add('hidden');
+      el.classList.add('touch-dragging');
+      e.preventDefault();
+    }, { passive: false });
+
+    el.addEventListener('touchmove', (e) => {
+      if (!touchDragEl) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const parkRect = document.getElementById('park-area').getBoundingClientRect();
+      const x = touch.clientX - parkRect.left;
+      const y = touch.clientY - parkRect.top;
+      touchDragEl.style.left = x + 'px';
+      touchDragEl.style.top = y + 'px';
+
+      [binWet, binDry].forEach(bin => {
+        const r = bin.getBoundingClientRect();
+        const over = touch.clientX >= r.left && touch.clientX <= r.right &&
+                     touch.clientY >= r.top && touch.clientY <= r.bottom;
+        bin.classList.toggle('drag-over', over);
+      });
+    }, { passive: false });
+
+    el.addEventListener('touchend', (e) => {
+      if (!touchDragEl) return;
+      const touch = e.changedTouches[0];
+      const wetRect = binWet.getBoundingClientRect();
+      const dryRect = binDry.getBoundingClientRect();
+
+      const inRect = (r) =>
+        touch.clientX >= r.left && touch.clientX <= r.right &&
+        touch.clientY >= r.top && touch.clientY <= r.bottom;
+
+      binWet.classList.remove('drag-over');
+      binDry.classList.remove('drag-over');
+
+      if (inRect(wetRect)) {
+        handleDrop('wet', binWet);
+      } else if (inRect(dryRect)) {
+        handleDrop('dry', binDry);
+      } else {
+        draggedItem = null;
+        renderWasteItems();
+      }
+      touchDragEl = null;
+      touchDragItem = null;
+    });
+  }
+
+  function handleDragStart(item) {
+    draggedItem = item;
+    hasStartedDragging = true;
+    instructionsBox.classList.add('hidden');
+  }
+
+  function handleDrop(binType, binEl) {
+    if (!draggedItem) return;
+
+    if (draggedItem.type === binType) {
+      items = items.filter(i => i.id !== draggedItem.id);
+      score += 10;
+      correctDrops += 1;
+    } else {
+      score = Math.max(0, score - 5);
+      wrongDrops += 1;
+    }
+    draggedItem = null;
+    binEl.classList.remove('drag-over');
+    renderWasteItems();
+    updateHealth();
+  }
+
+  function updateHealth() {
+    const totalItems = initialItems.length;
+    const collected = totalItems - items.length;
+    health = Math.floor((collected / totalItems) * 100);
+    updateHUD();
+
+    if (items.length === 0) {
+      setTimeout(() => {
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('correct-count').textContent = correctDrops;
+        document.getElementById('wrong-count').textContent = wrongDrops;
+        showScreen('completed');
+      }, 1000);
+    }
+  }
+
+  function updateHUD() {
+    scoreDisplay.textContent = score;
+    healthDisplay.textContent = health;
+
+    // Character expression
+    let face = '🤢';
+    if (health === 100) face = '😊';
+    else if (health > 70) face = '🙂';
+    else if (health > 40) face = '😐';
+    else if (health > 20) face = '😷';
+    characterFace.textContent = face;
+
+    // Cough intensity
+    let intensity = '';
+    if (health >= 100) intensity = '';
+    else if (health > 70) intensity = 'light';
+    else if (health > 40) intensity = 'moderate';
+    else intensity = 'heavy';
+
+    coughText.className = 'cough-text';
+    if (intensity === 'heavy') {
+      coughText.classList.add('cough-heavy');
+      coughText.textContent = '*Cough* *Cough*';
+    } else if (intensity === 'moderate') {
+      coughText.classList.add('cough-moderate');
+      coughText.textContent = '*Cough*';
+    } else if (intensity === 'light') {
+      coughText.classList.add('cough-light');
+      coughText.textContent = '*ahem*';
+    } else {
+      coughText.textContent = '';
+    }
+
+    // Status text
+    if (health === 100) statusText.textContent = '😊 Healthy!';
+    else if (health > 50) statusText.textContent = '😌 Getting Better';
+    else statusText.textContent = '😷 Help Me!';
+  }
+
+  // Bin drop targets
+  const binWet = document.getElementById('bin-wet');
+  const binDry = document.getElementById('bin-dry');
+
+  [binWet, binDry].forEach(bin => {
+    bin.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      bin.classList.add('drag-over');
+    });
+    bin.addEventListener('dragleave', () => {
+      bin.classList.remove('drag-over');
+    });
+  });
+
+  binWet.addEventListener('drop', (e) => {
+    e.preventDefault();
+    handleDrop('wet', binWet);
+  });
+  binDry.addEventListener('drop', (e) => {
+    e.preventDefault();
+    handleDrop('dry', binDry);
+  });
+
+  // Init
+  showScreen('menu');
+</script>
+</body>
+</html>
