@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Zygote — Reliving the Childhood</title>
+
+<style>
+  :root{
+    --walnut-dark:#241812;
+    --walnut:#3c2a1e;
+    --brass:#c69a4b;
+    --brass-bright:#e8c07d;
+    --cream:#efe6d4;
+    --clay:#a85c3c;
+    --felt:#2f5138;
+    --ok:#6fae7d;
+    --danger:#b5544a;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:var(--walnut-dark);
+    font-family:'Source Serif 4','Georgia',serif;
+    overscroll-behavior:none;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  #app{ position:fixed; inset:0; overflow:hidden; }
+
+  /* ============ START SCREEN ============ */
+  #start-screen{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(198,154,75,0.10), transparent 60%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.10) 0 2px, transparent 2px 34px),
+      linear-gradient(180deg, var(--walnut) 0%, var(--walnut-dark) 100%);
+    text-align:center;
+    padding:24px;
+    z-index:10;
+  }
+  .grain-overlay{
+    position:absolute; inset:0; pointer-events:none; opacity:0.05; mix-blend-mode:overlay;
+    background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+  #stack-signature{
+    display:flex; gap:8px; margin-bottom:28px; height:74px; align-items:flex-end;
+  }
+  .sig-block{
+    width:52px; height:16px; border-radius:2px;
+    background:linear-gradient(180deg, var(--brass-bright), var(--brass) 60%, #9a7638);
+    box-shadow:0 4px 10px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+    opacity:0; transform:translateY(-40px) rotate(-6deg);
+    animation: dropIn 0.6s cubic-bezier(.22,1.3,.4,1) forwards;
+  }
+  .sig-block:nth-child(1){animation-delay:.05s;}
+  .sig-block:nth-child(2){animation-delay:.20s;}
+  .sig-block:nth-child(3){animation-delay:.35s;}
+  .sig-block:nth-child(4){animation-delay:.50s; background:linear-gradient(180deg,#f0d9a8,var(--brass) 60%,#9a7638);}
+  .sig-block:nth-child(5){animation-delay:.65s;}
+  @keyframes dropIn{
+    to{ opacity:1; transform:translateY(0) rotate(0deg); }
+  }
+  #title-block{
+    font-family:'Playfair Display','Georgia',serif;
+    font-weight:900;
+    font-size:clamp(52px,11vw,118px);
+    letter-spacing:0.02em;
+    color:var(--brass-bright);
+    text-shadow: 0 1px 0 #6b4f28, 0 2px 0 #55401f, 0 10px 24px rgba(0,0,0,0.55);
+    margin:0;
+    line-height:0.95;
+  }
+  #tagline{
+    font-family:'Source Serif 4', Georgia, serif;
+    font-style:italic;
+    color:var(--cream);
+    opacity:0.82;
+    font-size:clamp(15px,2.4vw,20px);
+    letter-spacing:0.04em;
+    margin:10px 0 42px 0;
+  }
+  #play-btn{
+    font-family:'Source Serif 4',Georgia,serif;
+    font-size:19px;
+    letter-spacing:0.06em;
+    padding:16px 46px;
+    color:var(--walnut-dark);
+    background:linear-gradient(180deg, var(--brass-bright), var(--brass) 65%, #9a7638);
+    border:none; border-radius:6px;
+    cursor:pointer;
+    box-shadow:0 6px 0 #7a5b2c, 0 10px 20px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  #play-btn:hover{ transform:translateY(-2px); }
+  #play-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #7a5b2c, 0 4px 10px rgba(0,0,0,0.4); }
+  #sub-hint{
+    margin-top:22px; color:var(--cream); opacity:0.45; font-size:12px; letter-spacing:0.05em;
+  }
+
+  /* ============ GAME SCREEN ============ */
+  #game-screen{ position:absolute; inset:0; display:none; }
+  #canvas-holder{ position:absolute; inset:0; }
+  canvas{ display:block; width:100%; height:100%; touch-action:none; }
+
+  .hud-btn{
+    font-family:'Source Serif 4',Georgia,serif;
+    background:rgba(36,24,18,0.82);
+    color:var(--cream);
+    border:1px solid rgba(198,154,75,0.35);
+    border-radius:8px;
+    padding:9px 14px;
+    font-size:14px;
+    cursor:pointer;
+    backdrop-filter:blur(4px);
+    display:flex; align-items:center; gap:6px;
+    transition:background .15s ease, transform .1s ease, opacity .15s ease;
+    white-space:nowrap;
+  }
+  .hud-btn:hover:not(:disabled){ background:rgba(60,42,30,0.92); }
+  .hud-btn:active:not(:disabled){ transform:scale(0.96); }
+  .hud-btn:disabled{ opacity:0.32; cursor:default; }
+
+  #top-left{
+    position:absolute; top:16px; left:16px; z-index:5;
+    display:flex; gap:8px;
+  }
+  #top-right{
+    position:absolute; top:16px; right:16px; z-index:5;
+    display:flex; flex-direction:column; align-items:flex-end; gap:8px;
+  }
+  #mode-toggle-wrap, #difficulty-toggle-wrap{
+    display:flex; align-items:center; gap:8px;
+    background:rgba(36,24,18,0.82); border:1px solid rgba(198,154,75,0.35);
+    border-radius:24px; padding:6px 8px;
+    backdrop-filter:blur(4px);
+  }
+  .mode-label{ font-size:12px; letter-spacing:0.04em; color:var(--cream); opacity:0.7; padding:0 4px;}
+  .mode-label.active{ opacity:1; color:var(--brass-bright); }
+  #mode-switch, #difficulty-switch{
+    position:relative; width:50px; height:26px; border-radius:14px;
+    background:var(--felt); cursor:pointer; border:1px solid rgba(0,0,0,0.3);
+  }
+  #mode-knob, #difficulty-knob{
+    position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
+    background:linear-gradient(180deg,var(--brass-bright),var(--brass));
+    transition:left .18s ease;
+    box-shadow:0 2px 4px rgba(0,0,0,0.4);
+  }
+  #mode-switch.physics #mode-knob{ left:26px; }
+  #difficulty-switch.hard #difficulty-knob{ left:26px; }
+
+  #bottom-bar{
+    position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+    z-index:5; display:flex; align-items:center; gap:10px;
+    background:rgba(36,24,18,0.82); border:1px solid rgba(198,154,75,0.35);
+    border-radius:14px; padding:10px 14px; backdrop-filter:blur(4px);
+    flex-wrap:wrap; justify-content:center; max-width:94vw;
+  }
+  #counter{ font-size:14px; color:var(--brass-bright); min-width:76px; text-align:center; }
+  .divider{ width:1px; height:26px; background:rgba(198,154,75,0.3); }
+  .icon-btn{ font-size:18px; padding:8px 14px; }
+  #height-controls{ display:flex; align-items:center; gap:4px; }
+  #height-controls .hud-btn{ padding:8px 12px; font-size:15px; }
+  #height-readout{ font-size:11.5px; color:var(--cream); opacity:0.7; min-width:54px; text-align:center; }
+
+  #capture-flash{
+    position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:20;
+  }
+  #toast{
+    position:absolute; bottom:100px; left:50%; transform:translateX(-50%);
+    background:rgba(36,24,18,0.92); color:var(--brass-bright); padding:10px 18px;
+    border-radius:8px; font-size:13px; border:1px solid rgba(198,154,75,0.35);
+    opacity:0; transition:opacity .3s ease; pointer-events:none; z-index:6; white-space:nowrap;
+  }
+  #toast.show{ opacity:1; }
+
+  #instructions{
+    position:absolute; left:16px; bottom:18px; z-index:5;
+    max-width:230px; font-size:11.5px; line-height:1.5; color:var(--cream);
+    opacity:0.55; letter-spacing:0.01em; display:none;
+  }
+  @media (min-width:760px){ #instructions{ display:block; } }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ START SCREEN ============ -->
+  <div id="start-screen">
+    <div class="grain-overlay"></div>
+    <div id="stack-signature">
+      <div class="sig-block" style="width:70px;"></div>
+      <div class="sig-block" style="width:70px;"></div>
+      <div class="sig-block" style="width:70px;"></div>
+      <div class="sig-block" style="width:70px;"></div>
+      <div class="sig-block" style="width:70px;"></div>
+    </div>
+    <h1 id="title-block">ZYGOTE</h1>
+    <p id="tagline">Reliving the childhood</p>
+    <button id="play-btn">Play the Game</button>
+    <div id="sub-hint">A wooden block stacking simulation — physics included, optional</div>
+  </div>
+
+  <!-- ============ GAME SCREEN ============ -->
+  <div id="game-screen">
+    <div id="canvas-holder"></div>
+
+    <div id="top-left">
+      <button class="hud-btn" id="close-session-btn" title="Leave the session">✕ Close Session</button>
+    </div>
+
+    <div id="top-right">
+      <div id="mode-toggle-wrap">
+        <span class="mode-label active" id="label-utopia">Utopia</span>
+        <div id="mode-switch"><div id="mode-knob"></div></div>
+        <span class="mode-label" id="label-physics">Physics</span>
+      </div>
+      <div id="difficulty-toggle-wrap">
+        <span class="mode-label" id="label-easy">Easy</span>
+        <div id="difficulty-switch" class="hard"><div id="difficulty-knob"></div></div>
+        <span class="mode-label active" id="label-hard">Hard</span>
+      </div>
+    </div>
+
+    <div id="instructions">
+      Drag blocks with your finger or cursor — they hover just above wherever you point, so you can see them move without reaching for the sky. Scroll (or use ⬆/⬇) to raise a held block before letting go — the higher you drop from in Physics mode, the harder the impact. Rotate the camera by dragging empty space. In Physics mode, poor balance topples the stack — Undo brings it back.
+    </div>
+
+    <div id="bottom-bar">
+      <button class="hud-btn icon-btn" id="minus-btn" title="Remove a block">−</button>
+      <span id="counter">0 / 99</span>
+      <button class="hud-btn icon-btn" id="plus-btn" title="Add a block">+</button>
+      <div class="divider"></div>
+      <button class="hud-btn" id="rotate-btn" title="Rotate held block">⟳ Rotate</button>
+      <div id="height-controls" title="Adjust drop height while holding a block">
+        <button class="hud-btn" id="lower-btn">⬇</button>
+        <span id="height-readout">low</span>
+        <button class="hud-btn" id="higher-btn">⬆</button>
+      </div>
+      <div class="divider"></div>
+      <button class="hud-btn" id="undo-btn" title="Undo">↺ Undo</button>
+      <button class="hud-btn" id="redo-btn" title="Redo">↻ Redo</button>
+      <div class="divider"></div>
+      <button class="hud-btn" id="photo-btn" title="Download a picture of your structure">📷 Click Picture</button>
+    </div>
+
+    <div id="toast"></div>
+    <div id="capture-flash"></div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  // ====================================================================
+  // CONFIGURATION — change this to your own GitHub Pages URL if needed.
+  // ====================================================================
+  const CLOSE_SESSION_URL = "https://forwardbuilder.github.io/zygote/";
+
+  // Real-world block dimensions in centimetres (used as our physics units,
+  // alongside grams for mass and seconds for time — a consistent
+  // gram-centimetre-second system, so gravity below is ~981 cm/s^2).
+  const BLOCK_LENGTH = 7.5;   // cm
+  const BLOCK_HEIGHT = 1.5;   // cm  (stacking / thickness axis, world Y)
+  const BLOCK_WIDTH  = 2.5;   // cm
+  const BLOCK_MASS   = 18;    // grams
+  const MAX_BLOCKS   = 99;
+  const GRAVITY       = -981; // cm/s^2
+
+  const HALF_H = BLOCK_HEIGHT / 2;
+
+  // ====================================================================
+  // GLOBAL STATE
+  // ====================================================================
+  let scene, camera, renderer, controls, world;
+  let groundMesh, groundBody;
+  let raycaster, mouse;
+  let blocks = [];            // {id, mesh, body}
+  let blockIdCounter = 0;
+  let mode = "utopia";        // "utopia" | "physics"
+  let difficulty = "hard";    // "easy" | "hard"
+  let history = [];           // undo stack of snapshots
+  let future = [];            // redo stack
+  let dragging = null;        // currently dragged block object
+  let lastSurfaceHit = null;  // {x,y,z} most recent surface point under the cursor while dragging
+  let currentHoverOffset = 8; // cm above the surface a held block hovers at by default
+  let shadowGroup, shadowMesh;
+  let contactMaterial, blockBlockContact, blockPhysMaterial, groundPhysMaterial;
+  let woodTexturePlain, woodTextureLabeled;
+  let clock;
+
+  const HOVER_MIN = 1.5;
+  const HOVER_MAX = 220;
+  const HOVER_WHEEL_SENSITIVITY = 0.12;
+  const HOVER_BUTTON_STEP = 12;
+
+  const DIFFICULTY_PRESETS = {
+    easy: { friction: 0.95, restitution: 0.0, linearDamping: 0.55, angularDamping: 0.7, snap: 2.5 },
+    hard: { friction: 0.5,  restitution: 0.05, linearDamping: 0.2, angularDamping: 0.3, snap: null }
+  };
+
+  // ====================================================================
+  // START SCREEN → GAME
+  // ====================================================================
+  document.getElementById("play-btn").addEventListener("click", function(){
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("game-screen").style.display = "block";
+    if (!scene) initGame();
+  });
+
+  document.getElementById("close-session-btn").addEventListener("click", function(){
+    window.location.href = CLOSE_SESSION_URL;
+  });
+
+  // ====================================================================
+  // INITIALISATION
+  // ====================================================================
+  function initGame(){
+    clock = new THREE.Clock();
+
+    // ---------- Three.js scene ----------
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1b2620);
+    scene.fog = new THREE.Fog(0x1b2620, 260, 700);
+
+    camera = new THREE.PerspectiveCamera(48, window.innerWidth/window.innerHeight, 0.5, 3000);
+    camera.position.set(120, 110, 150);
+
+    renderer = new THREE.WebGLRenderer({ antialias:true, preserveDrawingBuffer:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.getElementById("canvas-holder").appendChild(renderer.domElement);
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 15, 0);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 40;
+    controls.maxDistance = 420;
+    controls.maxPolarAngle = Math.PI * 0.495;
+    controls.update();
+
+    // ---------- Lighting ----------
+    const ambient = new THREE.AmbientLight(0xfff2de, 0.55);
+    scene.add(ambient);
+    const sun = new THREE.DirectionalLight(0xfff0d8, 0.95);
+    sun.position.set(120, 220, 90);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.left = -160; sun.shadow.camera.right = 160;
+    sun.shadow.camera.top = 160; sun.shadow.camera.bottom = -160;
+    sun.shadow.camera.near = 10; sun.shadow.camera.far = 500;
+    sun.shadow.bias = -0.0015;
+    scene.add(sun);
+    const fill = new THREE.DirectionalLight(0x8fb2ff, 0.2);
+    fill.position.set(-100, 80, -120);
+    scene.add(fill);
+
+    // ---------- Ground ----------
+    const groundGeo = new THREE.PlaneGeometry(400, 400);
+    const groundMat = new THREE.MeshStandardMaterial({ color:0x2f5138, roughness:0.95, metalness:0.0 });
+    groundMesh = new THREE.Mesh(groundGeo, groundMat);
+    groundMesh.rotation.x = -Math.PI/2;
+    groundMesh.receiveShadow = true;
+    scene.add(groundMesh);
+
+    // subtle grid to help depth perception
+    const grid = new THREE.GridHelper(400, 80, 0x000000, 0x000000);
+    grid.material.opacity = 0.06;
+    grid.material.transparent = true;
+    scene.add(grid);
+
+    // ---------- Physics world ----------
+    world = new CANNON.World();
+    world.gravity.set(0, GRAVITY, 0);
+    world.broadphase = new CANNON.SAPBroadphase(world);
+    world.solver.iterations = 14;
+    world.allowSleep = true;
+
+    groundPhysMaterial = new CANNON.Material("groundMat");
+    blockPhysMaterial = new CANNON.Material("blockMat");
+    const preset = DIFFICULTY_PRESETS[difficulty];
+    contactMaterial = new CANNON.ContactMaterial(groundPhysMaterial, blockPhysMaterial, {
+      friction: preset.friction, restitution: preset.restitution
+    });
+    world.addContactMaterial(contactMaterial);
+    blockBlockContact = new CANNON.ContactMaterial(blockPhysMaterial, blockPhysMaterial, {
+      friction: preset.friction, restitution: preset.restitution
+    });
+    world.addContactMaterial(blockBlockContact);
+
+    groundBody = new CANNON.Body({ mass:0, shape: new CANNON.Plane(), material: groundPhysMaterial });
+    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
+    world.addBody(groundBody);
+
+    // ---------- Textures ----------
+    woodTexturePlain   = makeWoodTexture(false);
+    woodTextureLabeled = makeWoodTexture(true);
+
+    // ---------- Drop-preview shadow ----------
+    shadowMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(BLOCK_LENGTH, BLOCK_WIDTH),
+      new THREE.MeshBasicMaterial({ color:0x000000, transparent:true, opacity:0.32, depthWrite:false })
+    );
+    shadowMesh.rotation.x = -Math.PI/2;
+    shadowGroup = new THREE.Object3D();
+    shadowGroup.add(shadowMesh);
+    shadowGroup.visible = false;
+    scene.add(shadowGroup);
+
+    // ---------- Raycasting helpers ----------
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+
+    // ---------- Pointer events (mouse + touch, unified) ----------
+    const dom = renderer.domElement;
+    dom.addEventListener("pointerdown", onPointerDown);
+    dom.addEventListener("pointermove", onPointerMove);
+    dom.addEventListener("pointerup", onPointerUp);
+    dom.addEventListener("pointercancel", onPointerUp);
+    dom.addEventListener("wheel", onWheel, { passive:false });
+    window.addEventListener("resize", onResize);
+    window.addEventListener("keydown", function(e){
+      if (e.key === "r" || e.key === "R") rotateHeldBlock();
+    });
+
+    // ---------- UI ----------
+    document.getElementById("plus-btn").addEventListener("click", addBlock);
+    document.getElementById("minus-btn").addEventListener("click", removeBlock);
+    document.getElementById("undo-btn").addEventListener("click", undo);
+    document.getElementById("redo-btn").addEventListener("click", redo);
+    document.getElementById("photo-btn").addEventListener("click", clickPicture);
+    document.getElementById("rotate-btn").addEventListener("click", rotateHeldBlock);
+    document.getElementById("mode-switch").addEventListener("click", toggleMode);
+    document.getElementById("difficulty-switch").addEventListener("click", toggleDifficulty);
+    document.getElementById("higher-btn").addEventListener("click", function(){ adjustHoverOffset(HOVER_BUTTON_STEP); });
+    document.getElementById("lower-btn").addEventListener("click", function(){ adjustHoverOffset(-HOVER_BUTTON_STEP); });
+
+    updateCounter();
+    updateUndoRedoButtons();
+    animate();
+  }
+
+  function onResize(){
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  // ====================================================================
+  // WOOD TEXTURE (canvas-generated, includes "ZYGOTE" branding)
+  // ====================================================================
+  function makeWoodTexture(withLabel){
+    const canvas = document.createElement("canvas");
+    canvas.width = 512; canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+
+    const base = ctx.createLinearGradient(0,0,0,256);
+    base.addColorStop(0, "#d9a765");
+    base.addColorStop(0.5, "#c8935a");
+    base.addColorStop(1, "#b87f4a");
+    ctx.fillStyle = base;
+    ctx.fillRect(0,0,512,256);
+
+    // grain lines
+    ctx.strokeStyle = "rgba(90,55,25,0.18)";
+    for (let i=0;i<26;i++){
+      ctx.lineWidth = 1 + Math.random()*1.5;
+      ctx.beginPath();
+      const y = Math.random()*256;
+      ctx.moveTo(0, y);
+      let cx = 0;
+      while(cx < 512){
+        cx += 40 + Math.random()*40;
+        ctx.lineTo(cx, y + (Math.random()*10-5));
+      }
+      ctx.stroke();
+    }
+    // subtle knots
+    for (let i=0;i<3;i++){
+      const kx = Math.random()*512, ky = Math.random()*256;
+      const grad = ctx.createRadialGradient(kx,ky,1,kx,ky,14);
+      grad.addColorStop(0, "rgba(80,45,20,0.35)");
+      grad.addColorStop(1, "rgba(80,45,20,0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(kx,ky,14,0,Math.PI*2); ctx.fill();
+    }
+
+    if (withLabel){
+      ctx.save();
+      ctx.translate(256,128);
+      ctx.fillStyle = "rgba(60,35,15,0.55)";
+      ctx.font = "900 54px Georgia, serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.letterSpacing = "6px";
+      ctx.fillText("ZYGOTE", 1, 3);
+      ctx.fillStyle = "rgba(255,235,205,0.75)";
+      ctx.fillText("ZYGOTE", 0, 0);
+      ctx.restore();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.anisotropy = 4;
+    return tex;
+  }
+
+  function buildBlockMaterials(){
+    const hue = 0.08 + Math.random()*0.015;
+    const light = 0.5 + (Math.random()*0.08-0.04);
+    const tint = new THREE.Color().setHSL(hue, 0.45, light);
+
+    const plainMat = new THREE.MeshStandardMaterial({ map: woodTexturePlain, color: tint, roughness:0.85, metalness:0.02 });
+    const labeledMat = new THREE.MeshStandardMaterial({ map: woodTextureLabeled, color: tint, roughness:0.85, metalness:0.02 });
+
+    // Box face order: +X, -X, +Y, -Y, +Z, -Z
+    return [
+      plainMat,          // +X (end)
+      plainMat.clone(),  // -X (end)
+      labeledMat,        // +Y (top)
+      plainMat.clone(),  // -Y (bottom)
+      labeledMat.clone(),// +Z (side)
+      labeledMat.clone() // -Z (side)
+    ];
+  }
+
+  // ====================================================================
+  // BLOCK CREATION / REMOVAL
+  // ====================================================================
+  function spawnPositionFor(index){
+    const col = index % 6;
+    const row = Math.floor(index / 6);
+    return {
+      x: -150 + col * 10,
+      z: -150 + row * 10,
+      y: HALF_H + 0.05
+    };
+  }
+
+  function createBlockObject(id, pos, quatArr, isDynamicOverride){
+    const geometry = new THREE.BoxGeometry(BLOCK_LENGTH, BLOCK_HEIGHT, BLOCK_WIDTH);
+    const materials = buildBlockMaterials();
+    const mesh = new THREE.Mesh(geometry, materials);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    scene.add(mesh);
+
+    const shape = new CANNON.Box(new CANNON.Vec3(BLOCK_LENGTH/2, BLOCK_HEIGHT/2, BLOCK_WIDTH/2));
+    const isDynamic = (typeof isDynamicOverride === "boolean") ? isDynamicOverride : (mode === "physics");
+    const preset = DIFFICULTY_PRESETS[difficulty];
+    const body = new CANNON.Body({
+      mass: isDynamic ? BLOCK_MASS : 0,
+      shape: shape,
+      material: blockPhysMaterial,
+      linearDamping: preset.linearDamping,
+      angularDamping: preset.angularDamping
+    });
+    body.type = isDynamic ? CANNON.Body.DYNAMIC : CANNON.Body.KINEMATIC;
+    body.position.set(pos.x, pos.y, pos.z);
+    if (quatArr){
+      body.quaternion.set(quatArr[0], quatArr[1], quatArr[2], quatArr[3]);
+    }
+    world.addBody(body);
+
+    return { id, mesh, body };
+  }
+
+  function addBlock(){
+    if (blocks.length >= MAX_BLOCKS){
+      showToast("Maximum of 99 blocks reached");
+      return;
+    }
+    pushHistory();
+    const pos = spawnPositionFor(blocks.length);
+    const block = createBlockObject(blockIdCounter++, pos, null, false); // spawns frozen/kinematic in a tray, regardless of mode
+    blocks.push(block);
+    updateCounter();
+  }
+
+  function removeBlock(){
+    if (blocks.length === 0) return;
+    pushHistory();
+    const block = blocks.pop();
+    scene.remove(block.mesh);
+    block.mesh.geometry.dispose();
+    world.removeBody(block.body);
+    if (dragging && dragging.id === block.id) dragging = null;
+    updateCounter();
+  }
+
+  function updateCounter(){
+    document.getElementById("counter").textContent = blocks.length + " / " + MAX_BLOCKS;
+    document.getElementById("plus-btn").disabled = blocks.length >= MAX_BLOCKS;
+    document.getElementById("minus-btn").disabled = blocks.length === 0;
+  }
+
+  // ====================================================================
+  // MODE TOGGLE (Physics / Utopia)
+  // ====================================================================
+  function toggleMode(){
+    mode = (mode === "utopia") ? "physics" : "utopia";
+    const sw = document.getElementById("mode-switch");
+    sw.classList.toggle("physics", mode === "physics");
+    document.getElementById("label-physics").classList.toggle("active", mode === "physics");
+    document.getElementById("label-utopia").classList.toggle("active", mode === "utopia");
+
+    blocks.forEach(function(b){
+      if (dragging && dragging.id === b.id) return; // don't disturb an in-progress drag
+      if (mode === "physics"){
+        b.body.mass = BLOCK_MASS;
+        b.body.type = CANNON.Body.DYNAMIC;
+        b.body.updateMassProperties();
+      } else {
+        b.body.velocity.set(0,0,0);
+        b.body.angularVelocity.set(0,0,0);
+        b.body.mass = 0;
+        b.body.type = CANNON.Body.KINEMATIC;
+        b.body.updateMassProperties();
+      }
+      b.body.wakeUp();
+    });
+    showToast(mode === "physics" ? "Physics mode — gravity and balance now apply" : "Utopia mode — stack however you like");
+  }
+
+  // ====================================================================
+  // DIFFICULTY TOGGLE (Easy / Hard)
+  // ====================================================================
+  function toggleDifficulty(){
+    difficulty = (difficulty === "hard") ? "easy" : "hard";
+    const sw = document.getElementById("difficulty-switch");
+    sw.classList.toggle("hard", difficulty === "hard");
+    document.getElementById("label-hard").classList.toggle("active", difficulty === "hard");
+    document.getElementById("label-easy").classList.toggle("active", difficulty === "easy");
+
+    const preset = DIFFICULTY_PRESETS[difficulty];
+    contactMaterial.friction = preset.friction;
+    contactMaterial.restitution = preset.restitution;
+    blockBlockContact.friction = preset.friction;
+    blockBlockContact.restitution = preset.restitution;
+    blocks.forEach(function(b){
+      b.body.linearDamping = preset.linearDamping;
+      b.body.angularDamping = preset.angularDamping;
+    });
+    showToast(difficulty === "easy"
+      ? "Easy mode — friendlier physics, shadow shows your intended spot"
+      : "Hard mode — true physics, shadow shows exactly where you're holding it");
+  }
+
+  // ====================================================================
+  // DRAG & DROP (mouse + touch via Pointer Events)
+  // ====================================================================
+  function getPointerNDC(e){
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  }
+
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+  function snapToGrid(value, step){
+    return Math.round(value / step) * step;
+  }
+
+  // Casts a ray from the camera through the current mouse position onto
+  // everything EXCEPT the block being dragged (other blocks + the ground),
+  // so the picked-up block can track exactly what's under the cursor.
+  function raycastSurfaceUnderCursor(excludeId){
+    raycaster.setFromCamera(mouse, camera);
+    const meshes = blocks
+      .filter(function(b){ return b.id !== excludeId; })
+      .map(function(b){ return b.mesh; });
+    meshes.push(groundMesh);
+    const hits = raycaster.intersectObjects(meshes, false);
+    if (hits.length > 0){
+      return { x: hits[0].point.x, y: hits[0].point.y, z: hits[0].point.z };
+    }
+    return null;
+  }
+
+  function onPointerDown(e){
+    getPointerNDC(e);
+    raycaster.setFromCamera(mouse, camera);
+    const meshes = blocks.map(function(b){ return b.mesh; });
+    const hits = raycaster.intersectObjects(meshes, false);
+    if (hits.length === 0) return; // let OrbitControls handle camera rotation
+
+    pushHistory();
+
+    const hitMesh = hits[0].object;
+    const block = blocks.find(function(b){ return b.mesh === hitMesh; });
+    if (!block) return;
+
+    controls.enabled = false;
+    dragging = block;
+    lastSurfaceHit = null;
+
+    block.body.velocity.set(0,0,0);
+    block.body.angularVelocity.set(0,0,0);
+    block.body.type = CANNON.Body.KINEMATIC;
+    block.body.mass = 0;
+    block.body.updateMassProperties();
+
+    shadowGroup.visible = true;
+
+    const initialHit = raycastSurfaceUnderCursor(block.id);
+    if (initialHit){
+      lastSurfaceHit = initialHit;
+      block.body.position.set(initialHit.x, initialHit.y + HALF_H + currentHoverOffset, initialHit.z);
+      updateShadow();
+    }
+
+    renderer.domElement.setPointerCapture(e.pointerId);
+  }
+
+  function onPointerMove(e){
+    if (!dragging) return;
+    getPointerNDC(e);
+    const hit = raycastSurfaceUnderCursor(dragging.id);
+    if (!hit) return;
+    lastSurfaceHit = hit;
+
+    dragging.body.position.set(hit.x, hit.y + HALF_H + currentHoverOffset, hit.z);
+    dragging.body.velocity.set(0,0,0);
+
+    updateShadow();
+  }
+
+  function onPointerUp(e){
+    if (!dragging) return;
+    const dropped = dragging;
+    dragging = null;
+    controls.enabled = true;
+    shadowGroup.visible = false;
+
+    const preset = DIFFICULTY_PRESETS[difficulty];
+    if (preset.snap){
+      dropped.body.position.x = snapToGrid(dropped.body.position.x, preset.snap);
+      dropped.body.position.z = snapToGrid(dropped.body.position.z, preset.snap);
+    }
+
+    if (mode === "utopia"){
+      const restY = surfaceHeightBelow(dropped);
+      dropped.body.position.y = restY;
+      // stays kinematic — frozen in place, gravity-defying by design
+    } else {
+      dropped.body.mass = BLOCK_MASS;
+      dropped.body.type = CANNON.Body.DYNAMIC;
+      dropped.body.updateMassProperties();
+      dropped.body.wakeUp();
+      // left exactly at its current (possibly lofted) height, so it falls
+      // and hits with force proportional to how high it was dropped from
+    }
+  }
+
+  function onWheel(e){
+    if (!dragging) return;
+    e.preventDefault();
+    adjustHoverOffset(-e.deltaY * HOVER_WHEEL_SENSITIVITY);
+  }
+
+  function adjustHoverOffset(delta){
+    if (!dragging){ showToast("Pick up a block first to change its drop height"); return; }
+    currentHoverOffset = clamp(currentHoverOffset + delta, HOVER_MIN, HOVER_MAX);
+    document.getElementById("height-readout").textContent =
+      currentHoverOffset < 15 ? "low" : (currentHoverOffset < 60 ? "medium" : "high");
+    if (lastSurfaceHit){
+      dragging.body.position.y = lastSurfaceHit.y + HALF_H + currentHoverOffset;
+    }
+    updateShadow();
+  }
+
+  function updateShadow(){
+    if (!dragging || !lastSurfaceHit) return;
+    const preset = DIFFICULTY_PRESETS[difficulty];
+    let sx = dragging.body.position.x;
+    let sz = dragging.body.position.z;
+    if (preset.snap){
+      sx = snapToGrid(sx, preset.snap);
+      sz = snapToGrid(sz, preset.snap);
+    }
+    shadowGroup.position.set(sx, lastSurfaceHit.y + 0.06, sz);
+    const yaw = new THREE.Euler().setFromQuaternion(dragging.mesh.quaternion, "YXZ").y;
+    shadowGroup.rotation.y = yaw;
+  }
+
+  function surfaceHeightBelow(block){
+    const meshes = blocks
+      .filter(function(b){ return b.id !== block.id; })
+      .map(function(b){ return b.mesh; });
+    meshes.push(groundMesh);
+    const origin = new THREE.Vector3(block.body.position.x, 600, block.body.position.z);
+    raycaster.set(origin, new THREE.Vector3(0,-1,0));
+    const hits = raycaster.intersectObjects(meshes, false);
+    if (hits.length > 0){
+      return hits[0].point.y + HALF_H;
+    }
+    return HALF_H;
+  }
+
+  function rotateHeldBlock(){
+    if (!dragging) { showToast("Pick up a block to rotate it"); return; }
+    const q = new CANNON.Quaternion();
+    q.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI/2);
+    dragging.body.quaternion = dragging.body.quaternion.mult(q);
+  }
+
+  // ====================================================================
+  // UNDO / REDO
+  // ====================================================================
+  function snapshot(){
+    return {
+      mode: mode,
+      blocks: blocks.map(function(b){
+        return {
+          id: b.id,
+          pos: { x:b.body.position.x, y:b.body.position.y, z:b.body.position.z },
+          quat: [b.body.quaternion.x, b.body.quaternion.y, b.body.quaternion.z, b.body.quaternion.w]
+        };
+      })
+    };
+  }
+
+  function pushHistory(){
+    history.push(snapshot());
+    if (history.length > 60) history.shift();
+    future = [];
+    updateUndoRedoButtons();
+  }
+
+  function applySnapshot(snap){
+    // clear current blocks
+    blocks.forEach(function(b){
+      scene.remove(b.mesh);
+      b.mesh.geometry.dispose();
+      world.removeBody(b.body);
+    });
+    blocks = [];
+    dragging = null;
+    controls.enabled = true;
+
+    mode = snap.mode;
+    const sw = document.getElementById("mode-switch");
+    sw.classList.toggle("physics", mode === "physics");
+    document.getElementById("label-physics").classList.toggle("active", mode === "physics");
+    document.getElementById("label-utopia").classList.toggle("active", mode === "utopia");
+
+    snap.blocks.forEach(function(entry){
+      const isDynamic = (mode === "physics");
+      const block = createBlockObject(entry.id, entry.pos, entry.quat, isDynamic);
+      blocks.push(block);
+      blockIdCounter = Math.max(blockIdCounter, entry.id + 1);
+    });
+    updateCounter();
+  }
+
+  function undo(){
+    if (history.length === 0) return;
+    future.push(snapshot());
+    const snap = history.pop();
+    applySnapshot(snap);
+    updateUndoRedoButtons();
+  }
+
+  function redo(){
+    if (future.length === 0) return;
+    history.push(snapshot());
+    const snap = future.pop();
+    applySnapshot(snap);
+    updateUndoRedoButtons();
+  }
+
+  function updateUndoRedoButtons(){
+    document.getElementById("undo-btn").disabled = history.length === 0;
+    document.getElementById("redo-btn").disabled = future.length === 0;
+  }
+
+  // ====================================================================
+  // CLICK PICTURE — download a PNG of the current view
+  // ====================================================================
+  function clickPicture(){
+    renderer.render(scene, camera);
+    const dataURL = renderer.domElement.toDataURL("image/png");
+    const link = document.createElement("a");
+    const stamp = new Date().toISOString().replace(/[:.]/g,"-");
+    link.download = "zygote-structure-" + stamp + ".png";
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    const flash = document.getElementById("capture-flash");
+    flash.style.transition = "none";
+    flash.style.opacity = "0.85";
+    requestAnimationFrame(function(){
+      flash.style.transition = "opacity .4s ease";
+      flash.style.opacity = "0";
+    });
+    showToast("Picture saved — rotate the view and click again anytime");
+  }
+
+  // ====================================================================
+  // TOAST
+  // ====================================================================
+  let toastTimer = null;
+  function showToast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
+  }
+
+  // ====================================================================
+  // ANIMATION LOOP
+  // ====================================================================
+  function animate(){
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+
+    if (mode === "physics"){
+      world.step(1/60, dt, 5);
+    } else {
+      // still step lightly so any transitioning dynamic bodies settle,
+      // kinematic blocks are unaffected regardless.
+      world.step(1/60, dt, 3);
+    }
+
+    blocks.forEach(function(b){
+      b.mesh.position.copy(b.body.position);
+      b.mesh.quaternion.copy(b.body.quaternion);
+    });
+
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+})();
+</script>
+</body>
+</html>
