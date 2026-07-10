@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zygote</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
 :root{
   --bg:#040404;
@@ -16,6 +20,7 @@
   --accent1:#6dd5fa;
   --accent2:#7f7fd5;
   --accent3:#91eac9;
+  --term-green:#7CFFB2;
 }
 
 *{
@@ -204,11 +209,108 @@ header p{
   color:var(--muted);
 }
 
+/* ---------- VISIT COUNTER (TERMINAL WIDGET) ---------- */
+.visit-counter{
+  width:min(360px, 88vw);
+  margin:44px auto 0;
+  border-radius:14px;
+  border:1px solid rgba(124,255,178,.25);
+  background:linear-gradient(160deg, rgba(20,26,22,.55), rgba(6,10,8,.75));
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  box-shadow:0 0 0 1px rgba(124,255,178,.05), 0 20px 50px rgba(0,0,0,.45), 0 0 30px rgba(124,255,178,.06);
+  overflow:hidden;
+  opacity:0;
+  transform:translateY(14px);
+  animation:cardIn .7s ease forwards;
+  animation-delay:.15s;
+  text-align:left;
+}
+
+.vc-topbar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 14px;
+  background:rgba(255,255,255,.03);
+  border-bottom:1px solid rgba(124,255,178,.12);
+}
+
+.vc-dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  display:inline-block;
+  opacity:.8;
+}
+.vc-dot-red{ background:#ff5f56; }
+.vc-dot-yellow{ background:#ffbd2e; }
+.vc-dot-green{ background:#27c93f; }
+
+.vc-title{
+  margin-left:6px;
+  font-family:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size:.72rem;
+  letter-spacing:.04em;
+  color:var(--muted);
+  opacity:.75;
+}
+
+.vc-body{
+  padding:16px 18px 20px;
+  font-family:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.vc-prompt{
+  color:var(--term-green);
+  font-weight:700;
+}
+
+.vc-label{
+  color:var(--muted);
+  font-size:.82rem;
+}
+
+.vc-readout{
+  margin-top:12px;
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+}
+
+.vc-number{
+  font-size:2.1rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  color:var(--term-green);
+  text-shadow:0 0 12px rgba(124,255,178,.55), 0 0 30px rgba(124,255,178,.25);
+}
+
+.vc-cursor{
+  color:var(--term-green);
+  font-size:1.6rem;
+  animation:blinkCursor 1s steps(1) infinite;
+}
+
+.vc-sub{
+  margin-top:6px;
+  font-size:.7rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--muted);
+  opacity:.65;
+}
+
+@keyframes blinkCursor{
+  0%, 49%{ opacity:1; }
+  50%, 100%{ opacity:0; }
+}
+
 /* divider */
 .divider{
   width:180px;
   height:2px;
-  margin:10px auto 70px;
+  margin:70px auto 70px;
   background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
   filter:blur(.2px);
   position:relative;
@@ -361,6 +463,9 @@ footer{
   .artifact .arrow{
     display:none;
   }
+  .vc-number{
+    font-size:1.8rem;
+  }
 }
 
 @keyframes floatLogo{
@@ -423,6 +528,25 @@ footer{
     A collection of thought experiments disguised as simulations.<br>
     Not finished. Not optimized. Not 'the best'. It's a 'thing'.
   </p>
+
+  <!-- LIVE VISIT COUNTER -->
+  <div class="visit-counter" id="visitCounter">
+    <div class="vc-topbar">
+      <span class="vc-dot vc-dot-red"></span>
+      <span class="vc-dot vc-dot-yellow"></span>
+      <span class="vc-dot vc-dot-green"></span>
+      <span class="vc-title">visitor_log.sh</span>
+    </div>
+    <div class="vc-body">
+      <span class="vc-prompt">$</span> <span class="vc-label">./count --visitors</span>
+      <div class="vc-readout">
+        <span class="vc-number" id="visitNumber">------</span>
+        <span class="vc-cursor">▌</span>
+      </div>
+      <div class="vc-sub">Number of Visits</div>
+    </div>
+  </div>
+
 </header>
 
 <div class="divider"></div>
@@ -481,6 +605,70 @@ footer{
 <footer>
   Zygote is a beginning, not a destination.
 </footer>
+
+<script>
+(function () {
+  // ---------------------------------------------------------------
+  // LIVE VISIT COUNTER
+  // Uses a free, keyless counting API (community revival of the old
+  // countapi.xyz) since GitHub Pages can't run server-side code.
+  // Docs: https://countapi.mileshilliard.com/
+  // NOTE: counters on this service are public-by-key, so the key below
+  // is made deliberately long/unique to avoid clashing with anyone else's.
+  // ---------------------------------------------------------------
+  var COUNTER_KEY = "forwardbuilder-github-io-zygote-site-visits-v1";
+  var BASE = "https://countapi.mileshilliard.com/api/v1";
+  var SESSION_FLAG = "zygote_visit_counted";
+
+  var el = document.getElementById("visitNumber");
+  if (!el) return;
+
+  function pad(n) {
+    return String(n).padStart(6, "0");
+  }
+
+  function animateTo(target) {
+    var startTime = null;
+    var duration = 1100;
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var p = Math.min((ts - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = pad(Math.floor(eased * target));
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = pad(target);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function showFallback() {
+    el.textContent = "------";
+  }
+
+  var alreadyCountedThisSession = sessionStorage.getItem(SESSION_FLAG);
+  // First load in this browser tab/session -> increment ("hit").
+  // Any reload within the same session -> just fetch current value,
+  // so refreshing the page doesn't inflate your own count.
+  var endpoint = alreadyCountedThisSession
+    ? BASE + "/get/" + COUNTER_KEY
+    : BASE + "/hit/" + COUNTER_KEY;
+
+  fetch(endpoint)
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var val = parseInt(data && data.value, 10);
+      if (!isNaN(val)) {
+        animateTo(val);
+        sessionStorage.setItem(SESSION_FLAG, "1");
+      } else {
+        showFallback();
+      }
+    })
+    .catch(function () {
+      showFallback();
+    });
+})();
+</script>
 
 </body>
 </html>
