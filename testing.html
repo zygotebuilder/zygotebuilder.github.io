@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Stellar Cartography · Zygote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#030308;
+    --void-2:#07070f;
+    --panel-bg:rgba(7,9,18,0.86);
+    --panel-border:rgba(87,230,255,0.28);
+    --cyan:#57e6ff;
+    --cyan-dim:#2c8ea8;
+    --violet:#8b7cff;
+    --amber:#ffb454;
+    --star-white:#f3f1ea;
+    --text-dim:#7b8299;
+    --text-dimmer:#4c5266;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:var(--void);
+    overflow:hidden;
+    font-family:'JetBrains Mono', monospace;
+    color:var(--star-white);
+  }
+
+  #galaxy-canvas{
+    position:fixed; inset:0;
+    display:block;
+    touch-action:none;
+    cursor:grab;
+  }
+  #galaxy-canvas.dragging{ cursor:grabbing; }
+  #galaxy-canvas.hoverable{ cursor:pointer; }
+
+  /* ---------- Loader ---------- */
+  #loader{
+    position:fixed; inset:0; z-index:100;
+    background:var(--void);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:18px;
+    transition:opacity .8s ease, visibility .8s ease;
+  }
+  #loader.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  .loader-glyph{
+    width:46px; height:46px; border-radius:50%;
+    border:1px solid rgba(87,230,255,0.25);
+    border-top-color:var(--cyan);
+    animation:spin 1.1s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .loader-text{
+    font-size:11px; letter-spacing:.28em; text-transform:uppercase;
+    color:var(--text-dim);
+  }
+  .loader-text b{ color:var(--cyan); font-weight:500; }
+
+  /* ---------- HUD ---------- */
+  #hud-top{
+    position:fixed; top:0; left:0; right:0; z-index:20;
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:22px 24px;
+    pointer-events:none;
+  }
+  .hud-title{ pointer-events:auto; }
+  .hud-title .eyebrow{
+    font-size:10px; letter-spacing:.3em; text-transform:uppercase;
+    color:var(--cyan-dim); margin-bottom:6px; display:block;
+  }
+  .hud-title h1{
+    margin:0; font-size:15px; font-weight:600; letter-spacing:.04em;
+    color:var(--star-white);
+  }
+  .hud-title p{
+    margin:6px 0 0; font-size:10.5px; color:var(--text-dim);
+    letter-spacing:.02em; max-width:340px; line-height:1.5;
+  }
+
+  #close-session{
+    pointer-events:auto;
+    background:rgba(10,12,22,0.55);
+    border:1px solid rgba(255,255,255,0.14);
+    color:var(--star-white);
+    font-family:inherit; font-size:10px; font-weight:600;
+    letter-spacing:.18em; text-transform:uppercase;
+    padding:11px 16px;
+    border-radius:3px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    transition:border-color .25s ease, background .25s ease, color .25s ease;
+    backdrop-filter:blur(6px);
+  }
+  #close-session:hover{
+    border-color:rgba(255,120,120,0.55);
+    background:rgba(60,10,10,0.35);
+    color:#ffb3b3;
+  }
+  #close-session .x{ font-size:12px; }
+
+  /* ---------- Bottom-left stats ---------- */
+  #hud-bottom{
+    position:fixed; left:24px; bottom:22px; z-index:20;
+    font-size:10px; letter-spacing:.14em; color:var(--text-dimmer);
+    pointer-events:none;
+    line-height:1.8;
+    text-transform:uppercase;
+  }
+  #hud-bottom span{ color:var(--cyan-dim); }
+
+  #hud-hint{
+    position:fixed; right:24px; bottom:22px; z-index:20;
+    font-size:10px; letter-spacing:.12em; color:var(--text-dimmer);
+    text-transform:uppercase; text-align:right; line-height:1.8;
+    pointer-events:none;
+  }
+
+  /* ---------- Search ---------- */
+  #search-wrap{
+    position:fixed; top:88px; left:24px; z-index:20;
+    width:245px;
+  }
+  #search-input{
+    width:100%;
+    background:rgba(8,10,20,0.6);
+    border:1px solid rgba(255,255,255,0.12);
+    color:var(--star-white);
+    font-family:inherit; font-size:11px; letter-spacing:.05em;
+    padding:10px 12px;
+    border-radius:3px;
+    outline:none;
+    backdrop-filter:blur(6px);
+    transition:border-color .2s ease;
+  }
+  #search-input::placeholder{ color:var(--text-dimmer); }
+  #search-input:focus{ border-color:var(--panel-border); }
+  #search-results{
+    margin-top:6px;
+    max-height:260px;
+    overflow-y:auto;
+    display:none;
+  }
+  #search-results.show{ display:block; }
+  .search-item{
+    background:rgba(8,10,20,0.72);
+    border:1px solid rgba(255,255,255,0.08);
+    border-top:none;
+    padding:9px 12px;
+    font-size:10.5px;
+    cursor:pointer;
+    display:flex; justify-content:space-between; align-items:center;
+    backdrop-filter:blur(6px);
+  }
+  .search-item:first-child{ border-top:1px solid rgba(255,255,255,0.08); border-radius:3px 3px 0 0; }
+  .search-item:last-child{ border-radius:0 0 3px 3px; }
+  .search-item:hover{ background:rgba(87,230,255,0.08); color:var(--cyan); }
+  .search-item .cls{ color:var(--text-dimmer); font-size:9.5px; }
+
+  /* ---------- Info panel ---------- */
+  #info-panel{
+    position:fixed; z-index:30;
+    right:24px; top:50%; transform:translate(24px,-50%) scale(.97);
+    width:320px;
+    max-height:78vh;
+    overflow-y:auto;
+    background:var(--panel-bg);
+    border:1px solid var(--panel-border);
+    border-radius:6px;
+    padding:22px 22px 20px;
+    backdrop-filter:blur(14px);
+    box-shadow:0 0 60px rgba(87,230,255,0.06), 0 20px 50px rgba(0,0,0,0.5);
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1), visibility .5s;
+  }
+  #info-panel.show{
+    opacity:1; visibility:visible; pointer-events:auto;
+    transform:translate(0,-50%) scale(1);
+  }
+  #info-panel::-webkit-scrollbar{ width:4px; }
+  #info-panel::-webkit-scrollbar-thumb{ background:rgba(87,230,255,0.2); border-radius:4px; }
+
+  .panel-class-badge{
+    display:inline-block;
+    font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--void);
+    background:var(--amber);
+    padding:4px 8px; border-radius:2px;
+    margin-bottom:12px;
+    font-weight:700;
+  }
+  #panel-name{
+    font-size:19px; font-weight:700; letter-spacing:.01em;
+    margin:0 0 4px;
+    color:var(--star-white);
+    line-height:1.25;
+  }
+  #panel-sub{
+    font-size:10.5px; color:var(--cyan-dim);
+    letter-spacing:.08em; text-transform:uppercase;
+    margin:0 0 16px;
+  }
+  .stat-grid{
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:12px 14px;
+    margin-bottom:16px;
+    padding-bottom:16px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .stat b{
+    display:block; font-size:13px; color:var(--star-white); font-weight:600;
+  }
+  .stat span{
+    display:block; font-size:9px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--text-dimmer); margin-top:3px;
+  }
+  #panel-desc{
+    font-size:11.5px; line-height:1.75; color:#c3c8d6;
+    margin:0 0 18px;
+    letter-spacing:.01em;
+  }
+  .panel-btn-row{
+    display:flex; gap:8px;
+  }
+  .panel-action-btn{
+    flex:1;
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.18);
+    color:var(--text-dim);
+    font-family:inherit; font-size:9.5px; font-weight:600;
+    letter-spacing:.14em; text-transform:uppercase;
+    padding:11px 8px; border-radius:3px; cursor:pointer;
+    transition:all .25s ease;
+    text-align:center;
+  }
+  .panel-action-btn:hover{
+    border-color:var(--cyan); color:var(--cyan);
+    background:rgba(87,230,255,0.06);
+  }
+
+  @media (max-width: 720px){
+    .hud-title p{ display:none; }
+    #search-wrap{ width:calc(100% - 48px); top:84px; }
+    #hud-hint{ display:none; }
+    #info-panel{
+      right:0; left:0; top:auto; bottom:0;
+      width:100%; max-width:100%; max-height:56vh;
+      transform:translateY(100%);
+      border-radius:14px 14px 0 0;
+      border-bottom:none;
+    }
+    #info-panel.show{ transform:translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+  <div id="loader">
+    <div class="loader-glyph"></div>
+    <div class="loader-text">Initializing <b>stellar cartography</b>…</div>
+  </div>
+
+  <canvas id="galaxy-canvas"></canvas>
+
+  <div id="hud-top">
+    <div class="hud-title">
+      <span class="eyebrow">Zygote · Field Log 004</span>
+      <h1>Intergalactic Cartography</h1>
+      <p id="hud-instruction">Cluster View: Tap a galaxy node or zoom in to inspect stellar contents.</p>
+    </div>
+    <button id="close-session"><span class="x">✕</span> Close Session</button>
+  </div>
+
+  <div id="search-wrap">
+    <input id="search-input" type="text" placeholder="Search galaxies, stars, black holes…" autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+
+  <div id="hud-bottom">
+    <div><span id="stat-field">0</span> cluster nodes rendered</div>
+    <div><span id="stat-systems">0</span> active systems · tap to inspect</div>
+  </div>
+
+  <div id="hud-hint">Drag — orbit<br>Scroll / pinch — zoom<br>Tap item — inspect</div>
+
+  <aside id="info-panel">
+    <div class="panel-class-badge" id="panel-badge">G-TYPE</div>
+    <h2 id="panel-name">—</h2>
+    <p id="panel-sub">—</p>
+    <div class="stat-grid" id="panel-stats">
+      <!-- Dynamic stats grid -->
+    </div>
+    <p id="panel-desc">—</p>
+    <div class="panel-btn-row">
+      <button class="panel-action-btn" id="panel-back-star">◄ Back to Star Field</button>
+      <button class="panel-action-btn" id="panel-return">Return to Cluster</button>
+    </div>
+  </aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+
+  // ============================================================
+  // CONFIG — HOMEPAGE_URL
+  // ============================================================
+  const HOMEPAGE_URL = "https://forwardbuilder.github.io/zygote/";
+
+  document.getElementById('close-session').addEventListener('click', function(){
+    window.location.href = HOMEPAGE_URL;
+  });
+
+  // ============================================================
+  // RNG helpers
+  // ============================================================
+  function rand(min, max){ return min + Math.random() * (max - min); }
+  function gaussian(mean, stdev){
+    let u = 1 - Math.random(), v = Math.random();
+    let z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    return z * stdev + mean;
+  }
+  function weightedPick(items, weights){
+    const total = weights.reduce((a,b)=>a+b,0);
+    let r = Math.random() * total;
+    for(let i=0;i<items.length;i++){
+      r -= weights[i];
+      if(r <= 0) return items[i];
+    }
+    return items[items.length-1];
+  }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  // ============================================================
+  // MULTI-GALAXY CLUSTER SETUP (Expanded & Unique Morphologies)
+  // ============================================================
+  const GALAXY_DATA_CONFIG = [
+    {
+      name: "Milky Way Galaxy",
+      sub: "Our Home Barred Spiral",
+      type: "Barred Spiral (SBbc)",
+      distanceLy: "0 ly (Local)",
+      massSolar: "1.5 × 10¹² M☉",
+      diameterLy: "105,000 ly",
+      desc: "Our home galaxy, anchoring the local cosmic neighborhood with dense spiral arms, rich stellar nurseries, and Sagittarius A* at its gravitational heart.",
+      pos: new THREE.Vector3(0, 0, 0),
+      arms: 4, radius: 480, heightScale: 0.6,
+      bhName: "Sagittarius A*",
+      bhMass: "4.3 Million M☉",
+      bhDesc: "A supermassive black hole anchoring the Milky Way, surrounded by hot accretion gas and orbiting high-velocity S-cluster stars.",
+      isMilkyWay: true, isAndromeda: false
+    },
+    {
+      name: "Andromeda Galaxy (M31)",
+      sub: "Nearest Major Galactic Neighbor",
+      type: "Spiral Galaxy (SA(s)b)",
+      distanceLy: "2.5 million ly",
+      massSolar: "1.2 × 10¹² M☉",
+      diameterLy: "220,000 ly",
+      desc: "The largest galaxy in the Local Group, featuring multiple distinct dust rings and a massive double-lobed nucleus currently on a collision course with us.",
+      pos: new THREE.Vector3(1300, 320, -1900),
+      arms: 2, radius: 620, heightScale: 0.8,
+      bhName: "Alkaln-M31 Core",
+      bhMass: "1.0 × 10⁸ M☉",
+      bhDesc: "An immense supermassive black hole embedded within a dense stellar disk that whips surrounding stars into relativistic velocities.",
+      isMilkyWay: false, isAndromeda: true
+    },
+    {
+      name: "Sombrero Galaxy (M104)",
+      sub: "Starburst Disc & Prominent Dust Lane",
+      type: "Unbarred Spiral (SA(s)k)",
+      distanceLy: "29.3 million ly",
+      massSolar: "8.0 × 10¹¹ M☉",
+      diameterLy: "50,000 ly",
+      desc: "Distinguished by an unusually large, blazing central stellar bulge wrapped inside a sharply silhouetted dark ring of cosmic dust.",
+      pos: new THREE.Vector3(-1700, -450, 1500),
+      arms: 2, radius: 380, heightScale: 0.35,
+      bhName: "Sombrero Prime BH",
+      bhMass: "1.0 × 10⁹ M☉",
+      bhDesc: "A gargantuan central engine powering intense infrared radiation and driving high-velocity gas outflows across the galactic plane.",
+      isMilkyWay: false, isAndromeda: false
+    },
+    {
+      name: "Triangulum Galaxy (M33)",
+      sub: "Gas-Rich Starburst Spiral",
+      type: "Spiral Galaxy (SA(s)cd)",
+      distanceLy: "2.73 million ly",
+      massSolar: "5.0 × 10¹⁰ M☉",
+      diameterLy: "60,000 ly",
+      desc: "A loose, open-armed spiral packed with colossal H II emission nebulae, most notably NGC 604, where thousands of massive stars ignite simultaneously.",
+      pos: new THREE.Vector3(1500, -550, 1300),
+      arms: 3, radius: 420, heightScale: 0.7,
+      bhName: "M33 X-8 Singularity",
+      bhMass: "1.5 × 10⁴ M☉",
+      bhDesc: "An intermediate-mass black hole pulling in streams of molecular gas, creating intense localized X-ray outbursts.",
+      isMilkyWay: false, isAndromeda: false
+    },
+    {
+      name: "Whirlpool Galaxy (M51)",
+      sub: "Grand-Design Interacting Spiral",
+      type: "Grand-Design Spiral (SA(s)bc)",
+      distanceLy: "23 million ly",
+      massSolar: "1.6 × 10¹¹ M☉",
+      diameterLy: "76,000 ly",
+      desc: "Famed for its majestic, well-defined spiral arms compressed by gravitational tidal forces from its companion galaxy NGC 5195.",
+      pos: new THREE.Vector3(-1400, 650, -1600),
+      arms: 2, radius: 520, heightScale: 0.5,
+      bhName: "M51 Central Singularity",
+      bhMass: "1.0 × 10⁷ M☉",
+      bhDesc: "A shrouded supermassive black hole emitting synchronized jets of synchrotron radiation across the spiral arms.",
+      isMilkyWay: false, isAndromeda: false
+    },
+    {
+      name: "Large Magellanic Cloud (LMC)",
+      sub: "Magellanic Irregular Satellite",
+      type: "Magellanic Spiral (SB(s)m)",
+      distanceLy: "163,000 ly",
+      massSolar: "1.0 × 10¹⁰ M☉",
+      diameterLy: "14,000 ly",
+      desc: "A luminous satellite galaxy of the Milky Way housing the Tarantula Nebula—the most violent starburst region in our cosmic vicinity.",
+      pos: new THREE.Vector3(450, -380, 650),
+      arms: 1, radius: 280, heightScale: 1.1,
+      bhName: "LMC X-1 Stellar BH",
+      bhMass: "62 M☉",
+      bhDesc: "A heavy stellar-mass black hole locked in orbit with an O-type blue giant, stripping matter into a blistering accretion disk.",
+      isMilkyWay: false, isAndromeda: false
+    },
+    {
+      name: "Centaurus A (NGC 5128)",
+      sub: "Peculiar Active Radio Galaxy",
+      type: "Elliptical / Lenticular (S0)",
+      distanceLy: "12 million ly",
+      massSolar: "1.0 × 10¹² M☉",
+      diameterLy: "90,000 ly",
+      desc: "A massive elliptical galaxy sliced down the middle by a thick lane of dust and gas, indicating an ancient galactic merger.",
+      pos: new THREE.Vector3(-800, 900, 1800),
+      arms: 0, radius: 460, heightScale: 1.4,
+      bhName: "Cen A Core Engine",
+      bhMass: "5.5 × 10⁷ M☉",
+      bhDesc: "An active galactic nucleus shooting out multi-kiloparsec relativistic jets of plasma that glow brilliantly across radio wavelengths.",
+      isMilkyWay: false, isAndromeda: false
+    },
+    {
+      name: "NGC 1300",
+      sub: "Classic Barred Spiral Blueprint",
+      type: "Barred Spiral (SB(s)bc)",
+      distanceLy: "61 million ly",
+      massSolar: "9.0 × 10¹¹ M☉",
+      diameterLy: "110,000 ly",
+      desc: "Widely regarded as the archetype of barred spiral galaxies, featuring a striking central straight bar that funnels gas directly into its core.",
+      pos: new THREE.Vector3(1900, 800, -600),
+      arms: 2, radius: 550, heightScale: 0.4,
+      bhName: "NGC 1300 Central Void",
+      bhMass: "7.0 × 10⁷ M☉",
+      bhDesc: "A quiescent supermassive black hole resting at the intersection of twin luminous bars.",
+      isMilkyWay: false, isAndromeda: false
+    }
+  ];
+
+  // ============================================================
+  // Renderer / scene / camera
+  // ============================================================
+  const canvas = document.getElementById('galaxy-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x030308, 1);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x030308, 0.00035);
+
+  const camera = new THREE.PerspectiveCamera(52, window.innerWidth/window.innerHeight, 0.1, 8000);
+
+  window.addEventListener('resize', function(){
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // ============================================================
+  // Galaxy Node Sprites (Cluster View)
+  // ============================================================
+  function radialTexture(inner, outer, alpha){
+    const size = 256;
+    const cvs = document.createElement('canvas');
+    cvs.width = cvs.height = size;
+    const ctx = cvs.getContext('2d');
+    const g = ctx.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
+    g.addColorStop(0, `rgba(${inner},${alpha})`);
+    g.addColorStop(0.4, `rgba(${outer},${alpha*0.5})`);
+    g.addColorStop(1, `rgba(${outer},0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,size,size);
+    return new THREE.CanvasTexture(cvs);
+  }
+
+  const galaxyTex = radialTexture('255,240,210', '100,180,255', 1);
+  const galaxyGroup = new THREE.Group();
+  scene.add(galaxyGroup);
+
+  const clusterNodes = [];
+
+  GALAXY_DATA_CONFIG.forEach(function(gcfg, idx){
+    const mat = new THREE.SpriteMaterial({
+      map: galaxyTex,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(180, 180, 1);
+    sprite.position.copy(gcfg.pos);
+    sprite.userData = { isGalaxyNode:true, galaxyIndex:idx, config:gcfg };
+    galaxyGroup.add(sprite);
+    clusterNodes.push(sprite);
+  });
+
+  document.getElementById('stat-field').textContent = clusterNodes.length;
+
+  // ============================================================
+  // Procedural Galaxy Generation (Unique per Galaxy)
+  // ============================================================
+  const TOTAL_FIELD = 14000;
+
+  function generateGalaxyPoints(gcfg){
+    const positions = new Float32Array(TOTAL_FIELD * 3);
+    const colors = new Float32Array(TOTAL_FIELD * 3);
+    const sizes = new Float32Array(TOTAL_FIELD);
+    const phases = new Float32Array(TOTAL_FIELD);
+
+    const arms = gcfg.arms;
+    const radius = gcfg.radius;
+    const heightScale = gcfg.heightScale;
+
+    for(let i = 0; i < TOTAL_FIELD; i++){
+      let r, theta, y, dust = false, isBulge = false;
+      const isElliptical = arms === 0;
+
+      if(isElliptical){
+        // Elliptical / Lenticular distribution (sphromaid / discoid)
+        const u = Math.random();
+        r = Math.pow(u, 0.6) * radius;
+        theta = Math.random() * Math.PI * 2;
+        const phi = (Math.random() - 0.5) * Math.PI;
+        positions[i*3]     = Math.cos(theta) * Math.cos(phi) * r;
+        positions[i*3 + 1] = Math.sin(phi) * r * heightScale * 0.7;
+        positions[i*3 + 2] = Math.sin(theta) * Math.cos(phi) * r;
+        isBulge = r < radius * 0.4;
+        dust = Math.random() < 0.04;
+      } else {
+        isBulge = Math.random() < 0.12;
+        if(isBulge){
+          r = Math.pow(Math.random(), 0.5) * radius * 0.15;
+          theta = Math.random() * Math.PI * 2;
+          y = gaussian(0, radius * 0.05 * heightScale) * (1 - r/(radius*0.15)*0.6);
+        } else {
+          r = Math.pow(Math.random(), 1.8) * radius + 12;
+          const armIdx = Math.floor(Math.random() * arms);
+          const armAngle = (armIdx / arms) * Math.PI * 2;
+          const spin = r * 0.014;
+          const scatter = gaussian(0, 0.38) * (1 - Math.min(r/radius, 1) * 0.35);
+          theta = armAngle + spin + scatter;
+          y = gaussian(0, 7 * heightScale) * (1 - Math.min(r/radius, 1) * 0.55);
+          dust = Math.random() < 0.08;
+        }
+        positions[i*3]     = Math.cos(theta) * r;
+        positions[i*3 + 1] = y;
+        positions[i*3 + 2] = Math.sin(theta) * r;
+      }
+
+      // Colors tailored per galaxy vibe
+      let c;
+      if(dust){
+        const shades = [[0.22,0.13,0.08],[0.18,0.1,0.07],[0.26,0.15,0.1]];
+        c = pick(shades);
+      } else if(isBulge || r < radius * 0.1){
+        const shades = [[1,0.88,0.65],[1,0.82,0.55],[1,0.92,0.75],[1,0.78,0.5]];
+        c = pick(shades);
+      } else {
+        const rnd = Math.random();
+        if(rnd < 0.52)  c = pick([[0.82,0.88,1],[0.92,0.95,1],[0.75,0.84,1]]);
+        else if(rnd < 0.78) c = pick([[1,0.95,0.85],[1,0.9,0.72]]);
+        else if(rnd < 0.94) c = pick([[1,0.78,0.55],[1,0.7,0.48]]);
+        else c = pick([[1,0.58,0.48],[1,0.48,0.42]]);
+      }
+
+      colors[i*3]     = c[0];
+      colors[i*3 + 1] = c[1];
+      colors[i*3 + 2] = c[2];
+
+      sizes[i]  = dust ? rand(0.7, 1.3) : (isBulge ? rand(1.6, 2.8) : rand(1.0, 2.4));
+      phases[i] = Math.random() * Math.PI * 2;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('aColor', new THREE.BufferAttribute(colors, 3));
+    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
+    return geo;
+  }
+
+  // Shader material for background star fields
+  const fieldMatTemplate = {
+    uniforms: {
+      uTime: { value: 0 },
+      uDim: { value: 1.0 }
+    },
+    vertexShader: `
+      attribute float aSize;
+      attribute float aPhase;
+      attribute vec3 aColor;
+      varying vec3 vColor;
+      varying float vTwinkle;
+      uniform float uTime;
+      void main(){
+        vColor = aColor;
+        vTwinkle = 0.7 + 0.3 * sin(uTime * 1.6 + aPhase);
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = aSize * (300.0 / -mvPosition.z) * vTwinkle;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vColor;
+      varying float vTwinkle;
+      uniform float uDim;
+      void main(){
+        vec2 c = gl_PointCoord - vec2(0.5);
+        float d = length(c);
+        if(d > 0.5) discard;
+        float alpha = smoothstep(0.5, 0.0, d) * vTwinkle * uDim;
+        gl_FragColor = vec4(vColor, alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  };
+
+  // ============================================================
+  // Star System Data Generation for Galaxies
+  // ============================================================
+  const REAL_STARS = [
+    { name:"Sirius", cls:"A1V", dist:8.6, temp:9940, radius:1.71, mass:2.06, lum:25.4,
+      desc:"The brightest star in Earth's night sky, a hot white main-sequence star locked in a binary dance with a faint white dwarf companion." },
+    { name:"Betelgeuse", cls:"M1-2Ia", dist:548, temp:3600, radius:764, mass:16.5, lum:126000,
+      desc:"A swollen red supergiant nearing the end of its life, so vast that if placed at the Sun's position it would engulf the orbit of Jupiter." },
+    { name:"Rigel", cls:"B8Ia", dist:860, temp:12100, radius:78.9, mass:21, lum:120000,
+      desc:"A brilliant blue supergiant anchoring the foot of Orion, burning through its fuel at a ferocious rate for a star of its youth." },
+    { name:"Vega", cls:"A0V", dist:25, temp:9600, radius:2.36, mass:2.14, lum:40.1,
+      desc:"A rapidly spinning star so fast it bulges at its equator, once used to define the zero point of the magnitude scale." },
+    { name:"Alpha Centauri A", cls:"G2V", dist:4.37, temp:5790, radius:1.22, mass:1.1, lum:1.52,
+      desc:"The nearest Sun-like star to Earth, part of a triple system that includes the small red dwarf Proxima, our closest stellar neighbour." },
+    { name:"Proxima Centauri", cls:"M5.5V", dist:4.24, temp:3042, radius:0.15, mass:0.12, lum:0.0017,
+      desc:"A dim red dwarf and the closest known star to the Sun, host to at least one rocky planet within its habitable zone." },
+    { name:"Arcturus", cls:"K1.5III", dist:36.7, temp:4286, radius:25.4, mass:1.08, lum:170,
+      desc:"An aging orange giant racing through the galaxy on a steep orbital path, thought to be a visitor from a long-dissolved star cluster." },
+    { name:"Antares", cls:"M1.5Iab", dist:550, temp:3660, radius:680, mass:12, lum:75900,
+      desc:"A vast red supergiant whose name means 'rival of Mars' for its ruddy glow, destined to end its life as a supernova." },
+    { name:"Polaris", cls:"F7Ib", dist:433, temp:6015, radius:37.5, mass:5.4, lum:1260,
+      desc:"The current north star, a pulsating yellow-white supergiant that sits almost exactly above Earth's rotational axis." },
+    { name:"Deneb", cls:"A2Ia", dist:2615, temp:8525, radius:203, mass:19, lum:196000,
+      desc:"One of the most luminous stars known to science, a blue-white supergiant so distant its light left before recorded history began." },
+    { name:"Capella", cls:"G3III", dist:42.9, temp:4970, radius:11.98, mass:2.57, lum:78.7,
+      desc:"A close quartet of stars appearing as one bright point, dominated by a pair of golden giants locked in mutual orbit." },
+    { name:"Aldebaran", cls:"K5III", dist:65.3, temp:3910, radius:44.2, mass:1.16, lum:439,
+      desc:"An orange giant that appears to mark the eye of Taurus, though it merely lies along the same line of sight as the Hyades cluster." },
+    { name:"Altair", cls:"A7V", dist:16.7, temp:7550, radius:1.63, mass:1.79, lum:10.6,
+      desc:"A fast-spinning white star flattened into an oblate shape by its own rotation, completing a full spin in under nine hours." },
+    { name:"Spica", cls:"B1III-IV", dist:250, temp:22400, radius:7.47, mass:11.43, lum:20512,
+      desc:"A close binary of two hot blue stars so near each other that their mutual gravity distorts them into egg-like shapes." }
+  ];
+
+  const SPECTRAL = [
+    { cls:'O', weight:0.5,  tempR:[30000,45000], radR:[7,15],   massR:[16,40],  lumR:[30000,800000], color:[0.6,0.75,1] },
+    { cls:'B', weight:3,    tempR:[10000,29000], radR:[3,8],    massR:[3,15],   lumR:[100,25000],     color:[0.7,0.82,1] },
+    { cls:'A', weight:7,    tempR:[7500,9900],   radR:[1.4,3],  massR:[1.5,3],  lumR:[6,80],          color:[0.85,0.9,1] },
+    { cls:'F', weight:11,   tempR:[6000,7400],   radR:[1.1,1.6],massR:[1.1,1.6],lumR:[1.6,6],          color:[1,0.97,0.9] },
+    { cls:'G', weight:16,   tempR:[5300,5900],   radR:[0.9,1.2],massR:[0.85,1.1],lumR:[0.6,1.6],       color:[1,0.93,0.78] },
+    { cls:'K', weight:26,   tempR:[3900,5200],   radR:[0.6,0.9],massR:[0.5,0.85],lumR:[0.08,0.6],      color:[1,0.8,0.6] },
+    { cls:'M', weight:36.5, tempR:[2400,3800],   radR:[0.1,0.5],massR:[0.08,0.5],lumR:[0.0001,0.08],   color:[1,0.65,0.52] }
+  ];
+
+  const NAME_PREFIX = ['HD','HIP','Gliese','Kepler','TYC','Wolf','Ross','LP','LHS','2MASS J','WISE'];
+  const GREEK = ['Alpha','Beta','Gamma','Delta','Epsilon','Zeta','Eta','Theta','Iota','Kappa','Lambda','Mu','Nu','Xi','Omicron','Sigma','Tau','Upsilon','Chi','Psi'];
+  const CONSTELL = ['Draconis','Lyrae','Cygni','Cephei','Andromedae','Persei','Aurigae','Orionis','Leporis','Eridani','Ceti','Piscium','Aquarii','Serpentis','Herculis','Ophiuchi','Sagittarii','Scorpii','Centauri','Velorum','Carinae','Puppis','Monocerotis','Geminorum','Cancri','Hydrae','Corvi','Virginis','Librae','Aquilae'];
+
+  const FEATURES = {
+    O:["a searing blue-white giant that will live only a few million years","wreathed in ionised gas blown off by its own ferocious stellar wind"],
+    B:["a hot blue star burning through its fuel far faster than the Sun","surrounded by a faint disk of debris left over from its formation"],
+    A:["a bright white star with sharp, clean hydrogen lines in its spectrum","spinning fast enough to flatten slightly at its poles"],
+    F:["a pale yellow-white star slightly hotter and brighter than the Sun","showing the first hints of a granulated, sun-like surface"],
+    G:["a steady yellow star closely resembling the Sun in temperature and age","orbited by a modest retinue of rocky and gaseous worlds"],
+    K:["a mellow orange star, cooler and longer-lived than the Sun","known for a stable, slowly evolving habitable zone"],
+    M:["a dim red dwarf, the most common and longest-lived class of star","prone to sudden, powerful flares that flood nearby space with radiation"]
+  };
+
+  function catalogName(){
+    if(Math.random() < 0.4){
+      return pick(GREEK) + ' ' + pick(CONSTELL);
+    }
+    const prefix = pick(NAME_PREFIX);
+    const num = Math.floor(rand(1000, 999999));
+    return prefix + ' ' + num;
+  }
+
+  function generateStar(){
+    const cls = weightedPick(SPECTRAL, SPECTRAL.map(s=>s.weight));
+    const temp = Math.round(rand(cls.tempR[0], cls.tempR[1]));
+    const radius = +(rand(cls.radR[0], cls.radR[1])).toFixed(2);
+    const mass = +(rand(cls.massR[0], cls.massR[1])).toFixed(2);
+    const lum = cls.lumR[1] < 1 ? +(rand(cls.lumR[0], cls.lumR[1])).toFixed(4) : Math.round(rand(cls.lumR[0], cls.lumR[1]));
+    const dist = Math.round(4 + Math.pow(Math.random(), 1.4) * 24000);
+    const planets = weightedPick([0,1,2,3,4,5,6,7], [22,20,18,15,11,8,4,2]);
+    const subclass = Math.floor(rand(0,9));
+    const name = catalogName();
+
+    let desc = pick(FEATURES[cls.cls]) + '.';
+    if(planets > 0 && (cls.cls==='G' || cls.cls==='K' || cls.cls==='M')){
+      desc += planets===1 ? ' A single confirmed world circles it, tracked by long-baseline transit surveys.'
+        : ` A system of ${planets} confirmed worlds has been mapped around it, at least one lying near the habitable zone.`;
+    } else if(planets > 0){
+      desc += ` ${planets} orbiting bodies have been catalogued in this system, likely inhospitable given the star's intensity.`;
+    } else {
+      desc += ' No orbiting worlds have been confirmed around it to date.';
+    }
+
+    return {
+      name, cls: cls.cls + subclass, distance: dist, temp, mass, radius, lum, planets,
+      desc, color: cls.color, realStar: false, isBlackHole: false
+    };
+  }
+
+  // Build galaxy systems map & scenes
+  const starTex = radialTexture('255,255,255','255,255,255',1);
+  const galaxySystemsMap = {}; 
+
+  GALAXY_DATA_CONFIG.forEach(function(gcfg, gIdx){
+    const systems = [];
+    const STAR_SYSTEM_COUNT = 180;
+
+    // 1. Add Central Supermassive Black Hole
+    systems.push({
+      name: gcfg.bhName,
+      cls: "BH",
+      distance: 0.0,
+      temp: 0,
+      mass: gcfg.bhMass,
+      radius: "Event Horizon",
+      lum: "Extreme Accretion",
+      planets: 0,
+      desc: gcfg.bhDesc + " Zooming directly into this singularity initiates a gravitational vortex plunge into the accretion ergosphere.",
+      color: [1, 0.45, 0.15],
+      realStar: false,
+      isBlackHole: true,
+      x: 0, y: 0, z: 0
+    });
+
+    if(gcfg.isMilkyWay){
+      systems.push({
+        name: "Sun (Sol)",
+        cls: "G2V",
+        distance: 0.0,
+        temp: 5778,
+        mass: 1.0,
+        radius: 1.0,
+        lum: 1.0,
+        planets: 8,
+        desc: "The yellow dwarf star at the center of our solar system, nurturing Earth and sustaining life across a complex family of terrestrial and gas giant worlds.",
+        color: [1, 0.93, 0.78],
+        realStar: true, isBlackHole: false,
+        x: 0, y: 0, z: 120
+      });
+    }
+
+    const assignedRealStars = gcfg.isMilkyWay ? REAL_STARS : REAL_STARS.slice(0, 3);
+    assignedRealStars.forEach(function(rs){
+      const u = Math.random() * Math.PI * 2;
+      const rDist = rand(60, gcfg.radius * 0.7);
+      systems.push({
+        name: rs.name,
+        cls: rs.cls,
+        distance: rs.dist,
+        temp: rs.temp,
+        mass: rs.mass,
+        radius: rs.radius,
+        lum: rs.lum,
+        planets: rs.name==="Proxima Centauri" ? 1 : 2,
+        desc: rs.desc,
+        color: [1, 0.95, 0.85],
+        realStar: true, isBlackHole: false,
+        x: Math.cos(u)*rDist, y: gaussian(0, 8), z: Math.sin(u)*rDist
+      });
+    });
+
+    const remainingCount = STAR_SYSTEM_COUNT - systems.length;
+    for(let i = 0; i < remainingCount; i++){
+      const u = Math.random() * Math.PI * 2;
+      const rDist = rand(15, gcfg.radius);
+      const gs = generateStar();
+      gs.x = Math.cos(u) * rDist;
+      gs.y = gaussian(0, 10 * gcfg.heightScale);
+      gs.z = Math.sin(u) * rDist;
+      systems.push(gs);
+    }
+
+    const group = new THREE.Group();
+    group.position.copy(gcfg.pos);
+    group.visible = false;
+    scene.add(group);
+
+    // Create background field points specific to this galaxy
+    const fieldGeo = generateGalaxyPoints(gcfg);
+    const fieldMat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uDim: { value: 1.0 } },
+      vertexShader: fieldMatTemplate.vertexShader,
+      fragmentShader: fieldMatTemplate.fragmentShader,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const fieldPoints = new THREE.Points(fieldGeo, fieldMat);
+    fieldPoints.visible = false;
+    scene.add(fieldPoints);
+
+    // Core Glow Sprites
+    const coreTex = radialTexture('255,225,180', '255,140,70', 1);
+    const coreGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: coreTex, blending: THREE.AdditiveBlending, transparent:true, depthWrite:false, opacity:0.65
+    }));
+    coreGlow.scale.set(380, 380, 1);
+    coreGlow.position.copy(gcfg.pos);
+    coreGlow.visible = false;
+    scene.add(coreGlow);
+
+    // Black Hole accretion disk visual at center
+    const bhTex = radialTexture('255,120,30', '255,40,10', 1);
+    const bhSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: bhTex, blending: THREE.AdditiveBlending, transparent:true, depthWrite:false, opacity:0.95
+    }));
+    bhSprite.scale.set(75, 75, 1);
+    bhSprite.position.copy(gcfg.pos);
+    bhSprite.visible = false;
+    scene.add(bhSprite);
+
+    systems.forEach(function(s){
+      const c = s.color;
+      const mat = new THREE.SpriteMaterial({
+        map: starTex, color: new THREE.Color(c[0], c[1], c[2]),
+        blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+      });
+      const sprite = new THREE.Sprite(mat);
+      const baseScale = s.isBlackHole ? 12 : (s.realStar ? rand(7,9) : rand(4.2, 6.4));
+      sprite.scale.set(baseScale, baseScale, 1);
+      sprite.position.set(s.x, s.y, s.z);
+      sprite.userData = { info: s, baseScale: baseScale, galaxyIndex: gIdx };
+      group.add(sprite);
+      s._sprite = sprite;
+    });
+
+    galaxySystemsMap[gIdx] = { 
+      config: gcfg, 
+      systems: systems, 
+      group: group, 
+      fieldPoints: fieldPoints, 
+      fieldMat: fieldMat, 
+      coreGlow: coreGlow, 
+      bhSprite: bhSprite 
+    };
+  });
+
+  // Selection ring
+  function ringTexture(){
+    const size = 256;
+    const cvs = document.createElement('canvas');
+    cvs.width = cvs.height = size;
+    const ctx = cvs.getContext('2d');
+    ctx.strokeStyle = 'rgba(255,180,84,0.95)';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(size/2,size/2,size/2-10,0,Math.PI*2);
+    ctx.stroke();
+    return new THREE.CanvasTexture(cvs);
+  }
+  const selectionRing = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: ringTexture(), transparent:true, depthWrite:false, opacity:0
+  }));
+  selectionRing.scale.set(20,20,1);
+  scene.add(selectionRing);
+
+  // ============================================================
+  // Navigation & State Control
+  // ============================================================
+  let currentView = 'cluster'; // 'cluster' | 'galaxy' | 'star' | 'blackhole'
+  let activeGalaxyIndex = null;
+  let activeStarSprite = null;
+
+  let camAzimuth = 0.6, camPolar = 1.05, camDistance = 2400;
+  const target = new THREE.Vector3(0,0,0);
+  const MIN_DIST = 20, MAX_DIST = 5500;
+
+  function applySpherical(){
+    camera.position.x = target.x + camDistance * Math.sin(camPolar) * Math.cos(camAzimuth);
+    camera.position.y = target.y + camDistance * Math.cos(camPolar);
+    camera.position.z = target.z + camDistance * Math.sin(camPolar) * Math.sin(camAzimuth);
+    camera.lookAt(target);
+  }
+  applySpherical();
+
+  let dragging = false, lastX=0, lastY=0;
+  let autoRotate = true, idleTimer = null;
+  const pointers = new Map();
+
+  function markInteraction(){
+    autoRotate = false;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function(){ if(currentView === 'cluster') autoRotate = true; }, 4200);
+  }
+
+  canvas.addEventListener('pointerdown', function(e){
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pointers.size === 1){
+      dragging = true; lastX = e.clientX; lastY = e.clientY;
+      canvas.classList.add('dragging');
+    }
+    markInteraction();
+  });
+
+  window.addEventListener('pointermove', function(e){
+    if(!pointers.has(e.pointerId)) { handleHover(e); return; }
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+    if(pointers.size === 2){
+      const pts = Array.from(pointers.values());
+      const dist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+      if(canvas._pinchDist){
+        const delta = dist - canvas._pinchDist;
+        camDistance = Math.min(MAX_DIST, Math.max(MIN_DIST, camDistance - delta*3.5));
+        applySpherical();
+        checkZoomTransition();
+      }
+      canvas._pinchDist = dist;
+      return;
+    }
+
+    if(dragging && pointers.size === 1){
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      camAzimuth -= dx * 0.0042;
+      camPolar = Math.min(Math.PI-0.15, Math.max(0.15, camPolar - dy * 0.0042));
+      applySpherical();
+    }
+  });
+
+  function endPointer(e){
+    pointers.delete(e.pointerId);
+    if(pointers.size < 2) canvas._pinchDist = null;
+    if(pointers.size === 0){ dragging = false; canvas.classList.remove('dragging'); }
+  }
+  window.addEventListener('pointerup', endPointer);
+  window.addEventListener('pointercancel', endPointer);
+
+  canvas.addEventListener('wheel', function(e){
+    e.preventDefault();
+    camDistance = Math.min(MAX_DIST, Math.max(MIN_DIST, camDistance + e.deltaY*0.9));
+    markInteraction();
+    applySpherical();
+    checkZoomTransition();
+  }, { passive:false });
+
+  function checkZoomTransition(){
+    if(currentView === 'galaxy' && camDistance > 1200){
+      returnToClusterView();
+    }
+  }
+
+  // ============================================================
+  // Raycasting & Interaction Handling
+  // ============================================================
+  const raycaster = new THREE.Raycaster();
+  const pointerNDC = new THREE.Vector2();
+
+  function handleHover(e){
+    if(currentView === 'star' || currentView === 'blackhole') return;
+    pointerNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
+    pointerNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(pointerNDC, camera);
+
+    if(currentView === 'cluster'){
+      const hits = raycaster.intersectObjects(galaxyGroup.children);
+      if(hits.length) canvas.classList.add('hoverable');
+      else canvas.classList.remove('hoverable');
+    } else if(currentView === 'galaxy'){
+      const activeGroup = galaxySystemsMap[activeGalaxyIndex].group;
+      const hits = raycaster.intersectObjects(activeGroup.children);
+      if(hits.length) canvas.classList.add('hoverable');
+      else canvas.classList.remove('hoverable');
+    }
+  }
+
+  let dragStartX=0, dragStartY=0;
+  canvas.addEventListener('pointerdown', function(e){ dragStartX=e.clientX; dragStartY=e.clientY; });
+  canvas.addEventListener('pointerup', function(e){
+    const moved = Math.hypot(e.clientX-dragStartX, e.clientY-dragStartY);
+    if(moved > 6) return;
+
+    pointerNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
+    pointerNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(pointerNDC, camera);
+
+    if(currentView === 'cluster'){
+      const hits = raycaster.intersectObjects(galaxyGroup.children);
+      if(hits.length){
+        const node = hits[0].object;
+        enterGalaxyView(node.userData.galaxyIndex);
+      }
+    } else if(currentView === 'galaxy'){
+      const activeGroup = galaxySystemsMap[activeGalaxyIndex].group;
+      const hits = raycaster.intersectObjects(activeGroup.children);
+      if(hits.length){
+        const clickedSprite = hits[0].object;
+        if(clickedSprite.userData.info.isBlackHole){
+          enterBlackHoleDive(clickedSprite);
+        } else {
+          focusOnStar(clickedSprite);
+        }
+      }
+    }
+  });
+
+  // ============================================================
+  // Tweening & View Transitions
+  // ============================================================
+  let savedClusterCam = null;
+  const tweenState = { active:false, t:0, duration:1200, from:new THREE.Vector3(), to:new THREE.Vector3(), fromTarget:new THREE.Vector3(), toTarget:new THREE.Vector3(), onDone:null };
+
+  function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+
+  function startTween(toPos, toTarget, duration, onDone){
+    tweenState.active = true;
+    tweenState.t = 0;
+    tweenState.duration = duration;
+    tweenState.from.copy(camera.position);
+    tweenState.to.copy(toPos);
+    tweenState.fromTarget.copy(target);
+    tweenState.toTarget.copy(toTarget);
+    tweenState.onDone = onDone || null;
+  }
+
+  function updateTween(dt){
+    if(!tweenState.active) return;
+    tweenState.t += dt;
+    const p = Math.min(1, tweenState.t / tweenState.duration);
+    const e = easeInOutCubic(p);
+    camera.position.lerpVectors(tweenState.from, tweenState.to, e);
+    target.lerpVectors(tweenState.fromTarget, tweenState.toTarget, e);
+    camera.lookAt(target);
+    if(p >= 1){
+      tweenState.active = false;
+      if(tweenState.onDone) tweenState.onDone();
+    }
+  }
+
+  function enterGalaxyView(galaxyIdx){
+    currentView = 'galaxy';
+    activeGalaxyIndex = galaxyIdx;
+    autoRotate = false;
+    clearTimeout(idleTimer);
+
+    savedClusterCam = { az: camAzimuth, pol: camPolar, dist: camDistance, target: target.clone() };
+
+    // Hide all galaxies, show selected
+    Object.keys(galaxySystemsMap).forEach(function(idx){
+      const g = galaxySystemsMap[idx];
+      const active = (+idx === galaxyIdx);
+      g.group.visible = active;
+      g.fieldPoints.visible = active;
+      g.coreGlow.visible = active;
+      g.bhSprite.visible = active;
+    });
+    galaxyGroup.visible = false;
+
+    const gData = galaxySystemsMap[galaxyIdx];
+    const destTarget = gData.config.pos.clone();
+    const destPos = destTarget.clone().add(new THREE.Vector3(0, 320, 620));
+
+    document.getElementById('hud-instruction').textContent = `Galaxy: ${gData.config.name} · Tap any star or central black hole.`;
+    document.getElementById('stat-systems').textContent = gData.systems.length;
+
+    startTween(destPos, destTarget, 1300, function(){
+      camDistance = 620;
+      camPolar = 0.55;
+    });
+  }
+
+  function returnToClusterView(){
+    if(currentView === 'cluster') return;
+    hideInfoPanel();
+    animateRingOut();
+
+    Object.keys(galaxySystemsMap).forEach(function(idx){
+      const g = galaxySystemsMap[idx];
+      g.group.visible = false;
+      g.fieldPoints.visible = false;
+      g.coreGlow.visible = false;
+      g.bhSprite.visible = false;
+      g.fieldMat.uniforms.uDim.value = 1.0;
+    });
+    galaxyGroup.visible = true;
+
+    currentView = 'cluster';
+    activeGalaxyIndex = null;
+    activeStarSprite = null;
+
+    const s = savedClusterCam || { az: 0.6, pol: 1.05, dist: 2400, target: new THREE.Vector3(0,0,0) };
+    const clusterPos = new THREE.Vector3(
+      s.target.x + s.dist * Math.sin(s.pol) * Math.cos(s.az),
+      s.target.y + s.dist * Math.cos(s.pol),
+      s.target.z + s.dist * Math.sin(s.pol) * Math.sin(s.az)
+    );
+
+    document.getElementById('hud-instruction').textContent = "Cluster View: Tap a galaxy node or zoom in to inspect stellar contents.";
+    document.getElementById('stat-systems').textContent = clusterNodes.length;
+
+    startTween(clusterPos, s.target, 1200, function(){
+      camAzimuth = s.az; camPolar = s.pol; camDistance = s.dist;
+      savedClusterCam = null;
+      idleTimer = setTimeout(function(){ autoRotate = true; }, 2600);
+    });
+  }
+
+  function focusOnStar(sprite){
+    currentView = 'star';
+    activeStarSprite = sprite;
+    autoRotate = false;
+    clearTimeout(idleTimer);
+
+    const starPos = sprite.position.clone().add(galaxySystemsMap[activeGalaxyIndex].config.pos);
+    const dirBack = camera.position.clone().sub(starPos).normalize();
+    const focusDist = sprite.userData.baseScale * 4.2 + 22;
+    const camTarget = starPos.clone().add(dirBack.multiplyScalar(focusDist));
+
+    selectionRing.position.copy(starPos);
+    selectionRing.material.opacity = 0;
+
+    startTween(camTarget, starPos, 1100, function(){
+      showInfoPanel(sprite.userData.info);
+      animateRingIn();
+    });
+
+    const gData = galaxySystemsMap[activeGalaxyIndex];
+    fadeUniform(gData.fieldMat.uniforms.uDim, 0.12, 800);
+  }
+
+  // Plunge into Black Hole Animation
+  function enterBlackHoleDive(sprite){
+    currentView = 'blackhole';
+    activeStarSprite = sprite;
+    autoRotate = false;
+    clearTimeout(idleTimer);
+
+    const bhPos = sprite.position.clone().add(galaxySystemsMap[activeGalaxyIndex].config.pos);
+    
+    // Dramatic spiral plunge animation straight into singularity core
+    startTween(bhPos.clone().add(new THREE.Vector3(0, 5, 8)), bhPos, 1800, function(){
+      showInfoPanel(sprite.userData.info);
+    });
+
+    const gData = galaxySystemsMap[activeGalaxyIndex];
+    fadeUniform(gData.fieldMat.uniforms.uDim, 0.04, 1200);
+  }
+
+  function fadeUniform(uniform, to, duration){
+    const from = uniform.value, start = performance.now();
+    function step(now){
+      const p = Math.min(1, (now-start)/duration);
+      uniform.value = from + (to-from) * p;
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  let ringAnim = null;
+  function animateRingIn(){
+    cancelAnimationFrame(ringAnim);
+    const start = performance.now();
+    function step(now){
+      const p = Math.min(1, (now-start)/500);
+      selectionRing.material.opacity = p;
+      selectionRing.scale.setScalar(activeStarSprite.userData.baseScale*2.6 - p*activeStarSprite.userData.baseScale*0.6);
+      if(p < 1) ringAnim = requestAnimationFrame(step);
+    }
+    ringAnim = requestAnimationFrame(step);
+  }
+
+  function animateRingOut(){
+    cancelAnimationFrame(ringAnim);
+    const start = performance.now(), from = selectionRing.material.opacity;
+    function step(now){
+      const p = Math.min(1, (now-start)/400);
+      selectionRing.material.opacity = from * (1-p);
+      if(p < 1) ringAnim = requestAnimationFrame(step);
+    }
+    ringAnim = requestAnimationFrame(step);
+  }
+
+  // Panel action buttons
+  document.getElementById('panel-back-star').addEventListener('click', function(){
+    if(currentView === 'star' || currentView === 'blackhole'){
+      hideInfoPanel();
+      animateRingOut();
+      currentView = 'galaxy';
+      activeStarSprite = null;
+      const gData = galaxySystemsMap[activeGalaxyIndex];
+      fadeUniform(gData.fieldMat.uniforms.uDim, 1.0, 800);
+      const destTarget = gData.config.pos.clone();
+      const destPos = destTarget.clone().add(new THREE.Vector3(0, 320, 620));
+      startTween(destPos, destTarget, 1000);
+    }
+  });
+
+  document.getElementById('panel-return').addEventListener('click', function(){
+    returnToClusterView();
+  });
+
+  // ============================================================
+  // Info Panel Content & Dynamic Layout
+  // ============================================================
+  const panel = document.getElementById('info-panel');
+  function fmt(n){
+    if(n >= 1000) return n.toLocaleString();
+    if(n < 1 && n > 0) return n.toString();
+    if(typeof n === 'string') return n;
+    return (Math.round(n*100)/100).toString();
+  }
+
+  function showInfoPanel(info){
+    const badge = document.getElementById('panel-badge');
+    const nameEl = document.getElementById('panel-name');
+    const subEl = document.getElementById('panel-sub');
+    const statsGrid = document.getElementById('panel-stats');
+    const descEl = document.getElementById('panel-desc');
+    const backBtn = document.getElementById('panel-back-star');
+
+    nameEl.textContent = info.name;
+    descEl.textContent = info.desc;
+
+    if(info.isBlackHole){
+      badge.textContent = "SUPERMASSIVE SINGULARITY · BH";
+      subEl.textContent = "Galactic Center Core";
+      backBtn.style.display = "block";
+      backBtn.textContent = "◄ Exit Black Hole";
+      statsGrid.innerHTML = `
+        <div class="stat"><b>${fmt(info.mass)}</b><span>Mass</span></div>
+        <div class="stat"><b>${fmt(info.radius)}</b><span>Event Horizon</span></div>
+        <div class="stat"><b>${fmt(info.lum)}</b><span>Radiation</span></div>
+        <div class="stat"><b>Gravitational</b><span>Spacetime Warp</span></div>
+      `;
+    } else {
+      badge.textContent = info.cls + (info.realStar ? ' · CONFIRMED' : ' · CATALOGUED');
+      subEl.textContent = 'Simulated star system';
+      backBtn.style.display = "block";
+      backBtn.textContent = "◄ Back to Star Field";
+      statsGrid.innerHTML = `
+        <div class="stat"><b>${fmt(info.distance)}</b><span>Distance (ly)</span></div>
+        <div class="stat"><b>${fmt(info.temp)}</b><span>Surface Temp (K)</span></div>
+        <div class="stat"><b>${fmt(info.mass)}</b><span>Mass (M☉)</span></div>
+        <div class="stat"><b>${fmt(info.radius)}</b><span>Radius (R☉)</span></div>
+        <div class="stat"><b>${fmt(info.lum)}</b><span>Luminosity (L☉)</span></div>
+        <div class="stat"><b>${info.planets}</b><span>Known Planets</span></div>
+      `;
+    }
+
+    panel.classList.add('show');
+  }
+
+  function hideInfoPanel(){ panel.classList.remove('show'); }
+
+  // ============================================================
+  // Search Bar (Galaxies & Stars & Black Holes)
+  // ============================================================
+  const searchInput = document.getElementById('search-input');
+  const searchResults = document.getElementById('search-results');
+
+  searchInput.addEventListener('input', function(){
+    const q = searchInput.value.trim().toLowerCase();
+    if(!q){ searchResults.classList.remove('show'); searchResults.innerHTML=''; return; }
+
+    let matches = [];
+
+    GALAXY_DATA_CONFIG.forEach(function(gcfg, gIdx){
+      if(gcfg.name.toLowerCase().indexOf(q) !== -1 || gcfg.sub.toLowerCase().indexOf(q) !== -1 || gcfg.bhName.toLowerCase().indexOf(q) !== -1){
+        matches.push({ type: 'galaxy', name: gcfg.name, sub: gcfg.type, idx: gIdx });
+      }
+    });
+
+    Object.keys(galaxySystemsMap).forEach(function(gIdx){
+      const gData = galaxySystemsMap[gIdx];
+      gData.systems.forEach(function(s){
+        if(s.name.toLowerCase().indexOf(q) !== -1){
+          matches.push({ type: 'star', name: s.name, sub: gData.config.name + ' · ' + s.cls, gIdx: +gIdx, sprite: s._sprite });
+        }
+      });
+    });
+
+    matches = matches.slice(0, 8);
+
+    if(!matches.length){ searchResults.classList.remove('show'); searchResults.innerHTML=''; return; }
+
+    searchResults.innerHTML = matches.map(function(m){
+      const label = m.type === 'galaxy' ? '[Galaxy] ' + m.name : m.name;
+      return '<div class="search-item" data-type="'+m.type+'" data-idx="'+(m.type==='galaxy'?m.idx:m.gIdx)+'" data-star="'+(m.type==='star'?galaxySystemsMap[m.gIdx].systems.indexOf(m.sprite.userData.info):'')+'"><span>'+label+'</span><span class="cls">'+m.sub+'</span></div>';
+    }).join('');
+
+    searchResults.classList.add('show');
+
+    Array.from(searchResults.children).forEach(function(el){
+      el.addEventListener('click', function(){
+        const type = el.getAttribute('data-type');
+        const gIdx = +el.getAttribute('data-idx');
+        searchResults.classList.remove('show');
+        searchInput.value = '';
+        searchInput.blur();
+
+        if(type === 'galaxy'){
+          enterGalaxyView(gIdx);
+        } else {
+          const starIdx = +el.getAttribute('data-star');
+          const targetSprite = galaxySystemsMap[gIdx].systems[starIdx]._sprite;
+          if(currentView !== 'galaxy' || activeGalaxyIndex !== gIdx){
+            enterGalaxyView(gIdx);
+            setTimeout(function(){ 
+              if(targetSprite.userData.info.isBlackHole) enterBlackHoleDive(targetSprite);
+              else focusOnStar(targetSprite); 
+            }, 1350);
+          } else {
+            if(targetSprite.userData.info.isBlackHole) enterBlackHoleDive(targetSprite);
+            else focusOnStar(targetSprite);
+          }
+        }
+      });
+    });
+  });
+
+  // ============================================================
+  // Render Loop
+  // ============================================================
+  let lastTime = performance.now();
+  function animate(now){
+    requestAnimationFrame(animate);
+    const dt = Math.min(64, now - lastTime);
+    lastTime = now;
+
+    // Update shader uniforms across active fields
+    Object.keys(galaxySystemsMap).forEach(function(idx){
+      galaxySystemsMap[idx].fieldMat.uniforms.uTime.value += dt*0.001;
+    });
+
+    if(tweenState.active){
+      updateTween(dt);
+    } else if(currentView === 'star' || currentView === 'blackhole'){
+      const dirBack = camera.position.clone().sub(target).normalize();
+      camera.position.copy(target.clone().add(dirBack.multiplyScalar(camera.position.distanceTo(target))));
+      camera.lookAt(target);
+      selectionRing.lookAt(camera.position);
+    } else if(currentView === 'cluster'){
+      if(autoRotate){ camAzimuth += dt*0.000045; }
+      applySpherical();
+      galaxyGroup.rotation.y += dt*0.00003;
+    } else if(currentView === 'galaxy'){
+      applySpherical();
+      // Rotate active galaxy group slightly
+      if(activeGalaxyIndex !== null){
+        galaxySystemsMap[activeGalaxyIndex].group.rotation.y += dt*0.00004;
+      }
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  // ============================================================
+  // Boot
+  // ============================================================
+  setTimeout(function(){
+    document.getElementById('loader').classList.add('hidden');
+  }, 700);
+
+  requestAnimationFrame(animate);
+
+})();
+</script>
+</body>
+</html>
