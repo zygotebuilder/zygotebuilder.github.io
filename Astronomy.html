@@ -81,7 +81,7 @@
   }
   .hud-title p{
     margin:6px 0 0; font-size:10.5px; color:var(--text-dim);
-    letter-spacing:.02em; max-width:340px; line-height:1.5;
+    letter-spacing:.02em; max-width:320px; line-height:1.5;
   }
 
   #close-session{
@@ -225,21 +225,17 @@
     margin:0 0 18px;
     letter-spacing:.01em;
   }
-  .panel-btn-row{
-    display:flex; gap:8px;
-  }
-  .panel-action-btn{
-    flex:1;
+  #panel-return{
+    width:100%;
     background:transparent;
     border:1px solid rgba(255,255,255,0.18);
     color:var(--text-dim);
-    font-family:inherit; font-size:9.5px; font-weight:600;
-    letter-spacing:.14em; text-transform:uppercase;
-    padding:11px 8px; border-radius:3px; cursor:pointer;
+    font-family:inherit; font-size:10px; font-weight:600;
+    letter-spacing:.18em; text-transform:uppercase;
+    padding:11px; border-radius:3px; cursor:pointer;
     transition:all .25s ease;
-    text-align:center;
   }
-  .panel-action-btn:hover{
+  #panel-return:hover{
     border-color:var(--cyan); color:var(--cyan);
     background:rgba(87,230,255,0.06);
   }
@@ -278,7 +274,7 @@
   </div>
 
   <div id="search-wrap">
-    <input id="search-input" type="text" placeholder="Search galaxies, stars, black holes…" autocomplete="off">
+    <input id="search-input" type="text" placeholder="Search galaxies or stars…" autocomplete="off">
     <div id="search-results"></div>
   </div>
 
@@ -297,10 +293,7 @@
       <!-- Dynamic stats grid -->
     </div>
     <p id="panel-desc">—</p>
-    <div class="panel-btn-row">
-      <button class="panel-action-btn" id="panel-back-star">◄ Back to Star Field</button>
-      <button class="panel-action-btn" id="panel-return">Return to Cluster</button>
-    </div>
+    <button id="panel-return">◄ Return to cluster view</button>
   </aside>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -337,23 +330,20 @@
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
   // ============================================================
-  // MULTI-GALAXY CLUSTER SETUP (Expanded & Unique Morphologies)
+  // MULTI-GALAXY CLUSTER SETUP
   // ============================================================
   const GALAXY_DATA_CONFIG = [
     {
       name: "Milky Way Galaxy",
-      sub: "Our Home Barred Spiral",
+      sub: "Our Home Spiral Galaxy",
       type: "Barred Spiral (SBbc)",
       distanceLy: "0 ly (Local)",
       massSolar: "1.5 × 10¹² M☉",
       diameterLy: "105,000 ly",
-      desc: "Our home galaxy, anchoring the local cosmic neighborhood with dense spiral arms, rich stellar nurseries, and Sagittarius A* at its gravitational heart.",
+      desc: "A sprawling barred spiral galaxy containing hundreds of billions of stars, massive dust lanes, and a central supermassive black hole (Sagittarius A*). It anchors our local cosmic neighborhood.",
       pos: new THREE.Vector3(0, 0, 0),
-      arms: 4, radius: 480, heightScale: 0.6,
-      bhName: "Sagittarius A*",
-      bhMass: "4.3 Million M☉",
-      bhDesc: "A supermassive black hole anchoring the Milky Way, surrounded by hot accretion gas and orbiting high-velocity S-cluster stars.",
-      isMilkyWay: true, isAndromeda: false
+      isMilkyWay: true,
+      isAndromeda: false
     },
     {
       name: "Andromeda Galaxy (M31)",
@@ -362,102 +352,53 @@
       distanceLy: "2.5 million ly",
       massSolar: "1.2 × 10¹² M☉",
       diameterLy: "220,000 ly",
-      desc: "The largest galaxy in the Local Group, featuring multiple distinct dust rings and a massive double-lobed nucleus currently on a collision course with us.",
-      pos: new THREE.Vector3(1300, 320, -1900),
-      arms: 2, radius: 620, heightScale: 0.8,
-      bhName: "Alkaln-M31 Core",
-      bhMass: "1.0 × 10⁸ M☉",
-      bhDesc: "An immense supermassive black hole embedded within a dense stellar disk that whips surrounding stars into relativistic velocities.",
-      isMilkyWay: false, isAndromeda: true
+      desc: "The largest galaxy in the Local Group, currently hurtling toward the Milky Way at roughly 110 kilometers per second for a grand galactic collision predicted in about 4.5 billion years.",
+      pos: new THREE.Vector3(1200, 300, -1800),
+      isMilkyWay: false,
+      isAndromeda: true
     },
     {
       name: "Sombrero Galaxy (M104)",
-      sub: "Starburst Disc & Prominent Dust Lane",
+      sub: "Unusual Starburst Galaxy",
       type: "Unbarred Spiral (SA(s)k)",
       distanceLy: "29.3 million ly",
       massSolar: "8.0 × 10¹¹ M☉",
       diameterLy: "50,000 ly",
-      desc: "Distinguished by an unusually large, blazing central stellar bulge wrapped inside a sharply silhouetted dark ring of cosmic dust.",
-      pos: new THREE.Vector3(-1700, -450, 1500),
-      arms: 2, radius: 380, heightScale: 0.35,
-      bhName: "Sombrero Prime BH",
-      bhMass: "1.0 × 10⁹ M☉",
-      bhDesc: "A gargantuan central engine powering intense infrared radiation and driving high-velocity gas outflows across the galactic plane.",
+      desc: "Distinguished by a bright nucleus, an unusually large central bulge, and a prominent dust lane tilted edge-on that gives it the appearance of a traditional Mexican sombrero.",
+      pos: new THREE.Vector3(-1600, -400, 1400),
       isMilkyWay: false, isAndromeda: false
     },
     {
       name: "Triangulum Galaxy (M33)",
-      sub: "Gas-Rich Starburst Spiral",
+      sub: "Third-Largest Local Group Member",
       type: "Spiral Galaxy (SA(s)cd)",
       distanceLy: "2.73 million ly",
       massSolar: "5.0 × 10¹⁰ M☉",
       diameterLy: "60,000 ly",
-      desc: "A loose, open-armed spiral packed with colossal H II emission nebulae, most notably NGC 604, where thousands of massive stars ignite simultaneously.",
-      pos: new THREE.Vector3(1500, -550, 1300),
-      arms: 3, radius: 420, heightScale: 0.7,
-      bhName: "M33 X-8 Singularity",
-      bhMass: "1.5 × 10⁴ M☉",
-      bhDesc: "An intermediate-mass black hole pulling in streams of molecular gas, creating intense localized X-ray outbursts.",
+      desc: "A relatively small spiral galaxy packed with enormous star-forming gas clouds, most notably the giant emission nebula NGC 604, one of the largest H II regions known.",
+      pos: new THREE.Vector3(1400, -500, 1200),
       isMilkyWay: false, isAndromeda: false
     },
     {
       name: "Whirlpool Galaxy (M51)",
-      sub: "Grand-Design Interacting Spiral",
+      sub: "Classic Interacting Grand-Design Spiral",
       type: "Grand-Design Spiral (SA(s)bc)",
       distanceLy: "23 million ly",
       massSolar: "1.6 × 10¹¹ M☉",
       diameterLy: "76,000 ly",
-      desc: "Famed for its majestic, well-defined spiral arms compressed by gravitational tidal forces from its companion galaxy NGC 5195.",
-      pos: new THREE.Vector3(-1400, 650, -1600),
-      arms: 2, radius: 520, heightScale: 0.5,
-      bhName: "M51 Central Singularity",
-      bhMass: "1.0 × 10⁷ M☉",
-      bhDesc: "A shrouded supermassive black hole emitting synchronized jets of synchrotron radiation across the spiral arms.",
+      desc: "Famed for its clear, well-defined spiral arms that interact gravitationally with its smaller companion galaxy NGC 5195, triggering intense waves of stellar birth.",
+      pos: new THREE.Vector3(-1300, 600, -1500),
       isMilkyWay: false, isAndromeda: false
     },
     {
       name: "Large Magellanic Cloud (LMC)",
-      sub: "Magellanic Irregular Satellite",
+      sub: "Milky Way Satellite Galaxy",
       type: "Magellanic Spiral (SB(s)m)",
       distanceLy: "163,000 ly",
       massSolar: "1.0 × 10¹⁰ M☉",
       diameterLy: "14,000 ly",
-      desc: "A luminous satellite galaxy of the Milky Way housing the Tarantula Nebula—the most violent starburst region in our cosmic vicinity.",
-      pos: new THREE.Vector3(450, -380, 650),
-      arms: 1, radius: 280, heightScale: 1.1,
-      bhName: "LMC X-1 Stellar BH",
-      bhMass: "62 M☉",
-      bhDesc: "A heavy stellar-mass black hole locked in orbit with an O-type blue giant, stripping matter into a blistering accretion disk.",
-      isMilkyWay: false, isAndromeda: false
-    },
-    {
-      name: "Centaurus A (NGC 5128)",
-      sub: "Peculiar Active Radio Galaxy",
-      type: "Elliptical / Lenticular (S0)",
-      distanceLy: "12 million ly",
-      massSolar: "1.0 × 10¹² M☉",
-      diameterLy: "90,000 ly",
-      desc: "A massive elliptical galaxy sliced down the middle by a thick lane of dust and gas, indicating an ancient galactic merger.",
-      pos: new THREE.Vector3(-800, 900, 1800),
-      arms: 0, radius: 460, heightScale: 1.4,
-      bhName: "Cen A Core Engine",
-      bhMass: "5.5 × 10⁷ M☉",
-      bhDesc: "An active galactic nucleus shooting out multi-kiloparsec relativistic jets of plasma that glow brilliantly across radio wavelengths.",
-      isMilkyWay: false, isAndromeda: false
-    },
-    {
-      name: "NGC 1300",
-      sub: "Classic Barred Spiral Blueprint",
-      type: "Barred Spiral (SB(s)bc)",
-      distanceLy: "61 million ly",
-      massSolar: "9.0 × 10¹¹ M☉",
-      diameterLy: "110,000 ly",
-      desc: "Widely regarded as the archetype of barred spiral galaxies, featuring a striking central straight bar that funnels gas directly into its core.",
-      pos: new THREE.Vector3(1900, 800, -600),
-      arms: 2, radius: 550, heightScale: 0.4,
-      bhName: "NGC 1300 Central Void",
-      bhMass: "7.0 × 10⁷ M☉",
-      bhDesc: "A quiescent supermassive black hole resting at the intersection of twin luminous bars.",
+      desc: "A luminous satellite galaxy of the Milky Way that hosts the Tarantula Nebula, the most active starburst region in the Local Group.",
+      pos: new THREE.Vector3(400, -350, 600),
       isMilkyWay: false, isAndromeda: false
     }
   ];
@@ -523,95 +464,81 @@
   document.getElementById('stat-field').textContent = clusterNodes.length;
 
   // ============================================================
-  // Procedural Galaxy Generation (Unique per Galaxy)
+  // Active Galaxy Internal Field Setup
   // ============================================================
+  const ARMS = 4;
+  const GALAXY_RADIUS = 480;
   const TOTAL_FIELD = 14000;
 
-  function generateGalaxyPoints(gcfg){
-    const positions = new Float32Array(TOTAL_FIELD * 3);
-    const colors = new Float32Array(TOTAL_FIELD * 3);
-    const sizes = new Float32Array(TOTAL_FIELD);
-    const phases = new Float32Array(TOTAL_FIELD);
+  function galaxyPoint(){
+    const isBulge = Math.random() < 0.12;
+    let r, theta, y, dust = false;
 
-    const arms = gcfg.arms;
-    const radius = gcfg.radius;
-    const heightScale = gcfg.heightScale;
-
-    for(let i = 0; i < TOTAL_FIELD; i++){
-      let r, theta, y, dust = false, isBulge = false;
-      const isElliptical = arms === 0;
-
-      if(isElliptical){
-        // Elliptical / Lenticular distribution (sphromaid / discoid)
-        const u = Math.random();
-        r = Math.pow(u, 0.6) * radius;
-        theta = Math.random() * Math.PI * 2;
-        const phi = (Math.random() - 0.5) * Math.PI;
-        positions[i*3]     = Math.cos(theta) * Math.cos(phi) * r;
-        positions[i*3 + 1] = Math.sin(phi) * r * heightScale * 0.7;
-        positions[i*3 + 2] = Math.sin(theta) * Math.cos(phi) * r;
-        isBulge = r < radius * 0.4;
-        dust = Math.random() < 0.04;
-      } else {
-        isBulge = Math.random() < 0.12;
-        if(isBulge){
-          r = Math.pow(Math.random(), 0.5) * radius * 0.15;
-          theta = Math.random() * Math.PI * 2;
-          y = gaussian(0, radius * 0.05 * heightScale) * (1 - r/(radius*0.15)*0.6);
-        } else {
-          r = Math.pow(Math.random(), 1.8) * radius + 12;
-          const armIdx = Math.floor(Math.random() * arms);
-          const armAngle = (armIdx / arms) * Math.PI * 2;
-          const spin = r * 0.014;
-          const scatter = gaussian(0, 0.38) * (1 - Math.min(r/radius, 1) * 0.35);
-          theta = armAngle + spin + scatter;
-          y = gaussian(0, 7 * heightScale) * (1 - Math.min(r/radius, 1) * 0.55);
-          dust = Math.random() < 0.08;
-        }
-        positions[i*3]     = Math.cos(theta) * r;
-        positions[i*3 + 1] = y;
-        positions[i*3 + 2] = Math.sin(theta) * r;
-      }
-
-      // Colors tailored per galaxy vibe
-      let c;
-      if(dust){
-        const shades = [[0.22,0.13,0.08],[0.18,0.1,0.07],[0.26,0.15,0.1]];
-        c = pick(shades);
-      } else if(isBulge || r < radius * 0.1){
-        const shades = [[1,0.88,0.65],[1,0.82,0.55],[1,0.92,0.75],[1,0.78,0.5]];
-        c = pick(shades);
-      } else {
-        const rnd = Math.random();
-        if(rnd < 0.52)  c = pick([[0.82,0.88,1],[0.92,0.95,1],[0.75,0.84,1]]);
-        else if(rnd < 0.78) c = pick([[1,0.95,0.85],[1,0.9,0.72]]);
-        else if(rnd < 0.94) c = pick([[1,0.78,0.55],[1,0.7,0.48]]);
-        else c = pick([[1,0.58,0.48],[1,0.48,0.42]]);
-      }
-
-      colors[i*3]     = c[0];
-      colors[i*3 + 1] = c[1];
-      colors[i*3 + 2] = c[2];
-
-      sizes[i]  = dust ? rand(0.7, 1.3) : (isBulge ? rand(1.6, 2.8) : rand(1.0, 2.4));
-      phases[i] = Math.random() * Math.PI * 2;
+    if(isBulge){
+      r = Math.pow(Math.random(), 0.5) * GALAXY_RADIUS * 0.14;
+      theta = Math.random() * Math.PI * 2;
+      y = gaussian(0, GALAXY_RADIUS * 0.055) * (1 - r/(GALAXY_RADIUS*0.14)*0.6);
+    } else {
+      r = Math.pow(Math.random(), 1.9) * GALAXY_RADIUS + 14;
+      const arm = Math.floor(Math.random()*ARMS);
+      const armAngle = (arm/ARMS) * Math.PI * 2;
+      const spin = r * 0.0135;
+      const scatter = gaussian(0, 0.34) * (1 - Math.min(r/GALAXY_RADIUS, 1) * 0.35);
+      theta = armAngle + spin + scatter;
+      y = gaussian(0, 7) * (1 - Math.min(r/GALAXY_RADIUS,1) * 0.55);
+      dust = Math.random() < 0.07;
     }
 
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute('aColor', new THREE.BufferAttribute(colors, 3));
-    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
-    geo.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
-    return geo;
+    return {
+      x: Math.cos(theta) * r,
+      z: Math.sin(theta) * r,
+      y, r, isBulge, dust
+    };
   }
 
-  // Shader material for background star fields
-  const fieldMatTemplate = {
-    uniforms: {
-      uTime: { value: 0 },
-      uDim: { value: 1.0 }
+  function starColorFor(p){
+    if(p.dust){
+      const shades = [[0.24,0.14,0.09],[0.2,0.11,0.08],[0.28,0.17,0.11]];
+      return pick(shades);
+    }
+    if(p.isBulge || p.r < GALAXY_RADIUS*0.09){
+      const shades = [[1,0.89,0.68],[1,0.85,0.6],[1,0.94,0.8],[1,0.8,0.55]];
+      return pick(shades);
+    }
+    const rnd = Math.random();
+    if(rnd < 0.5)  return pick([[0.85,0.9,1],[0.93,0.96,1],[0.78,0.86,1]]);
+    if(rnd < 0.78) return pick([[1,0.96,0.87],[1,0.93,0.78]]);
+    if(rnd < 0.93) return pick([[1,0.8,0.6],[1,0.73,0.52]]);
+    return pick([[1,0.62,0.52],[1,0.53,0.46]]);
+  }
+
+  // Background Star Field Buffer Geometry
+  const fieldGeo = new THREE.BufferGeometry();
+  const fPositions = new Float32Array(TOTAL_FIELD*3);
+  const fColors    = new Float32Array(TOTAL_FIELD*3);
+  const fSizes     = new Float32Array(TOTAL_FIELD);
+  const fPhases    = new Float32Array(TOTAL_FIELD);
+
+  for(let i=0;i<TOTAL_FIELD;i++){
+    const p = galaxyPoint();
+    fPositions[i*3] = p.x; fPositions[i*3+1] = p.y; fPositions[i*3+2] = p.z;
+    const c = starColorFor(p);
+    fColors[i*3]=c[0]; fColors[i*3+1]=c[1]; fColors[i*3+2]=c[2];
+    fSizes[i] = p.dust ? rand(0.7,1.3) : (p.isBulge ? rand(1.6,2.6) : rand(1.0,2.4));
+    fPhases[i] = Math.random()*Math.PI*2;
+  }
+
+  fieldGeo.setAttribute('position', new THREE.BufferAttribute(fPositions,3));
+  fieldGeo.setAttribute('aColor', new THREE.BufferAttribute(fColors,3));
+  fieldGeo.setAttribute('aSize', new THREE.BufferAttribute(fSizes,1));
+  fieldGeo.setAttribute('aPhase', new THREE.BufferAttribute(fPhases,1));
+
+  const fieldMat = new THREE.ShaderMaterial({
+    uniforms:{
+      uTime:{ value:0 },
+      uDim:{ value:1.0 }
     },
-    vertexShader: `
+    vertexShader:`
       attribute float aSize;
       attribute float aPhase;
       attribute vec3 aColor;
@@ -626,7 +553,7 @@
         gl_Position = projectionMatrix * mvPosition;
       }
     `,
-    fragmentShader: `
+    fragmentShader:`
       varying vec3 vColor;
       varying float vTwinkle;
       uniform float uDim;
@@ -638,10 +565,30 @@
         gl_FragColor = vec4(vColor, alpha);
       }
     `,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending
-  };
+    transparent:true,
+    depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+
+  const fieldPoints = new THREE.Points(fieldGeo, fieldMat);
+  fieldPoints.visible = false;
+  scene.add(fieldPoints);
+
+  // Core Glow Sprites
+  const coreTex = radialTexture('255,225,180', '255,180,110', 1);
+  const coreGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: coreTex, blending: THREE.AdditiveBlending, transparent:true, depthWrite:false, opacity:0.55
+  }));
+  coreGlow.scale.set(340,340,1);
+  coreGlow.visible = false;
+  scene.add(coreGlow);
+
+  const coreGlowSmall = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: coreTex, blending: THREE.AdditiveBlending, transparent:true, depthWrite:false, opacity:0.9
+  }));
+  coreGlowSmall.scale.set(110,110,1);
+  coreGlowSmall.visible = false;
+  scene.add(coreGlowSmall);
 
   // ============================================================
   // Star System Data Generation for Galaxies
@@ -733,35 +680,19 @@
 
     return {
       name, cls: cls.cls + subclass, distance: dist, temp, mass, radius, lum, planets,
-      desc, color: cls.color, realStar: false, isBlackHole: false
+      desc, color: cls.color, realStar: false
     };
   }
 
-  // Build galaxy systems map & scenes
+  // Generate star systems for each galaxy in the configuration
   const starTex = radialTexture('255,255,255','255,255,255',1);
-  const galaxySystemsMap = {}; 
+  const galaxySystemsMap = {}; // galaxyIndex -> array of star systems with sprites
 
   GALAXY_DATA_CONFIG.forEach(function(gcfg, gIdx){
     const systems = [];
     const STAR_SYSTEM_COUNT = 180;
 
-    // 1. Add Central Supermassive Black Hole
-    systems.push({
-      name: gcfg.bhName,
-      cls: "BH",
-      distance: 0.0,
-      temp: 0,
-      mass: gcfg.bhMass,
-      radius: "Event Horizon",
-      lum: "Extreme Accretion",
-      planets: 0,
-      desc: gcfg.bhDesc + " Zooming directly into this singularity initiates a gravitational vortex plunge into the accretion ergosphere.",
-      color: [1, 0.45, 0.15],
-      realStar: false,
-      isBlackHole: true,
-      x: 0, y: 0, z: 0
-    });
-
+    // If Milky Way, include Sol as a specific real star entry
     if(gcfg.isMilkyWay){
       systems.push({
         name: "Sun (Sol)",
@@ -774,105 +705,56 @@
         planets: 8,
         desc: "The yellow dwarf star at the center of our solar system, nurturing Earth and sustaining life across a complex family of terrestrial and gas giant worlds.",
         color: [1, 0.93, 0.78],
-        realStar: true, isBlackHole: false,
+        realStar: true,
         x: 0, y: 0, z: 120
       });
     }
 
-    const assignedRealStars = gcfg.isMilkyWay ? REAL_STARS : REAL_STARS.slice(0, 3);
+    // Include REAL_STARS for Milky Way or general galaxies
+    const assignedRealStars = gcfg.isMilkyWay ? REAL_STARS : REAL_STARS.slice(0, 4);
     assignedRealStars.forEach(function(rs){
-      const u = Math.random() * Math.PI * 2;
-      const rDist = rand(60, gcfg.radius * 0.7);
-      systems.push({
-        name: rs.name,
-        cls: rs.cls,
-        distance: rs.dist,
-        temp: rs.temp,
-        mass: rs.mass,
-        radius: rs.radius,
-        lum: rs.lum,
-        planets: rs.name==="Proxima Centauri" ? 1 : 2,
-        desc: rs.desc,
-        color: [1, 0.95, 0.85],
-        realStar: true, isBlackHole: false,
-        x: Math.cos(u)*rDist, y: gaussian(0, 8), z: Math.sin(u)*rDist
-      });
+      if(gcfg.isMilkyWay && rs.name === "Alpha Centauri A") return; // avoid duplicate duplication if desired, or keep
+      const p = galaxyPoint();
+      systems.push(Object.assign({
+        x: p.x, y: p.y*0.6, z: p.z,
+        color: [1,0.95,0.85],
+        realStar: true,
+        cls: rs.cls, distance: rs.dist, temp: rs.temp, mass: rs.mass,
+        radius: rs.radius, lum: rs.lum, planets: rs.name==="Proxima Centauri" ? 1 : 2,
+        desc: rs.desc, name: rs.name
+      }));
     });
 
     const remainingCount = STAR_SYSTEM_COUNT - systems.length;
-    for(let i = 0; i < remainingCount; i++){
-      const u = Math.random() * Math.PI * 2;
-      const rDist = rand(15, gcfg.radius);
+    for(let i=0; i<remainingCount; i++){
+      const p = galaxyPoint();
       const gs = generateStar();
-      gs.x = Math.cos(u) * rDist;
-      gs.y = gaussian(0, 10 * gcfg.heightScale);
-      gs.z = Math.sin(u) * rDist;
+      gs.x = p.x; gs.y = p.y*0.6; gs.z = p.z;
       systems.push(gs);
     }
 
+    // Create container group for this galaxy's stars
     const group = new THREE.Group();
     group.position.copy(gcfg.pos);
     group.visible = false;
     scene.add(group);
 
-    // Create background field points specific to this galaxy
-    const fieldGeo = generateGalaxyPoints(gcfg);
-    const fieldMat = new THREE.ShaderMaterial({
-      uniforms: { uTime: { value: 0 }, uDim: { value: 1.0 } },
-      vertexShader: fieldMatTemplate.vertexShader,
-      fragmentShader: fieldMatTemplate.fragmentShader,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
-    const fieldPoints = new THREE.Points(fieldGeo, fieldMat);
-    fieldPoints.visible = false;
-    scene.add(fieldPoints);
-
-    // Core Glow Sprites
-    const coreTex = radialTexture('255,225,180', '255,140,70', 1);
-    const coreGlow = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: coreTex, blending: THREE.AdditiveBlending, transparent:true, depthWrite:false, opacity:0.65
-    }));
-    coreGlow.scale.set(380, 380, 1);
-    coreGlow.position.copy(gcfg.pos);
-    coreGlow.visible = false;
-    scene.add(coreGlow);
-
-    // Black Hole accretion disk visual at center
-    const bhTex = radialTexture('255,120,30', '255,40,10', 1);
-    const bhSprite = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: bhTex, blending: THREE.AdditiveBlending, transparent:true, depthWrite:false, opacity:0.95
-    }));
-    bhSprite.scale.set(75, 75, 1);
-    bhSprite.position.copy(gcfg.pos);
-    bhSprite.visible = false;
-    scene.add(bhSprite);
-
     systems.forEach(function(s){
       const c = s.color;
       const mat = new THREE.SpriteMaterial({
-        map: starTex, color: new THREE.Color(c[0], c[1], c[2]),
-        blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+        map: starTex, color: new THREE.Color(c[0],c[1],c[2]),
+        blending: THREE.AdditiveBlending, transparent:true, depthWrite:false
       });
       const sprite = new THREE.Sprite(mat);
-      const baseScale = s.isBlackHole ? 12 : (s.realStar ? rand(7,9) : rand(4.2, 6.4));
+      const baseScale = s.realStar ? rand(7,9) : rand(4.2, 6.4);
       sprite.scale.set(baseScale, baseScale, 1);
       sprite.position.set(s.x, s.y, s.z);
-      sprite.userData = { info: s, baseScale: baseScale, galaxyIndex: gIdx };
+      sprite.userData = { info:s, baseScale:baseScale, galaxyIndex:gIdx };
       group.add(sprite);
       s._sprite = sprite;
     });
 
-    galaxySystemsMap[gIdx] = { 
-      config: gcfg, 
-      systems: systems, 
-      group: group, 
-      fieldPoints: fieldPoints, 
-      fieldMat: fieldMat, 
-      coreGlow: coreGlow, 
-      bhSprite: bhSprite 
-    };
+    galaxySystemsMap[gIdx] = { config: gcfg, systems: systems, group: group };
   });
 
   // Selection ring
@@ -895,15 +777,15 @@
   scene.add(selectionRing);
 
   // ============================================================
-  // Navigation & State Control
+  // Navigation & State Control (Cluster vs Galaxy vs Star)
   // ============================================================
-  let currentView = 'cluster'; // 'cluster' | 'galaxy' | 'star' | 'blackhole'
+  let currentView = 'cluster'; // 'cluster' | 'galaxy' | 'star'
   let activeGalaxyIndex = null;
   let activeStarSprite = null;
 
   let camAzimuth = 0.6, camPolar = 1.05, camDistance = 2400;
   const target = new THREE.Vector3(0,0,0);
-  const MIN_DIST = 20, MAX_DIST = 5500;
+  const MIN_DIST = 40, MAX_DIST = 5500;
 
   function applySpherical(){
     camera.position.x = target.x + camDistance * Math.sin(camPolar) * Math.cos(camAzimuth);
@@ -974,8 +856,9 @@
     checkZoomTransition();
   }, { passive:false });
 
+  // Automatic transition check based on zoom distance when in galaxy view
   function checkZoomTransition(){
-    if(currentView === 'galaxy' && camDistance > 1200){
+    if(currentView === 'galaxy' && camDistance > 1100){
       returnToClusterView();
     }
   }
@@ -987,20 +870,26 @@
   const pointerNDC = new THREE.Vector2();
 
   function handleHover(e){
-    if(currentView === 'star' || currentView === 'blackhole') return;
+    if(currentView === 'star') return;
     pointerNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
     pointerNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(pointerNDC, camera);
 
     if(currentView === 'cluster'){
       const hits = raycaster.intersectObjects(galaxyGroup.children);
-      if(hits.length) canvas.classList.add('hoverable');
-      else canvas.classList.remove('hoverable');
+      if(hits.length){
+        canvas.classList.add('hoverable');
+      } else {
+        canvas.classList.remove('hoverable');
+      }
     } else if(currentView === 'galaxy'){
       const activeGroup = galaxySystemsMap[activeGalaxyIndex].group;
       const hits = raycaster.intersectObjects(activeGroup.children);
-      if(hits.length) canvas.classList.add('hoverable');
-      else canvas.classList.remove('hoverable');
+      if(hits.length){
+        canvas.classList.add('hoverable');
+      } else {
+        canvas.classList.remove('hoverable');
+      }
     }
   }
 
@@ -1024,12 +913,7 @@
       const activeGroup = galaxySystemsMap[activeGalaxyIndex].group;
       const hits = raycaster.intersectObjects(activeGroup.children);
       if(hits.length){
-        const clickedSprite = hits[0].object;
-        if(clickedSprite.userData.info.isBlackHole){
-          enterBlackHoleDive(clickedSprite);
-        } else {
-          focusOnStar(clickedSprite);
-        }
+        focusOnStar(hits[0].object);
       }
     }
   });
@@ -1075,22 +959,22 @@
 
     savedClusterCam = { az: camAzimuth, pol: camPolar, dist: camDistance, target: target.clone() };
 
-    // Hide all galaxies, show selected
-    Object.keys(galaxySystemsMap).forEach(function(idx){
-      const g = galaxySystemsMap[idx];
-      const active = (+idx === galaxyIdx);
-      g.group.visible = active;
-      g.fieldPoints.visible = active;
-      g.coreGlow.visible = active;
-      g.bhSprite.visible = active;
-    });
-    galaxyGroup.visible = false;
-
     const gData = galaxySystemsMap[galaxyIdx];
+    gData.group.visible = true;
+    galaxyGroup.visible = false; // Hide cluster nodes
+
+    // Enable background field and core glow positioned at galaxy center
+    fieldPoints.position.copy(gData.config.pos);
+    fieldPoints.visible = true;
+    coreGlow.position.copy(gData.config.pos);
+    coreGlow.visible = true;
+    coreGlowSmall.position.copy(gData.config.pos);
+    coreGlowSmall.visible = true;
+
     const destTarget = gData.config.pos.clone();
     const destPos = destTarget.clone().add(new THREE.Vector3(0, 320, 620));
 
-    document.getElementById('hud-instruction').textContent = `Galaxy: ${gData.config.name} · Tap any star or central black hole.`;
+    document.getElementById('hud-instruction').textContent = `Galaxy: ${gData.config.name} · Tap any star system to examine.`;
     document.getElementById('stat-systems').textContent = gData.systems.length;
 
     startTween(destPos, destTarget, 1300, function(){
@@ -1104,19 +988,21 @@
     hideInfoPanel();
     animateRingOut();
 
-    Object.keys(galaxySystemsMap).forEach(function(idx){
-      const g = galaxySystemsMap[idx];
-      g.group.visible = false;
-      g.fieldPoints.visible = false;
-      g.coreGlow.visible = false;
-      g.bhSprite.visible = false;
-      g.fieldMat.uniforms.uDim.value = 1.0;
-    });
+    if(currentView === 'star'){
+      currentView = 'galaxy';
+      activeStarSprite = null;
+      fadeUniform(fieldMat.uniforms.uDim, 1.0, 800);
+    }
+
+    const prevGalaxyGroup = galaxySystemsMap[activeGalaxyIndex].group;
+    prevGalaxyGroup.visible = false;
+    fieldPoints.visible = false;
+    coreGlow.visible = false;
+    coreGlowSmall.visible = false;
     galaxyGroup.visible = true;
 
     currentView = 'cluster';
     activeGalaxyIndex = null;
-    activeStarSprite = null;
 
     const s = savedClusterCam || { az: 0.6, pol: 1.05, dist: 2400, target: new THREE.Vector3(0,0,0) };
     const clusterPos = new THREE.Vector3(
@@ -1136,12 +1022,14 @@
   }
 
   function focusOnStar(sprite){
+    if(currentView === 'star') return;
     currentView = 'star';
     activeStarSprite = sprite;
     autoRotate = false;
     clearTimeout(idleTimer);
 
     const starPos = sprite.position.clone().add(galaxySystemsMap[activeGalaxyIndex].config.pos);
+    const localStarPos = sprite.position.clone();
     const dirBack = camera.position.clone().sub(starPos).normalize();
     const focusDist = sprite.userData.baseScale * 4.2 + 22;
     const camTarget = starPos.clone().add(dirBack.multiplyScalar(focusDist));
@@ -1149,31 +1037,12 @@
     selectionRing.position.copy(starPos);
     selectionRing.material.opacity = 0;
 
-    startTween(camTarget, starPos, 1100, function(){
+    startTween(camTarget, starPos, 1250, function(){
       showInfoPanel(sprite.userData.info);
       animateRingIn();
     });
 
-    const gData = galaxySystemsMap[activeGalaxyIndex];
-    fadeUniform(gData.fieldMat.uniforms.uDim, 0.12, 800);
-  }
-
-  // Plunge into Black Hole Animation
-  function enterBlackHoleDive(sprite){
-    currentView = 'blackhole';
-    activeStarSprite = sprite;
-    autoRotate = false;
-    clearTimeout(idleTimer);
-
-    const bhPos = sprite.position.clone().add(galaxySystemsMap[activeGalaxyIndex].config.pos);
-    
-    // Dramatic spiral plunge animation straight into singularity core
-    startTween(bhPos.clone().add(new THREE.Vector3(0, 5, 8)), bhPos, 1800, function(){
-      showInfoPanel(sprite.userData.info);
-    });
-
-    const gData = galaxySystemsMap[activeGalaxyIndex];
-    fadeUniform(gData.fieldMat.uniforms.uDim, 0.04, 1200);
+    fadeUniform(fieldMat.uniforms.uDim, 0.14, 900);
   }
 
   function fadeUniform(uniform, to, duration){
@@ -1198,7 +1067,6 @@
     }
     ringAnim = requestAnimationFrame(step);
   }
-
   function animateRingOut(){
     cancelAnimationFrame(ringAnim);
     const start = performance.now(), from = selectionRing.material.opacity;
@@ -1210,23 +1078,21 @@
     ringAnim = requestAnimationFrame(step);
   }
 
-  // Panel action buttons
-  document.getElementById('panel-back-star').addEventListener('click', function(){
-    if(currentView === 'star' || currentView === 'blackhole'){
+  document.getElementById('panel-return').addEventListener('click', function(){
+    if(currentView === 'star'){
+      // Return from star to galaxy overview
       hideInfoPanel();
       animateRingOut();
       currentView = 'galaxy';
       activeStarSprite = null;
-      const gData = galaxySystemsMap[activeGalaxyIndex];
-      fadeUniform(gData.fieldMat.uniforms.uDim, 1.0, 800);
-      const destTarget = gData.config.pos.clone();
+      fadeUniform(fieldMat.uniforms.uDim, 1.0, 800);
+      const gConfig = galaxySystemsMap[activeGalaxyIndex].config;
+      const destTarget = gConfig.pos.clone();
       const destPos = destTarget.clone().add(new THREE.Vector3(0, 320, 620));
       startTween(destPos, destTarget, 1000);
+    } else if(currentView === 'galaxy'){
+      returnToClusterView();
     }
-  });
-
-  document.getElementById('panel-return').addEventListener('click', function(){
-    returnToClusterView();
   });
 
   // ============================================================
@@ -1246,36 +1112,20 @@
     const subEl = document.getElementById('panel-sub');
     const statsGrid = document.getElementById('panel-stats');
     const descEl = document.getElementById('panel-desc');
-    const backBtn = document.getElementById('panel-back-star');
 
     nameEl.textContent = info.name;
     descEl.textContent = info.desc;
 
-    if(info.isBlackHole){
-      badge.textContent = "SUPERMASSIVE SINGULARITY · BH";
-      subEl.textContent = "Galactic Center Core";
-      backBtn.style.display = "block";
-      backBtn.textContent = "◄ Exit Black Hole";
-      statsGrid.innerHTML = `
-        <div class="stat"><b>${fmt(info.mass)}</b><span>Mass</span></div>
-        <div class="stat"><b>${fmt(info.radius)}</b><span>Event Horizon</span></div>
-        <div class="stat"><b>${fmt(info.lum)}</b><span>Radiation</span></div>
-        <div class="stat"><b>Gravitational</b><span>Spacetime Warp</span></div>
-      `;
-    } else {
-      badge.textContent = info.cls + (info.realStar ? ' · CONFIRMED' : ' · CATALOGUED');
-      subEl.textContent = 'Simulated star system';
-      backBtn.style.display = "block";
-      backBtn.textContent = "◄ Back to Star Field";
-      statsGrid.innerHTML = `
-        <div class="stat"><b>${fmt(info.distance)}</b><span>Distance (ly)</span></div>
-        <div class="stat"><b>${fmt(info.temp)}</b><span>Surface Temp (K)</span></div>
-        <div class="stat"><b>${fmt(info.mass)}</b><span>Mass (M☉)</span></div>
-        <div class="stat"><b>${fmt(info.radius)}</b><span>Radius (R☉)</span></div>
-        <div class="stat"><b>${fmt(info.lum)}</b><span>Luminosity (L☉)</span></div>
-        <div class="stat"><b>${info.planets}</b><span>Known Planets</span></div>
-      `;
-    }
+    badge.textContent = info.cls + (info.realStar ? ' · CONFIRMED' : ' · CATALOGUED');
+    subEl.textContent = 'Simulated star system';
+    statsGrid.innerHTML = `
+      <div class="stat"><b id="stat-distance">${fmt(info.distance)}</b><span>Distance (ly)</span></div>
+      <div class="stat"><b id="stat-temp">${fmt(info.temp)}</b><span>Surface Temp (K)</span></div>
+      <div class="stat"><b id="stat-mass">${fmt(info.mass)}</b><span>Mass (M☉)</span></div>
+      <div class="stat"><b id="stat-radius">${fmt(info.radius)}</b><span>Radius (R☉)</span></div>
+      <div class="stat"><b id="stat-lum">${fmt(info.lum)}</b><span>Luminosity (L☉)</span></div>
+      <div class="stat"><b id="stat-planets">${info.planets}</b><span>Known Planets</span></div>
+    `;
 
     panel.classList.add('show');
   }
@@ -1283,7 +1133,7 @@
   function hideInfoPanel(){ panel.classList.remove('show'); }
 
   // ============================================================
-  // Search Bar (Galaxies & Stars & Black Holes)
+  // Search Bar (Galaxies & Stars)
   // ============================================================
   const searchInput = document.getElementById('search-input');
   const searchResults = document.getElementById('search-results');
@@ -1294,12 +1144,14 @@
 
     let matches = [];
 
+    // Search galaxies first
     GALAXY_DATA_CONFIG.forEach(function(gcfg, gIdx){
-      if(gcfg.name.toLowerCase().indexOf(q) !== -1 || gcfg.sub.toLowerCase().indexOf(q) !== -1 || gcfg.bhName.toLowerCase().indexOf(q) !== -1){
+      if(gcfg.name.toLowerCase().indexOf(q) !== -1 || gcfg.sub.toLowerCase().indexOf(q) !== -1){
         matches.push({ type: 'galaxy', name: gcfg.name, sub: gcfg.type, idx: gIdx });
       }
     });
 
+    // Search star systems across loaded or all galaxies
     Object.keys(galaxySystemsMap).forEach(function(gIdx){
       const gData = galaxySystemsMap[gIdx];
       gData.systems.forEach(function(s){
@@ -1313,7 +1165,7 @@
 
     if(!matches.length){ searchResults.classList.remove('show'); searchResults.innerHTML=''; return; }
 
-    searchResults.innerHTML = matches.map(function(m){
+    searchResults.innerHTML = matches.map(function(m, i){
       const label = m.type === 'galaxy' ? '[Galaxy] ' + m.name : m.name;
       return '<div class="search-item" data-type="'+m.type+'" data-idx="'+(m.type==='galaxy'?m.idx:m.gIdx)+'" data-star="'+(m.type==='star'?galaxySystemsMap[m.gIdx].systems.indexOf(m.sprite.userData.info):'')+'"><span>'+label+'</span><span class="cls">'+m.sub+'</span></div>';
     }).join('');
@@ -1335,13 +1187,9 @@
           const targetSprite = galaxySystemsMap[gIdx].systems[starIdx]._sprite;
           if(currentView !== 'galaxy' || activeGalaxyIndex !== gIdx){
             enterGalaxyView(gIdx);
-            setTimeout(function(){ 
-              if(targetSprite.userData.info.isBlackHole) enterBlackHoleDive(targetSprite);
-              else focusOnStar(targetSprite); 
-            }, 1350);
+            setTimeout(function(){ focusOnStar(targetSprite); }, 1350);
           } else {
-            if(targetSprite.userData.info.isBlackHole) enterBlackHoleDive(targetSprite);
-            else focusOnStar(targetSprite);
+            focusOnStar(targetSprite);
           }
         }
       });
@@ -1357,14 +1205,11 @@
     const dt = Math.min(64, now - lastTime);
     lastTime = now;
 
-    // Update shader uniforms across active fields
-    Object.keys(galaxySystemsMap).forEach(function(idx){
-      galaxySystemsMap[idx].fieldMat.uniforms.uTime.value += dt*0.001;
-    });
+    fieldMat.uniforms.uTime.value += dt*0.001;
 
     if(tweenState.active){
       updateTween(dt);
-    } else if(currentView === 'star' || currentView === 'blackhole'){
+    } else if(currentView === 'star'){
       const dirBack = camera.position.clone().sub(target).normalize();
       camera.position.copy(target.clone().add(dirBack.multiplyScalar(camera.position.distanceTo(target))));
       camera.lookAt(target);
@@ -1375,10 +1220,6 @@
       galaxyGroup.rotation.y += dt*0.00003;
     } else if(currentView === 'galaxy'){
       applySpherical();
-      // Rotate active galaxy group slightly
-      if(activeGalaxyIndex !== null){
-        galaxySystemsMap[activeGalaxyIndex].group.rotation.y += dt*0.00004;
-      }
     }
 
     renderer.render(scene, camera);
@@ -1397,3 +1238,4 @@
 </script>
 </body>
 </html>
+
