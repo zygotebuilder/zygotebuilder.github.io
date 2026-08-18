@@ -1,6 +1,4 @@
-from pathlib import Path
-
-html = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1871,9 +1869,3 @@ requestAnimationFrame(smoothFrame);
 
 </body>
 </html>
-'''
-
-path = Path("/mnt/data/index_zygote_builder_cosmos_biology.html")
-path.write_text(html, encoding="utf-8")
-print(path)
-print(f"{len(html):,} characters")
