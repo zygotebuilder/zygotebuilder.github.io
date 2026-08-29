@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --font-mono:'JetBrains Mono', monospace;
+    --font-serif:'Fraunces', serif;
+    --radius:14px;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg);
+    color:var(--text);
+    transition:background 0.6s ease, color 0.6s ease;
+    overflow:hidden;
+  }
+
+  body.mode-personal{
+    --bg:#15101f;
+    --bg2:#1d1630;
+    --panel:#1a1428;
+    --text:#ece4f7;
+    --dim:#9c8fb8;
+    --accent:#f2a65a;
+    --accent-soft:#c97b84;
+    --bubble-pal:#241a38;
+    --bubble-user:#2d2144;
+    --border:#33274a;
+    --font-body:var(--font-serif);
+    --glow: 0 0 24px rgba(242,166,90,0.18);
+  }
+
+  body.mode-required{
+    --bg:#090d0c;
+    --bg2:#0d1412;
+    --panel:#0b1210;
+    --text:#d9f2ea;
+    --dim:#5f8b80;
+    --accent:#5eead4;
+    --accent-soft:#3fb897;
+    --bubble-pal:#0f1a18;
+    --bubble-user:#12211d;
+    --border:#1c2d29;
+    --font-body:var(--font-mono);
+    --glow: 0 0 18px rgba(94,234,212,0.14);
+  }
+
+  body{
+    font-family:var(--font-mono);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 15% 10%, var(--bg2), transparent 45%),
+      radial-gradient(circle at 85% 90%, var(--bg2), transparent 45%);
+  }
+
+  .console{
+    width:min(560px, 94vw);
+    height:min(760px, 92vh);
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45), var(--glow);
+    overflow:hidden;
+    transition:box-shadow 0.6s ease;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    padding:16px 18px 14px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .identity{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .glyph{
+    width:34px; height:34px;
+    border-radius:50%;
+    background:conic-gradient(from 90deg, var(--accent), var(--accent-soft), var(--accent));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono);
+    font-weight:700; font-size:13px;
+    color:var(--bg);
+    flex-shrink:0;
+    animation:spin 12s linear infinite;
+  }
+  @keyframes spin{ to{ filter:hue-rotate(360deg); } }
+
+  .identity h1{
+    font-family:var(--font-mono);
+    font-size:15px;
+    margin:0;
+    letter-spacing:0.5px;
+  }
+  .identity p{
+    margin:1px 0 0;
+    font-size:11px;
+    color:var(--dim);
+    font-family:var(--font-mono);
+  }
+
+  /* ---------- MODE SWITCH (signature element) ---------- */
+  .switch-plate{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    user-select:none;
+  }
+  .switch-plate .plate-label{
+    font-size:9px;
+    letter-spacing:2px;
+    color:var(--dim);
+    font-family:var(--font-mono);
+  }
+  .switch-track{
+    position:relative;
+    width:76px;
+    height:30px;
+    border-radius:8px;
+    background:var(--bg);
+    border:1px solid var(--border);
+    cursor:pointer;
+    padding:3px;
+  }
+  .switch-knob{
+    position:absolute;
+    top:3px; left:3px;
+    width:34px; height:22px;
+    border-radius:5px;
+    background:var(--accent);
+    transition:left 0.35s cubic-bezier(.65,-0.4,.35,1.4), background 0.4s ease;
+    box-shadow:0 0 10px rgba(0,0,0,0.3);
+  }
+  body.mode-required .switch-knob{ left:37px; }
+  .switch-track::before, .switch-track::after{
+    position:absolute;
+    top:50%; transform:translateY(-50%);
+    font-size:8px; font-family:var(--font-mono); letter-spacing:0.5px;
+    color:var(--dim);
+    pointer-events:none;
+  }
+  .switch-track::before{ content:"YOU"; left:6px; }
+  .switch-track::after{ content:"JOB"; right:5px; }
+  .switch-track.spark::after{
+    content:"⚡";
+  }
+  .spark-flash{
+    position:absolute; inset:0;
+    border-radius:8px;
+    background:radial-gradient(circle, var(--accent), transparent 70%);
+    opacity:0;
+    pointer-events:none;
+  }
+  .spark-flash.active{
+    animation:flash 0.4s ease-out;
+  }
+  @keyframes flash{ 0%{opacity:0.85;} 100%{opacity:0;} }
+
+  /* ---------- CHAT LOG ---------- */
+  .log{
+    flex:1;
+    overflow-y:auto;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    scroll-behavior:smooth;
+  }
+  .log::-webkit-scrollbar{ width:6px; }
+  .log::-webkit-scrollbar-thumb{ background:var(--border); border-radius:4px; }
+
+  .msg{
+    max-width:82%;
+    padding:10px 13px;
+    border-radius:var(--radius);
+    font-family:var(--font-body);
+    font-size:15px;
+    line-height:1.45;
+    animation:rise 0.3s ease;
+    white-space:pre-wrap;
+  }
+  body.mode-required .msg{ font-size:13.5px; line-height:1.5; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .msg.pal{
+    align-self:flex-start;
+    background:var(--bubble-pal);
+    border-bottom-left-radius:4px;
+    color:var(--text);
+  }
+  .msg.user{
+    align-self:flex-end;
+    background:var(--bubble-user);
+    border-bottom-right-radius:4px;
+    color:var(--text);
+  }
+  .msg.system{
+    align-self:center;
+    color:var(--dim);
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.5px;
+    background:none;
+    padding:2px 8px;
+  }
+
+  .typing{
+    align-self:flex-start;
+    display:flex;
+    gap:4px;
+    padding:12px 14px;
+    background:var(--bubble-pal);
+    border-radius:var(--radius);
+    border-bottom-left-radius:4px;
+  }
+  .typing span{
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--dim);
+    animation:bounce 1.1s infinite;
+  }
+  .typing span:nth-child(2){ animation-delay:0.15s; }
+  .typing span:nth-child(3){ animation-delay:0.3s; }
+  @keyframes bounce{ 0%,60%,100%{ transform:translateY(0); opacity:0.4;} 30%{ transform:translateY(-4px); opacity:1;} }
+
+  /* ---------- INPUT ---------- */
+  form{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 14px;
+    border-top:1px solid var(--border);
+    background:var(--bg);
+  }
+  .prompt-marker{
+    font-family:var(--font-mono);
+    color:var(--accent);
+    font-size:14px;
+    flex-shrink:0;
+  }
+  input[type=text]{
+    flex:1;
+    background:none;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:14.5px;
+    padding:8px 0;
+  }
+  input[type=text]::placeholder{ color:var(--dim); }
+  button{
+    background:var(--accent);
+    color:var(--bg);
+    border:none;
+    border-radius:8px;
+    padding:8px 14px;
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    transition:transform 0.15s ease, opacity 0.2s ease;
+  }
+  button:hover{ transform:translateY(-1px); }
+  button:active{ transform:translateY(0); opacity:0.85; }
+
+  footer{
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:9.5px;
+    color:var(--dim);
+    padding:6px 10px 10px;
+    letter-spacing:0.3px;
+    opacity:0.8;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body class="mode-personal">
+
+<div class="console">
+  <header>
+    <div class="identity">
+      <div class="glyph">P</div>
+      <div>
+        <h1>Pal</h1>
+        <p id="modeCaption">personal · off the clock</p>
+      </div>
+    </div>
+    <div class="switch-plate">
+      <span class="plate-label">MODE</span>
+      <div class="switch-track" id="switchTrack">
+        <div class="spark-flash" id="sparkFlash"></div>
+        <div class="switch-knob"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="log" id="log"></div>
+
+  <form id="chatForm">
+    <span class="prompt-marker">&gt;</span>
+    <input type="text" id="input" placeholder="say something to Pal…" autocomplete="off" />
+    <button type="submit">SEND</button>
+  </form>
+  <footer>Pal reflects, it doesn't diagnose. For the real stuff, a real person still wins.</footer>
+</div>
+
+<script>
+(function(){
+  const body = document.body;
+  const log = document.getElementById('log');
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('input');
+  const switchTrack = document.getElementById('switchTrack');
+  const sparkFlash = document.getElementById('sparkFlash');
+  const modeCaption = document.getElementById('modeCaption');
+
+  let mode = 'personal';
+  let taskList = [];
+  let lastTopics = []; // short session memory of confided keywords, personal mode only
+
+  // ---------- reflection (classic ELIZA pronoun swap) ----------
+  const reflections = {
+    "i":"you", "am":"are", "my":"your", "was":"were", "i'd":"you would",
+    "i've":"you have", "i'll":"you will", "my":"your", "myself":"yourself",
+    "me":"you", "i'm":"you're", "mine":"yours",
+    "you":"I", "your":"my", "you're":"I'm", "you've":"I've",
+    "you'll":"I'll", "yours":"mine", "yourself":"myself"
+  };
+  function reflect(text){
+    return text.split(/\b/).map(w=>{
+      const lw = w.toLowerCase();
+      return reflections.hasOwnProperty(lw) ? reflections[lw] : w;
+    }).join('');
+  }
+
+  // ---------- greetings ----------
+  const greetings = {
+    personal: "Hey. It's Pal. Whatever's going on, I'm not going anywhere — what's up?",
+    required: "Pal, on the clock. Give me the task and I'll keep it straight."
+  };
+
+  // ---------- PERSONAL MODE RULES ----------
+  const personalRules = [
+    { pattern:/\b(bug|debug|stuck|broken|error|crash)\b/i,
+      responses:[
+        "Sounds like something you're building is fighting back. Is it the logic that's stuck, or the motivation?",
+        "The stubborn bugs are usually the ones worth remembering later. What have you tried so far?",
+        "Stuck code has a way of following you off-screen. Is it just the code, or is today just like that?"
+      ]},
+    { pattern:/\b(zygote|github pages|deploy|portfolio|three\.js|cannon\.js)\b/i,
+      responses:[
+        "The lab again, huh. What's it asking of you today?",
+        "You built that place from nothing — does it still feel like a lab, or more like a job some days?",
+        "Tell me what part of Zygote is on your mind."
+      ]},
+    { pattern:/\b(tired|exhausted|burnt out|burned out|drained)\b/i,
+      responses:[
+        "That sounds heavy. How long has it been sitting on you?",
+        "Tired like you need sleep, or tired like you need a different kind of week?",
+        "Worth saying out loud: you're allowed to be tired without justifying it."
+      ]},
+    { pattern:/\b(proud|shipped|finished|launched|finally works)\b/i,
+      responses:[
+        "That's worth sitting with for a second — say more about it.",
+        "Good. What part of it are you most proud of?",
+        "Let yourself have that one. What made it click?"
+      ]},
+    { pattern:/\b(anxious|worried|nervous|scared|afraid)\b/i,
+      responses:[
+        "What's the worry actually about, underneath it?",
+        "Is this a today worry, or one that's been hanging around a while?",
+        "Named worries are easier to hold than vague ones. What's the specific thing?"
+      ]},
+    { pattern:/\b(alone|lonely|isolated)\b/i,
+      responses:[
+        "That's a hard thing to carry quietly. When did it start feeling this way?",
+        "I'm here for this part, at least. What's making it feel that way right now?"
+      ]},
+    { pattern:/\b(sad|down|low|upset|hurt)\b/i,
+      responses:[
+        "I hear that. Do you know what brought it on, or is it more of a fog?",
+        "That's allowed to just be true right now. Want to tell me more?"
+      ]},
+    { pattern:/\b(happy|good|great|excited|glad)\b/i,
+      responses:[
+        "I like hearing that. What's behind it?",
+        "Good — hold onto that one. What's making today lighter?"
+      ]},
+    { pattern:/\bthank(s| you)\b/i,
+      responses:["Anytime. That's what I'm here for.", "Of course. I meant it."]},
+    { pattern:/\bwhy\b.*\byou\b/i,
+      responses:["Why do you think I'd ask that?", "Does the reason matter, or just the fact that I'm asking?"]},
+    { pattern:/\b(i think|i feel|i believe)\b/i,
+      responses:[
+        "Go on — what makes you feel that way?",
+        "Sit with that for a second. What's underneath it?"
+      ]},
+  ];
+
+  const personalFallbacks = [
+    "Say more about that.",
+    "What makes you say that?",
+    "How does that sit with you?",
+    "I'm listening — keep going.",
+    "What's the part of that you haven't said out loud yet?",
+    "And how did that leave you feeling?",
+    "What would you tell someone else in this exact spot?"
+  ];
+
+  // ---------- REQUIRED MODE RULES ----------
+  const requiredRules = [
+    { pattern:/^(add|remind me to|todo|task)[:\s]+(.+)/i,
+      handler:(m)=>{
+        const item = m[2].trim();
+        taskList.push(item);
+        return `Logged: "${item}". ${taskList.length} on the list now.`;
+      }},
+    { pattern:/\b(list|show).*(task|todo)/i,
+      handler:()=>{
+        if(taskList.length===0) return "Nothing on the list. Clean slate.";
+        return taskList.map((t,i)=>`${i+1}. ${t}`).join('\n');
+      }},
+    { pattern:/\b(done|finished|complete)[:\s]+(.+)/i,
+      handler:(m)=>{
+        const term = m[2].trim().toLowerCase();
+        const idx = taskList.findIndex(t=>t.toLowerCase().includes(term));
+        if(idx>-1){ const removed = taskList.splice(idx,1); return `Cleared: "${removed[0]}". ${taskList.length} remaining.`; }
+        return "Didn't find that on the list — check the wording?";
+      }},
+    { pattern:/\bclear (the )?(list|tasks)/i,
+      handler:()=>{ taskList = []; return "List cleared."; }},
+    { pattern:/\b(focus|distracted|can'?t concentrate)\b/i,
+      responses:[
+        "One task, one window, timer on. What's the single next action?",
+        "Pick the smallest next step and do only that. What is it?"
+      ]},
+    { pattern:/\b(deadline|due|urgent)\b/i,
+      responses:[
+        "What's actually due, and by when — exact time helps.",
+        "Name the deliverable. We'll work backward from there."
+      ]},
+    { pattern:/\bpriorit/i,
+      responses:["What's the one thing that, if it slipped, would actually cost you? Start there."]},
+    { pattern:/\b(help|what can you do)\b/i,
+      responses:["In this mode: \"add: <task>\", \"list tasks\", \"done: <task>\", \"clear list\". Say the word and I'll track it."]},
+  ];
+
+  const requiredFallbacks = [
+    "Noted. Anything else to log?",
+    "Understood. What's next on the list?",
+    "Got it. What's the actual next step?",
+    "Fine — what's the concrete deliverable here?"
+  ];
+
+  // ---------- rendering ----------
+  function addMessage(text, who){
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function addSystem(text){
+    const div = document.createElement('div');
+    div.className = 'msg system';
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function showTyping(){
+    const div = document.createElement('div');
+    div.className = 'typing';
+    div.id = 'typingIndicator';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+  function hideTyping(){
+    const t = document.getElementById('typingIndicator');
+    if(t) t.remove();
+  }
+
+  // ---------- brain ----------
+  function respondPersonal(text){
+    for(const rule of personalRules){
+      if(rule.pattern.test(text)){
+        const opts = rule.responses;
+        return opts[Math.floor(Math.random()*opts.length)];
+      }
+    }
+    // occasional callback to something confided earlier in session
+    if(lastTopics.length && Math.random() < 0.25){
+      const topic = lastTopics[Math.floor(Math.random()*lastTopics.length)];
+      return `Earlier you brought up ${topic} — is this connected, or something new?`;
+    }
+    return personalFallbacks[Math.floor(Math.random()*personalFallbacks.length)];
+  }
+
+  function respondRequired(text){
+    for(const rule of requiredRules){
+      const m = text.match(rule.pattern);
+      if(m){
+        if(rule.handler) return rule.handler(m);
+        const opts = rule.responses;
+        return opts[Math.floor(Math.random()*opts.length)];
+      }
+    }
+    return requiredFallbacks[Math.floor(Math.random()*requiredFallbacks.length)];
+  }
+
+  function trackTopic(text){
+    const notable = ["zygote","deadline","bug","launch","tired","project","github"];
+    for(const n of notable){
+      if(text.toLowerCase().includes(n) && !lastTopics.includes(n)){
+        lastTopics.push(n);
+        if(lastTopics.length>4) lastTopics.shift();
+      }
+    }
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const text = input.value.trim();
+    if(!text) return;
+    addMessage(text, 'user');
+    input.value = '';
+
+    if(mode === 'personal') trackTopic(text);
+
+    showTyping();
+    const delay = 500 + Math.random()*500;
+    setTimeout(()=>{
+      hideTyping();
+      const reply = mode === 'personal' ? respondPersonal(text) : respondRequired(text);
+      addMessage(reply, 'pal');
+    }, delay);
+  });
+
+  // ---------- mode switch ----------
+  switchTrack.addEventListener('click', function(){
+    mode = (mode === 'personal') ? 'required' : 'personal';
+    body.className = 'mode-' + mode;
+    modeCaption.textContent = mode === 'personal' ? 'personal · off the clock' : 'required · on the clock';
+
+    sparkFlash.classList.remove('active');
+    void sparkFlash.offsetWidth; // restart animation
+    sparkFlash.classList.add('active');
+
+    addSystem(mode === 'personal' ? '— switched to PERSONAL —' : '— switched to REQUIRED —');
+    showTyping();
+    setTimeout(()=>{
+      hideTyping();
+      addMessage(greetings[mode], 'pal');
+    }, 450);
+  });
+
+  // ---------- boot ----------
+  addMessage(greetings.personal, 'pal');
+})();
+</script>
+
+</body>
+</html>
