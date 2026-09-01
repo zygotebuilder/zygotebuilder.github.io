@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TPS Wellness Snapshot</title>
+<style>
+body{font-family:Arial;margin:0;background:#eef9f4;color:#17324d;padding:20px}
+.card{background:white;border-radius:25px;padding:32px;max-width:600px;margin:auto;box-shadow:0 10px 35px #0001}
+.brand{text-align:center;font-weight:bold;letter-spacing:2px;color:#2d8f73}
+h1,h2{text-align:center;margin-top:0}
+.metric{display:flex;justify-content:space-between;align-items:center;background:#f5faf8;padding:14px;border-radius:14px;margin-bottom:10px}
+.stars{white-space:nowrap;color:#f39c12}
+.disclaimer{text-align:center;background:#f7fafb;padding:12px;margin-top:18px;font-size:13px;color:#657781;border-radius:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">TPS WELLNESS BOT</div>
+  <h2 id="heading">Your Wellness Snapshot</h2>
+  <p id="overall" style="text-align:center;font-weight:bold;color:#2d8f73;"></p>
+  
+  <div id="metrics"></div>
+
+  <div class="disclaimer">
+    <b>🌿 Exhibition Activity</b><br>This snapshot is for personal reflection and is not a medical assessment.
+  </div>
+</div>
+
+<script>
+const labels = {
+  energy: ["⚡", "Energy"],
+  sleep: ["😴", "Sleep"],
+  movement: ["🚶", "Movement"],
+  mind: ["🧠", "Mind"],
+  water: ["💧", "Hydration"],
+  screen: ["📱", "Screen Balance"],
+  food: ["🍎", "Diet / Food"]
+};
+
+const params = new URLSearchParams(window.location.search);
+const name = params.get("name") || "Visitor";
+document.getElementById("heading").textContent = name + ", here is your Wellness Snapshot";
+
+let metricsDiv = document.getElementById("metrics");
+let total = 0, count = 0;
+
+for (let [key, val] of Object.entries(labels)) {
+  let score = parseInt(params.get(key)) || 3;
+  total += score;
+  count++;
+  
+  let stars = "★".repeat(score) + "☆".repeat(5 - score);
+  metricsDiv.innerHTML += `
+    <div class="metric">
+      <span>${val[0]} <b>${val[1]}</b></span>
+      <span class="stars">${stars}</span>
+    </div>`;
+}
+
+let avg = total / count;
+let overallText = avg >= 4.1 ? "You seem to have a great wellness balance. Keep it up!" : 
+                  avg >= 3.3 ? "You're doing well, with a few areas that could use attention." : 
+                  "A few small routine changes could help you feel more balanced.";
+document.getElementById("overall").textContent = overallText;
+</script>
+</body>
+</html>
