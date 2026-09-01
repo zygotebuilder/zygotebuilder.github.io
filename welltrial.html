@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TPS Wellness Bot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Manrope:wght@500;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand: #2d8f73;
+      --brand-dark: #1f6b56;
+      --ink: #17324d;
+      --font-display: 'Quicksand', sans-serif;
+      --card-radius: 25px;
+      --bg-1: #eaf7f1;
+      --bg-2: #e3f1ee;
+      --bg-3: #eef5f9;
+      --blob-a: #a9dfc9;
+      --blob-b: #9bcbe0;
+      --blob-c: #cfe3ce;
+      --particle-color: #8fd0b6;
+      --anim-speed: 34s;
+      --accent-glow: #2d8f73;
+      --accent-soft: #eaf8f2;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+      color: var(--ink);
+      min-height: 100vh;
+      transition: color .4s ease;
+    }
+
+    /* ---------- animated background ---------- */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+      transition: background 1.4s ease;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(65px);
+      opacity: .55;
+      will-change: transform;
+      transition: background 1.4s ease;
+    }
+    .blob.b1 {
+      width: 460px; height: 460px; top: -140px; left: -120px;
+      background: var(--blob-a);
+      animation: driftA var(--anim-speed) ease-in-out infinite alternate;
+    }
+    .blob.b2 {
+      width: 380px; height: 380px; bottom: -110px; right: -90px;
+      background: var(--blob-b);
+      animation: driftB calc(var(--anim-speed) * 1.25) ease-in-out infinite alternate;
+    }
+    .blob.b3 {
+      width: 320px; height: 320px; top: 40%; left: 60%;
+      background: var(--blob-c);
+      animation: driftC calc(var(--anim-speed) * 1.6) ease-in-out infinite alternate;
+    }
+    @keyframes driftA {
+      0%   { transform: translate(0,0) scale(1); }
+      100% { transform: translate(60px,50px) scale(1.12); }
+    }
+    @keyframes driftB {
+      0%   { transform: translate(0,0) scale(1); }
+      100% { transform: translate(-50px,-40px) scale(1.08); }
+    }
+    @keyframes driftC {
+      0%   { transform: translate(-40px,0) rotate(0deg) scale(1); }
+      100% { transform: translate(30px,-40px) rotate(20deg) scale(1.15); }
+    }
+
+    #particles { position: absolute; inset: 0; }
+    .particle {
+      position: absolute;
+      bottom: -6vh;
+      left: var(--x);
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      background: var(--particle-color);
+      opacity: 0;
+      animation: rise var(--dur) linear var(--delay) infinite;
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      8%   { opacity: .55; }
+      92%  { opacity: .3; }
+      100% { transform: translateY(-115vh) translateX(24px); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .blob, .particle { animation: none !important; }
+    }
+
+    /* ---------- theme: child ---------- */
+    body.theme-child {
+      --font-display: 'Fredoka', sans-serif;
+      --card-radius: 32px;
+      --bg-1: #fff3d9;
+      --bg-2: #ffe1d0;
+      --bg-3: #d8f5e6;
+      --blob-a: #ffbf7a;
+      --blob-b: #7fe0bd;
+      --blob-c: #ff9fae;
+      --particle-color: #ffbf7a;
+      --anim-speed: 17s;
+    }
+
+    /* ---------- theme: teen/adult ---------- */
+    body.theme-teen {
+      --font-display: 'Manrope', sans-serif;
+      --card-radius: 20px;
+      --bg-1: #e8f6f0;
+      --bg-2: #dcefea;
+      --bg-3: #e2ecf1;
+      --blob-a: #9cd9c1;
+      --blob-b: #8dc6db;
+      --blob-c: #bcd0e0;
+      --particle-color: #9cd9c1;
+      --anim-speed: 42s;
+    }
+
+    /* ---------- report themes (applied while result screen is active) ---------- */
+    body.report-thrive { --accent-glow: #2d8f73; --accent-soft: #e9f8f1; }
+    body.report-balance { --accent-glow: #3f9fc9; --accent-soft: #e9f5fa; }
+    body.report-focus { --accent-glow: #e2924f; --accent-soft: #fdf3ea; }
+
+    .app { max-width: 900px; margin: auto; padding: 24px; }
+    .screen { display: none; min-height: 90vh; align-items: center; justify-content: center; }
+    .active { display: flex; }
+    .card {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(6px);
+      border-radius: var(--card-radius);
+      padding: 32px;
+      width: 100%;
+      box-shadow: 0 14px 40px rgba(23,50,77,0.09);
+      transition: border-radius .5s ease;
+    }
+    h1, h2, h3 { margin-top: 0; font-family: var(--font-display); }
+    .brand { text-align: center; font-weight: bold; letter-spacing: 2px; color: var(--brand); font-family: var(--font-display); }
+    .center { text-align: center; }
+    .btn {
+      padding: 14px 24px; border: 0; border-radius: calc(var(--card-radius) * 0.55);
+      background: var(--brand); color: white; font-size: 17px; font-weight: bold;
+      margin: 7px; cursor: pointer; font-family: 'Quicksand', sans-serif;
+      transition: transform .18s ease, box-shadow .18s ease, background .3s ease;
+      box-shadow: 0 6px 16px rgba(45,143,115,0.28);
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(45,143,115,0.34); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+    .secondary { background: #e8eef2; color: var(--ink); box-shadow: none; }
+    .secondary:hover:not(:disabled) { background: #dfe8ed; }
+    .field { max-width: 600px; margin: auto; }
+    input {
+      width: 100%; padding: 14px; box-sizing: border-box; border: 2px solid #d8e3ea;
+      border-radius: calc(var(--card-radius) * 0.4); font-size: 18px; margin: 8px 0 18px;
+      font-family: 'Quicksand', sans-serif; transition: border-color .2s ease;
+    }
+    input:focus { outline: none; border-color: var(--brand); }
+    .camera {
+      max-width: 600px; margin: 20px auto; background: #123;
+      aspect-ratio: 4/3; border-radius: var(--card-radius); overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+    .camera video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .option {
+      padding: 18px; text-align: left; border: 2px solid #dce7ec;
+      border-radius: calc(var(--card-radius) * 0.55); background: white; font-size: 17px;
+      cursor: pointer; font-family: 'Quicksand', sans-serif;
+      transition: transform .15s ease, border-color .2s ease, background .2s ease;
+    }
+    .option:hover { transform: translateY(-2px); }
+    .selected { border-color: var(--brand); background: var(--accent-soft, #edf9f4); }
+    .progress { height: 9px; background: #e5edf0; border-radius: 9px; margin: 18px 0; overflow: hidden; }
+    .progress div { height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-dark)); width: 0%; transition: width 0.4s ease; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--accent-soft, #f5faf8); padding: 14px; border-radius: calc(var(--card-radius) * 0.5);
+      border: 1px solid rgba(0,0,0,0.03);
+      transition: background .4s ease;
+    }
+    .stars { white-space: nowrap; color: #f39c12; }
+    .focus span {
+      display: inline-block; background: var(--accent-soft, #edf8f3); padding: 10px;
+      border-radius: calc(var(--card-radius) * 0.45); margin: 4px; transition: background .4s ease;
+    }
+    .mission {
+      background: var(--accent-soft, #eff9f5); border-left: 5px solid var(--accent-glow, var(--brand));
+      padding: 15px; border-radius: calc(var(--card-radius) * 0.45); margin-top: 15px;
+      transition: background .4s ease, border-color .4s ease;
+    }
+    .takeaway {
+      text-align: center; border: 2px dashed #b9cbd2; padding: 18px; margin-top: 20px;
+      border-radius: var(--card-radius);
+    }
+    #qr { display: block; margin: 15px auto; width: 240px; height: 240px; border-radius: 12px; }
+    .disclaimer {
+      text-align: center; background: #f7fafb; padding: 12px; margin-top: 18px;
+      font-size: 13px; color: #657781; border-radius: calc(var(--card-radius) * 0.45);
+    }
+    @media(max-width: 650px) { .options, .metrics { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="bg-layer" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div id="particles"></div>
+</div>
+<div class="app">
+
+  <section id="welcome" class="screen active">
+    <div class="card center">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h1>🌿 Your Wellness Journey</h1>
+      <p>Pause • Reflect • Recharge</p>
+      <button class="btn" onclick="show('details')">Begin My Wellness Check</button>
+      <p>Your name and age are used only for this session.</p>
+    </div>
+  </section>
+
+  <section id="details" class="screen">
+    <div class="card">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h2 class="center">Let's get started 🌿</h2>
+      <div class="field">
+        <label><b>What should we call you?</b></label>
+        <input id="name">
+        <label><b>How old are you?</b></label>
+        <input id="age" type="number" min="5" max="120">
+      </div>
+      <div class="center">
+        <button class="btn" onclick="start()">Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="scan" class="screen">
+    <div class="card center">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h2>📷 Let's check your expression</h2>
+      <p>Look naturally at the camera. This is an interactive observation, not a medical assessment.</p>
+      <div class="camera">
+        <video id="video" autoplay muted playsinline></video>
+      </div>
+      <p id="status">Starting camera…</p>
+      <button id="scanBtn" class="btn" onclick="scan()" disabled>Scan My Expression</button>
+      <button class="btn secondary" onclick="skip()">Continue Without Camera</button>
+    </div>
+  </section>
+
+  <section id="expression" class="screen">
+    <div class="card center">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h2 id="expr">🙂 Your expression appears calm.</h2>
+      <p>Now let's answer a few simple wellness questions.</p>
+      <button class="btn" onclick="begin()">Continue</button>
+    </div>
+  </section>
+
+  <section id="questions" class="screen">
+    <div class="card">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <small id="num"></small>
+      <h2 id="question"></h2>
+      <div class="progress"><div id="bar"></div></div>
+      <div id="opts" class="options"></div>
+      <div class="center">
+        <button id="next" class="btn" disabled onclick="next()">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen">
+    <div class="card">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h2 id="heading" class="center"></h2>
+      <p id="overall" class="center"></p>
+      <div id="metrics" class="metrics"></div>
+      <h3>🌱 Your Focus Today</h3>
+      <div id="focus" class="focus"></div>
+      <div class="mission">
+        <h3>✨ Your Wellness Mission</h3>
+        <div id="mission"></div>
+      </div>
+      <div class="takeaway">
+        <h3>📱 Save Your Snapshot on Your Phone</h3>
+        <b>Scan the QR code to keep your Wellness Snapshot.</b>
+        <img id="qr" alt="Wellness Snapshot QR Code">
+        <p>Your snapshot is not stored on this computer.</p>
+        <button class="btn secondary" onclick="location.reload()">Start New Visitor</button>
+      </div>
+      <div class="disclaimer">
+        <b>🌿 Just for fun!</b><br>This wellness snapshot is an interactive school-exhibition activity and is not a medical or psychological assessment.
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+let user = {}, stream = null, expr = "calm", set = [], i = 0, answers = [], choice = null, report = null;
+const qs = {
+  child: [
+    ["energy", "How much energy do you have today?", ["Lots of energy!", "I feel good", "A little tired", "Very tired"], ["high", "good", "low", "verylow"]],
+    ["sleep", "When you wake up, how do you feel?", ["Ready to start the day!", "I feel okay", "Still a little sleepy", "Very sleepy"], ["high", "good", "low", "verylow"]],
+    ["movement", "How much do you play, walk or move during the day?", ["A lot", "Quite a bit", "Not much", "Very little"], ["high", "good", "low", "verylow"]],
+    ["mind", "How does your mind feel today?", ["Calm", "I feel okay", "I have many thoughts", "I feel worried or upset"], ["high", "good", "low", "verylow"]],
+    ["water", "How often do you drink water during the day?", ["Many times", "A few times", "Only sometimes", "I often forget"], ["high", "good", "low", "verylow"]],
+    ["screen", "How much do you use a phone, TV, tablet or computer each day?", ["Less than 1 hour", "1–2 hours", "2–4 hours", "More than 4 hours"], ["high", "good", "low", "verylow"]],
+    ["food", "Which type of food do you enjoy eating often?", ["🍕 Treat foods — pizza, chips, chocolates, burgers", "🍛 Home-style meals — dal, roti, rice, sabji", "🍎 Fresh foods — fruits, carrots, salads", "🥤 Drinks & packaged foods — juices, cold drinks, packaged snacks"], ["treat", "meal", "fresh", "packaged"]]
+  ],
+  adult: [
+    ["energy", "How would you describe your energy level today?", ["Very energetic", "Good", "A little low", "Very low"], ["high", "good", "low", "verylow"]],
+    ["sleep", "How has your sleep been lately?", ["I wake refreshed", "Mostly good", "I do not always get enough", "Often tired after sleep"], ["high", "good", "low", "verylow"]],
+    ["movement", "How often do you get physical movement during your day?", ["Regularly", "Some, but could be more", "I sit most of the day", "Rarely"], ["high", "good", "low", "verylow"]],
+    ["mind", "How would you describe your mind today?", ["Calm and clear", "Mostly calm", "Quite busy", "Difficult to switch off"], ["high", "good", "low", "verylow"]],
+    ["water", "How often do you drink water during the day?", ["Many times", "A few times", "Sometimes", "I often forget"], ["high", "good", "low", "verylow"]],
+    ["screen", "How much do you use a phone, TV, tablet or computer each day?", ["Less than 1 hour", "1–2 hours", "2–4 hours", "More than 4 hours"], ["high", "good", "low", "verylow"]],
+    ["food", "Which type of food do you eat most often?", ["🍕 Treat foods — pizza, chips, chocolates, burgers", "🍛 Home-style meals — dal, roti, rice, sabji", "🍎 Fresh foods — fruits, carrots, salads", "🥤 Drinks & packaged foods — juices, cold drinks, packaged snacks"], ["treat", "meal", "fresh", "packaged"]],
+    ["me", "How often do you get time to do something you enjoy?", ["Almost every day", "A few times a week", "Sometimes", "Rarely"], ["high", "good", "low", "verylow"]]
+  ]
+};
+
+window.show = function(id) {
+  document.querySelectorAll(".screen").forEach(x => x.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+};
+
+window.start = function() {
+  user.name = document.getElementById("name").value.trim();
+  user.age = +document.getElementById("age").value;
+  if (!user.name || user.age < 5) {
+    alert("Please enter your name and age.");
+    return;
+  }
+  document.body.classList.remove("theme-child", "theme-teen");
+  document.body.classList.add(user.age >= 13 ? "theme-teen" : "theme-child");
+  spawnParticles();
+  show("scan");
+  camera();
+};
+
+async function camera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    document.getElementById("video").srcObject = stream;
+    document.getElementById("status").textContent = "Camera ready. Look naturally at the screen.";
+    document.getElementById("scanBtn").disabled = false;
+  } catch (e) {
+    document.getElementById("status").textContent = "Camera is unavailable. You can continue without it.";
+  }
+}
+
+window.scan = async function() {
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri("https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights");
+    await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights");
+    let r = await faceapi.detectSingleFace(document.getElementById("video"), new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+    if (r) {
+      let e = Object.entries(r.expressions).sort((a, b) => b[1] - a[1])[0][0];
+      expr = ["happy", "surprised"].includes(e) ? "positive" : ["sad", "fearful"].includes(e) ? "tired" : ["angry", "disgusted"].includes(e) ? "tense" : "calm";
+    }
+    stop();
+    exprText();
+    show("expression");
+  } catch (e) {
+    document.getElementById("status").textContent = "Expression scan could not load. You can continue.";
+    setTimeout(() => { stop(); exprText(); show("expression"); }, 800);
+  }
+};
+
+window.skip = function() {
+  stop();
+  expr = "calm";
+  exprText();
+  show("expression");
+};
+
+function stop() {
+  if (stream) {
+    stream.getTracks().forEach(x => x.stop());
+    stream = null;
+  }
+}
+
+function exprText() {
+  document.getElementById("expr").textContent = {
+    positive: "😊 Your expression appears positive.",
+    calm: "🙂 Your expression appears calm.",
+    tired: "😴 Your expression appears a little tired.",
+    tense: "😟 Your expression appears a little tense."
+  }[expr];
+}
+
+window.begin = function() {
+  set = user.age >= 13 ? qs.adult : qs.child;
+  i = 0;
+  answers = [];
+  render();
+  show("questions");
+};
+
+function render() {
+  let q = set[i];
+  document.getElementById("num").textContent = "Question " + (i + 1) + " of " + set.length;
+  document.getElementById("question").textContent = q[1];
+  document.getElementById("bar").style.width = (i / set.length * 100) + "%";
+  let optsDiv = document.getElementById("opts");
+  optsDiv.innerHTML = "";
+  q[2].forEach((x, j) => {
+    let b = document.createElement("button");
+    b.className = "option";
+    b.innerHTML = "<b>" + String.fromCharCode(65 + j) + ".</b> " + x;
+    b.onclick = () => {
+      choice = j;
+      document.querySelectorAll(".option").forEach(z => z.classList.remove("selected"));
+      b.classList.add("selected");
+      document.getElementById("next").disabled = false;
+    };
+    optsDiv.appendChild(b);
+  });
+  document.getElementById("next").disabled = true;
+}
+
+window.next = function() {
+  answers[i] = choice;
+  if (i < set.length - 1) {
+    i++;
+    choice = null;
+    render();
+  } else {
+    makeReport();
+  }
+};
+
+function val(x) {
+  return { x: 3, high: 5, good: 4, low: 3, verylow: 2, treat: 3, meal: 4, fresh: 5, packaged: 2 }[x] ?? 3;
+}
+
+function makeReport() {
+  let s = { energy: 3, sleep: 3, movement: 3, mind: 3, water: 3, screen: 3, food: 3, me: 3 };
+  answers.forEach((a, j) => {
+    let q = set[j];
+    s[q[0]] = val(q[3][a]);
+  });
+  if (expr === "tense") s.mind = Math.max(1, s.mind - 1);
+  if (expr === "tired") s.energy = Math.max(1, s.energy - 1);
+  let m = [
+    ["⚡", "Energy", s.energy],
+    ["😴", "Sleep", s.sleep],
+    ["🚶", "Movement", s.movement],
+    ["🧠", "Mind", s.mind],
+    ["💧", "Hydration", s.water],
+    ["📱", "Screen Balance", s.screen],
+    ["🍎", user.age >= 13 ? "Diet" : "Food", s.food]
+  ];
+  if (user.age >= 13) m.push(["🎨", "Me-time", s.me]);
+  let avg = m.reduce((a, x) => a + x[2], 0) / m.length;
+  document.body.classList.remove("report-thrive", "report-balance", "report-focus");
+  document.body.classList.add(avg >= 4.1 ? "report-thrive" : avg >= 3.3 ? "report-balance" : "report-focus");
+  document.getElementById("heading").textContent = user.name + ", here is your Wellness Snapshot";
+  document.getElementById("overall").textContent = avg >= 4.1 ? "You seem to have a good wellness balance. Keep building on it!" : avg >= 3.3 ? "You are doing fairly well, with a few areas that could use a little attention." : "A few small wellness changes could help you feel more balanced.";
+  document.getElementById("metrics").innerHTML = m.map(x => '<div class="metric"><span>' + x[0] + ' <b>' + x[1] + '</b></span><span class="stars">' + ("★".repeat(x[2])) + ("☆".repeat(5 - x[2])) + "</span></div>").join("");
+  let f = [];
+  if (s.movement <= 3) f.push("🚶 Add a little more movement");
+  if (s.sleep <= 3) f.push("😴 Give your body more rest");
+  if (s.mind <= 3) f.push("🧠 Give yourself some calm time");
+  if (s.water <= 3) f.push("💧 Remember regular water breaks");
+  if (s.screen <= 3) f.push("📱 Give your eyes regular screen breaks");
+  if (s.food <= 3) f.push("🍎 Add more variety to your food");
+  if (user.age >= 13 && s.me <= 3) f.push("🎨 Make some time for yourself");
+  if (!f.length) f = ["✨ Keep your healthy balance going"];
+  document.getElementById("focus").innerHTML = f.slice(0, 3).map(x => "<span>" + x + "</span>").join("");
+  let mi = [];
+  if (s.movement <= 3) mi.push("<p>🚶 <b>Move for at least 15 minutes today</b> — walk, play, stretch or exercise.</p>");
+  if (s.mind <= 3) mi.push("<p>🌬️ <b>Take 5 quiet minutes</b> to breathe slowly, sit quietly or listen to calming music.</p>");
+  if (s.sleep <= 3) mi.push("<p>😴 <b>Give yourself enough time to rest</b> and try to keep a regular sleep routine.</p>");
+  if (s.water <= 3) mi.push("<p>💧 <b>Keep water nearby</b> and remember regular water breaks.</p>");
+  if (s.screen <= 3) mi.push("<p>📱 <b>Take short breaks from screens</b> and spend some time moving or playing.</p>");
+  if (s.food <= 3) mi.push("<p>🍎 <b>Add some variety to your food</b> by including fresh foods or a balanced meal.</p>");
+  if (user.age >= 13 && s.me <= 3) mi.push("<p>🎨 <b>Make some time for yourself</b> to do something you enjoy.</p>");
+  if (!mi.length) mi = ["<p>✨ <b>Keep doing what supports your wellbeing</b> and make room for movement, rest and enjoyment.</p>"];
+  document.getElementById("mission").innerHTML = mi.slice(0, 3).join("");
+  report = { m: m, f: f.slice(0, 3), mi: mi.slice(0, 3) };
+  show("result");
+  makeQR();
+}
+
+function makeQR() {
+  // Be sure to change 'yourusername' and 'your-repo-name' to your actual GitHub info
+  let baseUrl = "https://zygotebuilder.github.io/report.html";
+
+  let params = new URLSearchParams({
+    name: user.name,
+    age: user.age,
+    energy: report.m[0][2],
+    sleep: report.m[1][2],
+    movement: report.m[2][2],
+    mind: report.m[3][2],
+    water: report.m[4][2],
+    screen: report.m[5][2],
+    food: report.m[6][2]
+  });
+
+  let dynamicUrl = baseUrl + "?" + params.toString();
+  let qrImg = document.getElementById("qr");
+  qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=" + encodeURIComponent(dynamicUrl);
+}
+
+/* ---------- decorative background particles (visual only, no app logic) ---------- */
+function spawnParticles() {
+  const box = document.getElementById("particles");
+  if (!box) return;
+  box.innerHTML = "";
+  const isChild = document.body.classList.contains("theme-child");
+  const count = isChild ? 22 : 14;
+  for (let k = 0; k < count; k++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.setProperty("--x", (Math.random() * 100) + "%");
+    p.style.setProperty("--size", (Math.random() * 10 + 6).toFixed(0) + "px");
+    p.style.setProperty("--dur", (Math.random() * 18 + (isChild ? 10 : 24)) + "s");
+    p.style.setProperty("--delay", (Math.random() * 20) + "s");
+    box.appendChild(p);
+  }
+}
+document.addEventListener("DOMContentLoaded", spawnParticles);
+</script>
+</body>
+</html>
