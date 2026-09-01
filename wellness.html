@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TPS Wellness Bot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #eef9f4; color: #17324d; }
+    .app { max-width: 900px; margin: auto; padding: 24px; }
+    .screen { display: none; min-height: 90vh; align-items: center; justify-content: center; }
+    .active { display: flex; }
+    .card { background: white; border-radius: 25px; padding: 32px; width: 100%; box-shadow: 0 10px 35px rgba(0,0,0,0.06); }
+    h1, h2 { margin-top: 0; }
+    .brand { text-align: center; font-weight: bold; letter-spacing: 2px; color: #2d8f73; }
+    .center { text-align: center; }
+    .btn { padding: 14px 24px; border: 0; border-radius: 14px; background: #2d8f73; color: white; font-size: 17px; font-weight: bold; margin: 7px; cursor: pointer; }
+    .secondary { background: #e8eef2; color: #17324d; }
+    .field { max-width: 600px; margin: auto; }
+    input { width: 100%; padding: 14px; box-sizing: border-box; border: 2px solid #d8e3ea; border-radius: 12px; font-size: 18px; margin: 8px 0 18px; }
+    .camera { max-width: 600px; margin: 20px auto; background: #123; aspect-ratio: 4/3; border-radius: 20px; overflow: hidden; }
+    .camera video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .option { padding: 18px; text-align: left; border: 2px solid #dce7ec; border-radius: 15px; background: white; font-size: 17px; cursor: pointer; }
+    .selected { border-color: #2d8f73; background: #edf9f4; }
+    .progress { height: 9px; background: #e5edf0; border-radius: 9px; margin: 18px 0; }
+    .progress div { height: 100%; background: #2d8f73; width: 0%; transition: width 0.3s; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric { display: flex; justify-content: space-between; align-items: center; background: #f5faf8; padding: 14px; border-radius: 14px; }
+    .stars { white-space:nowrap; color: #f39c12; }
+    .focus span { display: inline-block; background: #edf8f3; padding: 10px; border-radius: 12px; margin: 4px; }
+    .mission { background: #eff9f5; border-left: 5px solid #2d8f73; padding: 15px; border-radius: 12px; margin-top: 15px; }
+    .takeaway { text-align: center; border: 2px dashed #b9cbd2; padding: 18px; margin-top: 20px; border-radius: 15px; }
+    #qr { display: block; margin: 15px auto; width: 240px; height: 240px; border-radius: 12px; }
+    .disclaimer { text-align: center; background: #f7fafb; padding: 12px; margin-top: 18px; font-size: 13px; color: #657781; border-radius: 12px; }
+    @media(max-width: 650px) { .options, .metrics { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <section id="welcome" class="screen active">
+    <div class="card center">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h1>🌿 Your Wellness Journey</h1>
+      <p>Pause • Reflect • Recharge</p>
+      <button class="btn" onclick="show('details')">Begin My Wellness Check</button>
+      <p>Your name and age are used only for this session.</p>
+    </div>
+  </section>
+
+  <section id="details" class="screen">
+    <div class="card">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h2 class="center">Let's get started 🌿</h2>
+      <div class="field">
+        <label><b>What should we call you?</b></label>
+        <input id="name">
+        <label><b>How old are you?</b></label>
+        <input id="age" type="number" min="5" max="120">
+      </div>
+      <div class="center">
+        <button class="btn" onclick="start()">Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="scan" class="screen">
+    <div class="card center">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h2>📷 Let's check your expression</h2>
+      <p>Look naturally at the camera. This is an interactive observation, not a medical assessment.</p>
+      <div class="camera">
+        <video id="video" autoplay muted playsinline></video>
+      </div>
+      <p id="status">Starting camera…</p>
+      <button id="scanBtn" class="btn" onclick="scan()" disabled>Scan My Expression</button>
+      <button class="btn secondary" onclick="skip()">Continue Without Camera</button>
+    </div>
+  </section>
+
+  <section id="expression" class="screen">
+    <div class="card center">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h2 id="expr">🙂 Your expression appears calm.</h2>
+      <p>Now let's answer a few simple wellness questions.</p>
+      <button class="btn" onclick="begin()">Continue</button>
+    </div>
+  </section>
+
+  <section id="questions" class="screen">
+    <div class="card">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <small id="num"></small>
+      <h2 id="question"></h2>
+      <div class="progress"><div id="bar"></div></div>
+      <div id="opts" class="options"></div>
+      <div class="center">
+        <button id="next" class="btn" disabled onclick="next()">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen">
+    <div class="card">
+      <div class="brand">TPS WELLNESS BOT</div>
+      <h2 id="heading" class="center"></h2>
+      <p id="overall" class="center"></p>
+      <div id="metrics" class="metrics"></div>
+      <h3>🌱 Your Focus Today</h3>
+      <div id="focus" class="focus"></div>
+      <div class="mission">
+        <h3>✨ Your Wellness Mission</h3>
+        <div id="mission"></div>
+      </div>
+      <div class="takeaway">
+        <h3>📱 Save Your Snapshot on Your Phone</h3>
+        <b>Scan the QR code to keep your Wellness Snapshot.</b>
+        <img id="qr" alt="Wellness Snapshot QR Code">
+        <p>Your snapshot is not stored on this computer.</p>
+        <button class="btn secondary" onclick="location.reload()">Start New Visitor</button>
+      </div>
+      <div class="disclaimer">
+        <b>🌿 Just for fun!</b><br>This wellness snapshot is an interactive school-exhibition activity and is not a medical or psychological assessment.
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+let user = {}, stream = null, expr = "calm", set = [], i = 0, answers = [], choice = null, report = null;
+const qs = {
+  child: [
+    ["energy", "How much energy do you have today?", ["Lots of energy!", "I feel good", "A little tired", "Very tired"], ["high", "good", "low", "verylow"]],
+    ["sleep", "When you wake up, how do you feel?", ["Ready to start the day!", "I feel okay", "Still a little sleepy", "Very sleepy"], ["high", "good", "low", "verylow"]],
+    ["movement", "How much do you play, walk or move during the day?", ["A lot", "Quite a bit", "Not much", "Very little"], ["high", "good", "low", "verylow"]],
+    ["mind", "How does your mind feel today?", ["Calm", "I feel okay", "I have many thoughts", "I feel worried or upset"], ["high", "good", "low", "verylow"]],
+    ["water", "How often do you drink water during the day?", ["Many times", "A few times", "Only sometimes", "I often forget"], ["high", "good", "low", "verylow"]],
+    ["screen", "How much do you use a phone, TV, tablet or computer each day?", ["Less than 1 hour", "1–2 hours", "2–4 hours", "More than 4 hours"], ["high", "good", "low", "verylow"]],
+    ["food", "Which type of food do you enjoy eating often?", ["🍕 Treat foods — pizza, chips, chocolates, burgers", "🍛 Home-style meals — dal, roti, rice, sabji", "🍎 Fresh foods — fruits, carrots, salads", "🥤 Drinks & packaged foods — juices, cold drinks, packaged snacks"], ["treat", "meal", "fresh", "packaged"]]
+  ],
+  adult: [
+    ["energy", "How would you describe your energy level today?", ["Very energetic", "Good", "A little low", "Very low"], ["high", "good", "low", "verylow"]],
+    ["sleep", "How has your sleep been lately?", ["I wake refreshed", "Mostly good", "I do not always get enough", "Often tired after sleep"], ["high", "good", "low", "verylow"]],
+    ["movement", "How often do you get physical movement during your day?", ["Regularly", "Some, but could be more", "I sit most of the day", "Rarely"], ["high", "good", "low", "verylow"]],
+    ["mind", "How would you describe your mind today?", ["Calm and clear", "Mostly calm", "Quite busy", "Difficult to switch off"], ["high", "good", "low", "verylow"]],
+    ["water", "How often do you drink water during the day?", ["Many times", "A few times", "Sometimes", "I often forget"], ["high", "good", "low", "verylow"]],
+    ["screen", "How much do you use a phone, TV, tablet or computer each day?", ["Less than 1 hour", "1–2 hours", "2–4 hours", "More than 4 hours"], ["high", "good", "low", "verylow"]],
+    ["food", "Which type of food do you eat most often?", ["🍕 Treat foods — pizza, chips, chocolates, burgers", "🍛 Home-style meals — dal, roti, rice, sabji", "🍎 Fresh foods — fruits, carrots, salads", "🥤 Drinks & packaged foods — juices, cold drinks, packaged snacks"], ["treat", "meal", "fresh", "packaged"]],
+    ["me", "How often do you get time to do something you enjoy?", ["Almost every day", "A few times a week", "Sometimes", "Rarely"], ["high", "good", "low", "verylow"]]
+  ]
+};
+
+window.show = function(id) {
+  document.querySelectorAll(".screen").forEach(x => x.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+};
+
+window.start = function() {
+  user.name = document.getElementById("name").value.trim();
+  user.age = +document.getElementById("age").value;
+  if (!user.name || user.age < 5) {
+    alert("Please enter your name and age.");
+    return;
+  }
+  show("scan");
+  camera();
+};
+
+async function camera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    document.getElementById("video").srcObject = stream;
+    document.getElementById("status").textContent = "Camera ready. Look naturally at the screen.";
+    document.getElementById("scanBtn").disabled = false;
+  } catch (e) {
+    document.getElementById("status").textContent = "Camera is unavailable. You can continue without it.";
+  }
+}
+
+window.scan = async function() {
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri("https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights");
+    await faceapi.nets.faceExpressionNet.loadFromUri("https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights");
+    let r = await faceapi.detectSingleFace(document.getElementById("video"), new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+    if (r) {
+      let e = Object.entries(r.expressions).sort((a, b) => b[1] - a[1])[0][0];
+      expr = ["happy", "surprised"].includes(e) ? "positive" : ["sad", "fearful"].includes(e) ? "tired" : ["angry", "disgusted"].includes(e) ? "tense" : "calm";
+    }
+    stop();
+    exprText();
+    show("expression");
+  } catch (e) {
+    document.getElementById("status").textContent = "Expression scan could not load. You can continue.";
+    setTimeout(() => { stop(); exprText(); show("expression"); }, 800);
+  }
+};
+
+window.skip = function() {
+  stop();
+  expr = "calm";
+  exprText();
+  show("expression");
+};
+
+function stop() {
+  if (stream) {
+    stream.getTracks().forEach(x => x.stop());
+    stream = null;
+  }
+}
+
+function exprText() {
+  document.getElementById("expr").textContent = {
+    positive: "😊 Your expression appears positive.",
+    calm: "🙂 Your expression appears calm.",
+    tired: "😴 Your expression appears a little tired.",
+    tense: "😟 Your expression appears a little tense."
+  }[expr];
+}
+
+window.begin = function() {
+  set = user.age >= 13 ? qs.adult : qs.child;
+  i = 0;
+  answers = [];
+  render();
+  show("questions");
+};
+
+function render() {
+  let q = set[i];
+  document.getElementById("num").textContent = "Question " + (i + 1) + " of " + set.length;
+  document.getElementById("question").textContent = q[1];
+  document.getElementById("bar").style.width = (i / set.length * 100) + "%";
+  let optsDiv = document.getElementById("opts");
+  optsDiv.innerHTML = "";
+  q[2].forEach((x, j) => {
+    let b = document.createElement("button");
+    b.className = "option";
+    b.innerHTML = "<b>" + String.fromCharCode(65 + j) + ".</b> " + x;
+    b.onclick = () => {
+      choice = j;
+      document.querySelectorAll(".option").forEach(z => z.classList.remove("selected"));
+      b.classList.add("selected");
+      document.getElementById("next").disabled = false;
+    };
+    optsDiv.appendChild(b);
+  });
+  document.getElementById("next").disabled = true;
+}
+
+window.next = function() {
+  answers[i] = choice;
+  if (i < set.length - 1) {
+    i++;
+    choice = null;
+    render();
+  } else {
+    makeReport();
+  }
+};
+
+function val(x) {
+  return { x: 3, high: 5, good: 4, low: 3, verylow: 2, treat: 3, meal: 4, fresh: 5, packaged: 2 }[x] ?? 3;
+}
+
+function makeReport() {
+  let s = { energy: 3, sleep: 3, movement: 3, mind: 3, water: 3, screen: 3, food: 3, me: 3 };
+  answers.forEach((a, j) => {
+    let q = set[j];
+    s[q[0]] = val(q[3][a]);
+  });
+  if (expr === "tense") s.mind = Math.max(1, s.mind - 1);
+  if (expr === "tired") s.energy = Math.max(1, s.energy - 1);
+  let m = [
+    ["⚡", "Energy", s.energy],
+    ["😴", "Sleep", s.sleep],
+    ["🚶", "Movement", s.movement],
+    ["🧠", "Mind", s.mind],
+    ["💧", "Hydration", s.water],
+    ["📱", "Screen Balance", s.screen],
+    ["🍎", user.age >= 13 ? "Diet" : "Food", s.food]
+  ];
+  if (user.age >= 13) m.push(["🎨", "Me-time", s.me]);
+  let avg = m.reduce((a, x) => a + x[2], 0) / m.length;
+  document.getElementById("heading").textContent = user.name + ", here is your Wellness Snapshot";
+  document.getElementById("overall").textContent = avg >= 4.1 ? "You seem to have a good wellness balance. Keep building on it!" : avg >= 3.3 ? "You are doing fairly well, with a few areas that could use a little attention." : "A few small wellness changes could help you feel more balanced.";
+  document.getElementById("metrics").innerHTML = m.map(x => '<div class="metric"><span>' + x[0] + ' <b>' + x[1] + '</b></span><span class="stars">' + ("★".repeat(x[2])) + ("☆".repeat(5 - x[2])) + "</span></div>").join("");
+  let f = [];
+  if (s.movement <= 3) f.push("🚶 Add a little more movement");
+  if (s.sleep <= 3) f.push("😴 Give your body more rest");
+  if (s.mind <= 3) f.push("🧠 Give yourself some calm time");
+  if (s.water <= 3) f.push("💧 Remember regular water breaks");
+  if (s.screen <= 3) f.push("📱 Give your eyes regular screen breaks");
+  if (s.food <= 3) f.push("🍎 Add more variety to your food");
+  if (user.age >= 13 && s.me <= 3) f.push("🎨 Make some time for yourself");
+  if (!f.length) f = ["✨ Keep your healthy balance going"];
+  document.getElementById("focus").innerHTML = f.slice(0, 3).map(x => "<span>" + x + "</span>").join("");
+  let mi = [];
+  if (s.movement <= 3) mi.push("<p>🚶 <b>Move for at least 15 minutes today</b> — walk, play, stretch or exercise.</p>");
+  if (s.mind <= 3) mi.push("<p>🌬️ <b>Take 5 quiet minutes</b> to breathe slowly, sit quietly or listen to calming music.</p>");
+  if (s.sleep <= 3) mi.push("<p>😴 <b>Give yourself enough time to rest</b> and try to keep a regular sleep routine.</p>");
+  if (s.water <= 3) mi.push("<p>💧 <b>Keep water nearby</b> and remember regular water breaks.</p>");
+  if (s.screen <= 3) mi.push("<p>📱 <b>Take short breaks from screens</b> and spend some time moving or playing.</p>");
+  if (s.food <= 3) mi.push("<p>🍎 <b>Add some variety to your food</b> by including fresh foods or a balanced meal.</p>");
+  if (user.age >= 13 && s.me <= 3) mi.push("<p>🎨 <b>Make some time for yourself</b> to do something you enjoy.</p>");
+  if (!mi.length) mi = ["<p>✨ <b>Keep doing what supports your wellbeing</b> and make room for movement, rest and enjoyment.</p>"];
+  document.getElementById("mission").innerHTML = mi.slice(0, 3).join("");
+  report = { m: m, f: f.slice(0, 3), mi: mi.slice(0, 3) };
+  show("result");
+  makeQR();
+}
+
+function makeQR() {
+  // Be sure to change 'yourusername' and 'your-repo-name' to your actual GitHub info
+  let baseUrl = "https://yourusername.github.io/your-repo-name/report.html";
+  
+  let params = new URLSearchParams({
+    name: user.name,
+    age: user.age,
+    energy: report.m[0][2],
+    sleep: report.m[1][2],
+    movement: report.m[2][2],
+    mind: report.m[3][2],
+    water: report.m[4][2],
+    screen: report.m[5][2],
+    food: report.m[6][2]
+  });
+
+  let dynamicUrl = baseUrl + "?" + params.toString();
+  let qrImg = document.getElementById("qr");
+  qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=" + encodeURIComponent(dynamicUrl);
+}
+</script>
+</body>
+</html>
