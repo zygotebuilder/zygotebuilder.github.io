@@ -1,29 +1,195 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TPS Wellness Snapshot</title>
 <style>
-body{font-family:Arial;margin:0;background:#eef9f4;color:#17324d;padding:20px}
-.card{background:white;border-radius:25px;padding:32px;max-width:600px;margin:auto;box-shadow:0 10px 35px #0001}
-.brand{text-align:center;font-weight:bold;letter-spacing:2px;color:#2d8f73}
-h1,h2{text-align:center;margin-top:0}
-.metric{display:flex;justify-content:space-between;align-items:center;background:#f5faf8;padding:14px;border-radius:14px;margin-bottom:10px}
-.stars{white-space:nowrap;color:#f39c12}
-.disclaimer{text-align:center;background:#f7fafb;padding:12px;margin-top:18px;font-size:13px;color:#657781;border-radius:12px}
+  :root {
+    --bg-gradient: linear-gradient(135deg, #eef9f4 0%, #d4ede2 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-color: #17324d;
+    --brand-color: #2d8f73;
+    --border-color: #d8e3ea;
+    --metric-bg: #f5faf8;
+    --disclaimer-bg: #f7fafb;
+    --disclaimer-color: #657781;
+    --shadow: 0 20px 45px rgba(0,0,0,0.08);
+  }
+
+  [data-theme="dark"] {
+    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --card-bg: rgba(30, 41, 59, 0.95);
+    --text-color: #f1f5f9;
+    --brand-color: #34d399;
+    --border-color: #475569;
+    --metric-bg: #111827;
+    --disclaimer-bg: #111827;
+    --disclaimer-color: #94a3b8;
+    --shadow: 0 20px 45px rgba(0,0,0,0.4);
+  }
+
+  /* Dynamic Health Mood Background Overrides */
+  body.mood-thriving {
+    background: var(--bg-gradient);
+  }
+  body.mood-balanced {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ccfbf1 100%);
+  }
+  body.mood-elevate {
+    background: linear-gradient(135deg, #fef2f2 0%, #fef3c7 100%);
+  }
+
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg-gradient);
+    color: var(--text-color);
+    padding: 30px 20px;
+    box-sizing: border-box;
+    transition: background 0.5s ease, color 0.3s ease;
+    position: relative;
+    overflow-x: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #bgCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .theme-toggle:hover {
+    transform: scale(1.1) rotate(15deg);
+  }
+
+  .card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 28px;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 2;
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); scale: 0.98; }
+    to { opacity: 1; transform: translateY(0); scale: 1; }
+  }
+
+  .brand {
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--brand-color);
+    font-size: 14px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  h1, h2 { text-align: center; margin-top: 0; letter-spacing: -0.5px; }
+
+  #overall {
+    text-align: center;
+    font-weight: 600;
+    color: var(--brand-color);
+    font-size: 17px;
+    margin-bottom: 25px;
+    line-height: 1.4;
+  }
+
+  .metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--metric-bg);
+    padding: 16px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease;
+  }
+  .metric:hover {
+    transform: translateX(4px);
+  }
+
+  .stars {
+    white-space: nowrap;
+    color: #f59e0b;
+    font-size: 15px;
+    letter-spacing: 2px;
+  }
+
+  .disclaimer {
+    text-align: center;
+    background: var(--disclaimer-bg);
+    padding: 16px;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--disclaimer-color);
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    line-height: 1.5;
+  }
+
+  @media(max-width: 650px) {
+    .card { padding: 24px; }
+  }
 </style>
 </head>
 <body>
+
+<canvas id="bgCanvas"></canvas>
+
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">🌙</button>
+
 <div class="card">
   <div class="brand">TPS WELLNESS BOT</div>
   <h2 id="heading">Your Wellness Snapshot</h2>
-  <p id="overall" style="text-align:center;font-weight:bold;color:#2d8f73;"></p>
+  <p id="overall"></p>
   
-  <div id="metrics"></div>
+  <div id="metrics" class="metrics"></div>
 
   <div class="disclaimer">
-    <b>🌿 Exhibition Activity</b><br>This snapshot is for personal reflection and is not a medical assessment.
+    <b>🌿 Exhibition Activity & Personal Growth</b><br>This snapshot is generated for personal reflection and is not a medical or clinical assessment.
   </div>
 </div>
 
@@ -35,33 +201,122 @@ const labels = {
   mind: ["🧠", "Mind"],
   water: ["💧", "Hydration"],
   screen: ["📱", "Screen Balance"],
-  food: ["🍎", "Diet / Food"]
+  food: ["🍎", "Diet / Food"],
+  me: ["🎨", "Me-time"]
 };
 
+// Theme Toggle Functionality
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.getElementById("themeToggle");
+  if (html.getAttribute("data-theme") === "light") {
+    html.setAttribute("data-theme", "dark");
+    btn.textContent = "☀️";
+  } else {
+    html.setAttribute("data-theme", "light");
+    btn.textContent = "🌙";
+  }
+}
+
+// Background Particle Canvas
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function initParticles() {
+  particles = [];
+  let count = Math.floor(window.innerWidth / 15);
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 3 + 1,
+      speedX: (Math.random() - 0.5) * 0.5,
+      speedY: (Math.random() - 0.5) * 0.5,
+      alpha: Math.random() * 0.5 + 0.2
+    });
+  }
+}
+initParticles();
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  ctx.strokeStyle = isDark ? "rgba(52, 211, 153, 0.08)" : "rgba(45, 143, 115, 0.08)";
+
+  particles.forEach((p, index) => {
+    p.x += p.speedX;
+    p.y += p.speedY;
+
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fillStyle = isDark ? `rgba(52, 211, 153, ${p.alpha})` : `rgba(45, 143, 115, ${p.alpha})`;
+    ctx.fill();
+
+    for (let j = index + 1; j < particles.length; j++) {
+      let p2 = particles[j];
+      let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+      if (dist < 100) {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+    }
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// Parse Query Parameters & Render Report
 const params = new URLSearchParams(window.location.search);
 const name = params.get("name") || "Visitor";
-document.getElementById("heading").textContent = name + ", here is your Wellness Snapshot";
+document.getElementById("heading").textContent = `${name}, here is your Wellness Snapshot`;
 
 let metricsDiv = document.getElementById("metrics");
 let total = 0, count = 0;
 
 for (let [key, val] of Object.entries(labels)) {
-  let score = parseInt(params.get(key)) || 3;
-  total += score;
-  count++;
-  
-  let stars = "★".repeat(score) + "☆".repeat(5 - score);
-  metricsDiv.innerHTML += `
-    <div class="metric">
-      <span>${val[0]} <b>${val[1]}</b></span>
-      <span class="stars">${stars}</span>
-    </div>`;
+  if (params.has(key)) {
+    let score = parseInt(params.get(key)) || 3;
+    total += score;
+    count++;
+    
+    let stars = "★".repeat(score) + "☆".repeat(5 - score);
+    metricsDiv.innerHTML += `
+      <div class="metric">
+        <span>${val[0]} <b>${val[1]}</b></span>
+        <span class="stars">${stars}</span>
+      </div>`;
+  }
 }
 
-let avg = total / count;
-let overallText = avg >= 4.1 ? "You seem to have a great wellness balance. Keep it up!" : 
-                  avg >= 3.3 ? "You're doing well, with a few areas that could use attention." : 
-                  "A few small routine changes could help you feel more balanced.";
+let avg = count > 0 ? total / count : 3;
+
+// Dynamically adjust body background mood class based on health score result
+if (avg >= 4.1) {
+  document.body.classList.add("mood-thriving");
+} else if (avg >= 3.3) {
+  document.body.classList.add("mood-balanced");
+} else {
+  document.body.classList.add("mood-elevate");
+}
+
+let overallText = avg >= 4.1 ? "🌟 You seem to have a great wellness balance. Keep building on it!" : 
+                  avg >= 3.3 ? "🌱 You're doing well, with a few targeted areas that could use attention." : 
+                  "💡 A few small routine changes could help you feel more balanced and energized.";
 document.getElementById("overall").textContent = overallText;
 </script>
 </body>
