@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Chronicle - Vintage Edition</title>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap');
+
+    :root {
+        --newsprint: #f4eee1;
+        --newsprint-dark: #e6dac1;
+        --ink: #1a1612;
+        --aged-border: #b5a48b;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #2b2621;
+        background-image: radial-gradient(circle, #3d352e 10%, #1a1612 90%);
+        color: var(--ink);
+        font-family: 'Playfair Display', serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+        padding: 20px;
+    }
+
+    /* Page-turning wrapper / Book Simulation */
+    .book-wrapper {
+        perspective: 1600px;
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .newspaper-sheet {
+        background-color: var(--newsprint);
+        background-image: 
+            linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.02) 50%, transparent 100%),
+            radial-gradient(ellipse at center, rgba(244,238,225,0) 0%, rgba(181,164,139,0.4) 100%);
+        border: 2px solid var(--aged-border);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.7), inset 0 0 80px rgba(122,94,52,0.15);
+        padding: 40px;
+        position: relative;
+        transform-origin: left center;
+        animation: pageFlipIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes pageFlipIn {
+        0% {
+            transform: rotateY(-90deg) scale(0.9);
+            opacity: 0;
+        }
+        100% {
+            transform: rotateY(0deg) scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Masthead Styles */
+    .masthead {
+        text-align: center;
+        border-bottom: 4px double var(--ink);
+        border-top: 2px solid var(--ink);
+        padding-bottom: 12px;
+        margin-bottom: 20px;
+    }
+
+    .masthead .sub-banner {
+        font-family: 'Special Elite', monospace;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+    }
+
+    .masthead h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 3.8rem;
+        font-weight: 900;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin: 5px 0;
+    }
+
+    .masthead-info {
+        display: flex;
+        justify-content: space-between;
+        font-family: 'Special Elite', monospace;
+        font-size: 0.8rem;
+        border-top: 1px solid var(--ink);
+        border-bottom: 1px solid var(--ink);
+        padding: 4px 0;
+        margin-top: 8px;
+        text-transform: uppercase;
+    }
+
+    /* Layout Sections */
+    .main-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+    }
+
+    .column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .article-box {
+        border-bottom: 1px solid var(--aged-border);
+        padding-bottom: 15px;
+    }
+
+    .article-box:last-child {
+        border-bottom: none;
+    }
+
+    .article-box h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 8px;
+    }
+
+    .article-box h3 {
+        font-family: 'Playfair Display', serif;
+        font-style: italic;
+        font-size: 1rem;
+        color: #4a3f35;
+        margin-bottom: 8px;
+    }
+
+    .article-box p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        text-align: justify;
+        column-count: auto;
+    }
+
+    .news-img {
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--ink);
+        filter: sepia(70%) contrast(110%) brightness(95%);
+        margin: 10px 0;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .caption {
+        font-family: 'Special Elite', monospace;
+        font-size: 0.75rem;
+        text-align: center;
+        margin-top: -5px;
+        margin-bottom: 10px;
+        color: #555;
+    }
+
+    /* Ticker / Running Bulletin */
+    .ticker-container {
+        border-top: 2px solid var(--ink);
+        border-bottom: 2px solid var(--ink);
+        margin: 15px 0;
+        padding: 6px 0;
+        background-color: var(--newsprint-dark);
+    }
+
+    marquee {
+        font-family: 'Special Elite', monospace;
+        font-weight: bold;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Footer */
+    .newspaper-footer {
+        text-align: center;
+        border-top: 2px solid var(--ink);
+        margin-top: 25px;
+        padding-top: 10px;
+        font-family: 'Cinzel', serif;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-grid {
+            grid-template-columns: 1fr;
+        }
+        .masthead h1 {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="book-wrapper">
+    <div class="newspaper-sheet">
+        
+        <div class="masthead">
+            <div class="sub-banner">The Daily Voice of the Nation • Est. 1920</div>
+            <h1>The National Chronicle</h1>
+            <div class="masthead-info">
+                <span>Vol. CVI No. 245</span>
+                <span>New Delhi, Tuesday, September 2, 2026</span>
+                <span>Price: ₹5.00 Only</span>
+            </div>
+        </div>
+
+        <div class="ticker-container">
+            <marquee width="100%" direction="left">
+                *** BREAKING: INDIA'S Q1 FY27 REAL GDP SURGES TO 7.8% • PM MODI CALLS TO END TERRORISM DOUBLE STANDARDS AT SCO SUMMIT IN BISHKEK • BIHAR AND JHARKHAND SIGN HISTORIC SONE RIVER WATER PACT ***
+            </marquee>
+        </div>
+
+        <div class="main-grid">
+            
+            <div class="column">
+                
+                <div class="article-box">
+                    <h2>PM Modi at SCO Summit: Confront State-Sponsored Terrorism and Double Standards</h2>
+                    <h3>Direct call made in Bishkek to dismantle global financial networks of terror, emphasizing regional security</h3>
+                    
+                    <img src="https://static.toiimg.com/thumb/msid-126092646,imgsize-654226,width-400,resizemode-4/pm-modi-in-assam.jpg" class="news-img" alt="PM Modi">
+                    <div class="caption">Prime Minister Narendra Modi addressing delegates at the 26th SCO Summit.</div>
+                    
+                    <p>Addressing the 26th Shanghai Cooperation Organisation (SCO) Summit in Bishkek, Prime Minister Narendra Modi strongly urged member nations to confront countries using terrorism as an instrument of state policy. In the presence of international leaders, he stressed the absolute necessity to dismantle terror financing, radicalisation ecosystems, and safe havens without exception or regional bias.</p>
+                </div>
+
+                <div class="article-box">
+                    <h2>Economic Resilience: India's Q1 GDP Touches 7.8%</h2>
+                    <h3>Robust manufacturing and service sectors defy international financial volatility</h3>
+                    <p>Defying global uncertainties and rising crude pressures, India’s real GDP grew by 7.8% in the April–June quarter of FY26-27, outperforming RBI projections. Driven by a 9.2% surge in manufacturing and a robust 10% expansion in services, national economic fundamentals continue to exhibit remarkable strength.</p>
+                </div>
+
+            </div>
+
+            <div class="column">
+                
+                <div class="article-box">
+                    <h2>Historic Water Accord Signed</h2>
+                    <h3>Bihar & Jharkhand resolve decades-old Sone river dispute</h3>
+                    <p>In a landmark development in New Delhi, the states of Bihar and Jharkhand signed a formal Memorandum of Understanding for the equitable sharing of Sone River water, witnessed by senior central leaders.</p>
+                </div>
+
+                <div class="article-box">
+                    <h2>Sports Special: Record-Breaking Feat</h2>
+                    <h3>15-year-old Vaibhav Sooryavanshi writes history in Duleep Trophy</h3>
+                    
+                    <img src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/f2ee/live/0fe36260-dd8e-11f0-884c-a5a45f8bc5ce.jpg.webp" class="news-img" alt="Cricket Match">
+                    <div class="caption">Young cricketing sensation turns heads on the pitch.</div>
+
+                    <p>Teenage prodigy Vaibhav Sooryavanshi has etched his name in the record books by becoming the youngest player in the history of the Duleep Trophy to smash a half-century, achieving the milestone in just 42 balls at 15 years of age.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="newspaper-footer">
+            <p>&mdash; End of Today's Dispatch &mdash;</p>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
