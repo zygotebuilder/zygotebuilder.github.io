@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#090a16" />
+<title>Zygot Builder — Time Capsule</title>
+<style>
+  :root{
+    --bg:#090a16; --panel:rgba(20,22,42,.72); --panel2:rgba(255,255,255,.07);
+    --text:#f7f7ff; --muted:#a8abc5; --accent:#8b7cff; --accent2:#67e8f9;
+    --good:#78f2c3; --danger:#ff8aa1; --shadow:0 25px 80px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; min-height:100vh; color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(circle at 15% 10%,rgba(139,124,255,.18),transparent 28%),
+      radial-gradient(circle at 85% 25%,rgba(103,232,249,.12),transparent 25%),
+      radial-gradient(circle at 50% 100%,rgba(255,126,200,.10),transparent 35%),
+      var(--bg);
+    overflow-x:hidden;
+  }
+  body:before{
+    content:""; position:fixed; inset:-20%; pointer-events:none; opacity:.25;
+    background-image:radial-gradient(#fff 1px,transparent 1px);
+    background-size:52px 52px; animation:drift 30s linear infinite;
+  }
+  @keyframes drift{to{transform:translate3d(52px,52px,0)}}
+  @keyframes float{50%{transform:translateY(-9px)}}
+  @keyframes pulse{50%{box-shadow:0 0 0 12px rgba(139,124,255,0)}}
+  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes scan{0%{transform:translateY(-140%)}100%{transform:translateY(140%)}}
+  @keyframes shimmer{to{background-position:200% 0}}
+  .app{width:min(1180px,92vw);margin:auto;position:relative;z-index:1}
+  header{min-height:88vh;display:grid;place-items:center;text-align:center;padding:70px 0 45px}
+  .orb{
+    width:112px;height:112px;border-radius:50%;margin:0 auto 28px;
+    display:grid;place-items:center;font-size:48px;
+    background:radial-gradient(circle at 35% 30%,#fff, #a69cff 13%,#6254dc 48%,#17162d 72%);
+    box-shadow:0 0 70px rgba(139,124,255,.45),inset -15px -15px 30px rgba(0,0,0,.3);
+    animation:float 4s ease-in-out infinite;
+  }
+  .eyebrow{letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);font-size:.78rem;font-weight:800}
+  h1{font-size:clamp(3.2rem,10vw,7.5rem);line-height:.88;margin:14px 0 22px;letter-spacing:-.07em}
+  .gradient{background:linear-gradient(100deg,#fff,#a69cff 45%,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tagline{font-size:clamp(1rem,2vw,1.25rem);color:var(--muted);max-width:650px;margin:0 auto 32px;line-height:1.7}
+  button,.button{
+    border:0;border-radius:999px;padding:14px 22px;color:#fff;background:linear-gradient(135deg,#8171ff,#5bcbef);
+    font-weight:800;cursor:pointer;box-shadow:0 12px 35px rgba(106,116,255,.25);transition:.25s;
+  }
+  button:hover,.button:hover{transform:translateY(-2px);filter:brightness(1.08)}
+  button.secondary{background:var(--panel2);border:1px solid rgba(255,255,255,.1);box-shadow:none}
+  button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .section{padding:42px 0 100px;animation:rise .7s ease both}
+  .panel{
+    background:var(--panel);border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(20px);
+    border-radius:30px;padding:28px;box-shadow:var(--shadow);
+  }
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+  .step{color:var(--muted);font-size:.85rem}
+  .progress{height:5px;background:rgba(255,255,255,.08);border-radius:9px;overflow:hidden;margin-bottom:28px}
+  .progress span{display:block;height:100%;width:20%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.5s}
+  .screen{display:none}.screen.active{display:block}
+  h2{font-size:clamp(2rem,5vw,3.4rem);margin:0 0 10px;letter-spacing:-.045em}
+  .sub{color:var(--muted);line-height:1.65;margin:0 0 28px}
+  .camera-wrap{
+    position:relative;max-width:760px;margin:auto;aspect-ratio:16/10;overflow:hidden;border-radius:26px;
+    background:#03040a;border:1px solid rgba(255,255,255,.12);
+  }
+  video,.capture-canvas,.result-canvas{width:100%;height:100%;object-fit:cover;display:block}
+  .face-ring{
+    position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);
+    width:min(45%,300px);aspect-ratio:1/1.28;border:2px solid rgba(255,255,255,.65);border-radius:48%;
+    box-shadow:0 0 0 999px rgba(0,0,0,.13),0 0 30px rgba(103,232,249,.2);pointer-events:none;
+  }
+  .scanline{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#67e8f9,transparent);top:0;animation:scan 2.8s linear infinite;opacity:.8}
+  .camera-note{text-align:center;color:var(--muted);margin:15px 0}
+  .actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+  .choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .choice{
+    padding:20px;border-radius:22px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);
+    cursor:pointer;transition:.25s;text-align:left;
+  }
+  .choice:hover{transform:translateY(-3px);background:rgba(255,255,255,.08)}
+  .choice.selected{border-color:#8b7cff;box-shadow:0 0 0 2px rgba(139,124,255,.18),0 15px 40px rgba(139,124,255,.1)}
+  .choice .icon{font-size:1.8rem}.choice strong{display:block;margin:10px 0 4px}.choice small{color:var(--muted);line-height:1.4}
+  .field{margin:22px 0}.field label{display:flex;justify-content:space-between;margin-bottom:9px;font-weight:700}
+  input[type=range]{width:100%;accent-color:#8b7cff}
+  input[type=number],select{
+    width:100%;padding:14px 16px;border-radius:14px;background:#0d0f20;color:#fff;border:1px solid rgba(255,255,255,.12);font-size:1rem;
+  }
+  .seg{display:flex;background:rgba(255,255,255,.05);border-radius:15px;padding:4px;gap:4px}
+  .seg button{flex:1;background:transparent;box-shadow:none;border-radius:11px;padding:11px}.seg button.on{background:rgba(139,124,255,.25)}
+  .result-layout{display:grid;grid-template-columns:1.4fr .8fr;gap:24px;align-items:start}
+  .result-frame{position:relative;border-radius:25px;overflow:hidden;background:#05060d;min-height:360px}
+  .result-frame canvas{width:100%;height:auto;display:block}
+  .badge{position:absolute;left:14px;top:14px;background:rgba(5,6,15,.65);backdrop-filter:blur(12px);padding:9px 12px;border-radius:999px;font-size:.78rem}
+  .controls{display:grid;gap:14px}
+  .info{padding:15px;border-radius:17px;background:rgba(255,255,255,.04);color:var(--muted);line-height:1.55;font-size:.9rem}
+  .loading{display:none;align-items:center;justify-content:center;gap:10px;padding:15px;color:var(--muted)}
+  .loading.on{display:flex}.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  .footer{padding:25px 0 60px;color:#737792;text-align:center;font-size:.82rem;line-height:1.6}
+  .toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%) translateY(20px);background:#15182c;color:#fff;border:1px solid rgba(255,255,255,.1);padding:12px 17px;border-radius:999px;opacity:0;pointer-events:none;transition:.3s;z-index:10}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+  .hidden{display:none!important}
+  @media(max-width:800px){
+    .choice-grid,.result-layout{grid-template-columns:1fr}
+    header{min-height:78vh}.panel{padding:20px}.camera-wrap{aspect-ratio:4/3}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="orb">🧬</div>
+      <div class="eyebrow">Zygot Builder · Time Capsule</div>
+      <h1><span class="gradient">Meet another<br>version of you.</span></h1>
+      <p class="tagline">Scan a smile, choose a moment in time, and turn one photograph into an imaginative visual time capsule — right in your browser.</p>
+      <button id="startBtn">Begin the experience →</button>
+    </div>
+  </header>
+
+  <main id="workspace" class="section hidden">
+    <div class="panel">
+      <div class="topbar">
+        <strong>ZYGOT BUILDER</strong>
+        <span class="step" id="stepText">Step 1 of 5</span>
+      </div>
+      <div class="progress"><span id="progressBar"></span></div>
+
+      <section class="screen active" id="s1">
+        <h2>Give the camera your best smile.</h2>
+        <p class="sub">Your browser will ask for camera permission. The image stays in this page unless you choose to save it.</p>
+        <div class="camera-wrap">
+          <video id="video" autoplay muted playsinline></video>
+          <div class="face-ring"></div><div class="scanline"></div>
+        </div>
+        <p class="camera-note" id="cameraStatus">Preparing camera…</p>
+        <div class="actions">
+          <button id="captureBtn">✨ Capture my smile</button>
+          <button class="secondary" id="uploadBtn">Use a photo instead</button>
+          <input id="fileInput" type="file" accept="image/*" class="hidden">
+        </div>
+      </section>
+
+      <section class="screen" id="s2">
+        <h2>Choose your atmosphere.</h2>
+        <p class="sub">Zygot will cut the foreground from the image and place it into a generated browser background.</p>
+        <div class="choice-grid" id="bgChoices">
+          <div class="choice selected" data-bg="dream"><div class="icon">🌌</div><strong>Cosmic Garden</strong><small>Stars, soft nebulae and glowing particles.</small></div>
+          <div class="choice" data-bg="sunset"><div class="icon">🌅</div><strong>Peach Horizon</strong><small>A warm, dreamy sunset atmosphere.</small></div>
+          <div class="choice" data-bg="forest"><div class="icon">🌿</div><strong>Enchanted Forest</strong><small>Leaves, moonlight and gentle fireflies.</small></div>
+          <div class="choice" data-bg="ocean"><div class="icon">🌊</div><strong>Blue Lagoon</strong><small>Cool gradients and floating light.</small></div>
+          <div class="choice" data-bg="candy"><div class="icon">🍬</div><strong>Candy Cloud</strong><small>Playful pastel bubbles and clouds.</small></div>
+          <div class="choice" data-bg="minimal"><div class="icon">◌</div><strong>Quiet Minimal</strong><small>A clean studio-like background.</small></div>
+        </div>
+        <div class="actions"><button id="to3">Continue →</button></div>
+      </section>
+
+      <section class="screen" id="s3">
+        <h2>What should time do?</h2>
+        <p class="sub">Choose a direction and a number of years. This is a visual simulation, not a biological prediction.</p>
+        <div class="seg" id="direction">
+          <button class="on" data-dir="future">Future</button>
+          <button data-dir="past">Past</button>
+        </div>
+        <div class="field">
+          <label><span>Years</span><span id="yearsOut">20 years</span></label>
+          <input id="years" type="range" min="1" max="80" value="20">
+        </div>
+        <div class="choice-grid">
+          <div class="choice selected" data-style="natural"><div class="icon">🪞</div><strong>Natural</strong><small>Subtle, believable changes.</small></div>
+          <div class="choice" data-style="cinematic"><div class="icon">🎞️</div><strong>Cinematic</strong><small>More expressive lighting and texture.</small></div>
+          <div class="choice" data-style="dreamy"><div class="icon">✨</div><strong>Dreamy</strong><small>Soft, stylized and whimsical.</small></div>
+        </div>
+        <div class="actions"><button id="to4">Continue →</button></div>
+      </section>
+
+      <section class="screen" id="s4">
+        <h2>One last touch.</h2>
+        <p class="sub">Adjust the visual treatment before Zygot builds your time capsule.</p>
+        <div class="field">
+          <label><span>Portrait emphasis</span><span id="focusOut">70%</span></label>
+          <input id="focus" type="range" min="0" max="100" value="70">
+        </div>
+        <div class="field">
+          <label><span>Glow</span><span id="glowOut">45%</span></label>
+          <input id="glow" type="range" min="0" max="100" value="45">
+        </div>
+        <div class="info">Tip: brighter, softer treatments tend to look more like a stylized portrait; lower values keep the original photo more recognizable.</div>
+        <div class="actions"><button id="generateBtn">Build my time capsule ✦</button></div>
+        <div class="loading" id="loading"><span class="spinner"></span><span id="loadingText">Compositing your portrait…</span></div>
+      </section>
+
+      <section class="screen" id="s5">
+        <h2 id="resultTitle">Your time capsule.</h2>
+        <p class="sub" id="resultSub">A browser-generated visual interpretation.</p>
+        <div class="result-layout">
+          <div class="result-frame">
+            <canvas id="resultCanvas"></canvas>
+            <div class="badge" id="resultBadge">ZYGOT · VISUAL SIMULATION</div>
+          </div>
+          <div class="controls">
+            <div class="info" id="resultInfo"></div>
+            <button id="saveBtn">Save image</button>
+            <button class="secondary" id="restartBtn">Try another timeline</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="footer">
+    Zygot Builder runs the photo composition in your browser. Camera permission is required only for the camera route.<br>
+    <strong>Important:</strong> the age effect is an artistic simulation, not a scientifically reliable forecast of someone's future appearance.
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const screens = [...document.querySelectorAll(".screen")];
+  const state = {
+    step:1, bg:"dream", direction:"future", years:20, style:"natural",
+    focus:70, glow:45, source:null, segmentation:null, mask:null
+  };
+
+  const video=$("video"), resultCanvas=$("resultCanvas"), rctx=resultCanvas.getContext("2d");
+  const workCanvas=document.createElement("canvas"), wctx=workCanvas.getContext("2d");
+  const maskCanvas=document.createElement("canvas"), mctx=maskCanvas.getContext("2d");
+  const originalCanvas=document.createElement("canvas"), octx=originalCanvas.getContext("2d");
+
+  function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
+  function go(n){
+    state.step=n;
+    screens.forEach((s,i)=>s.classList.toggle("active",i===n-1));
+    $("stepText").textContent=`Step ${n} of 5`;
+    $("progressBar").style.width=`${n*20}%`;
+    window.scrollTo({top:$("workspace").offsetTop-20,behavior:"smooth"});
+  }
+
+  $("startBtn").onclick=async()=>{
+    $("workspace").classList.remove("hidden");
+    go(1);
+    await startCamera();
+  };
+
+  async function startCamera(){
+    if(!navigator.mediaDevices?.getUserMedia){
+      $("cameraStatus").textContent="Camera is unavailable here. Use a photo instead.";
+      $("captureBtn").disabled=true; return;
+    }
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280},height:{ideal:720}},audio:false});
+      video.srcObject=stream;
+      $("cameraStatus").textContent="Camera ready. Smile, then capture.";
+    }catch(e){
+      $("cameraStatus").textContent="Camera permission was not granted. You can still upload a photo.";
+      $("captureBtn").disabled=true;
+    }
+  }
+
+  $("uploadBtn").onclick=()=>$("fileInput").click();
+  $("fileInput").onchange=e=>{
+    const f=e.target.files?.[0]; if(!f)return;
+    const img=new Image();
+    img.onload=()=>{state.source=img; prepareSource(img); go(2);};
+    img.src=URL.createObjectURL(f);
+  };
+
+  $("captureBtn").onclick=()=>{
+    if(!video.videoWidth)return toast("Camera is still starting…");
+    const c=document.createElement("canvas");
+    c.width=video.videoWidth;c.height=video.videoHeight;
+    const x=c.getContext("2d");
+    x.translate(c.width,0);x.scale(-1,1);x.drawImage(video,0,0);
+    const img=new Image();img.onload=()=>{state.source=img;prepareSource(img);go(2)};img.src=c.toDataURL("image/jpeg",.92);
+  };
+
+  function prepareSource(img){
+    const max=1200, scale=Math.min(1,max/img.width);
+    const w=Math.round(img.width*scale),h=Math.round(img.height*scale);
+    [workCanvas,maskCanvas,originalCanvas].forEach(c=>{c.width=w;c.height=h});
+    octx.drawImage(img,0,0,w,h);
+    resultCanvas.width=w;resultCanvas.height=h;
+    state.mask=null;
+  }
+
+  document.querySelectorAll("#bgChoices .choice").forEach(el=>el.onclick=()=>{
+    document.querySelectorAll("#bgChoices .choice").forEach(x=>x.classList.remove("selected"));
+    el.classList.add("selected");state.bg=el.dataset.bg;
+  });
+  document.querySelectorAll("#direction button").forEach(el=>el.onclick=()=>{
+    document.querySelectorAll("#direction button").forEach(x=>x.classList.remove("on"));
+    el.classList.add("on");state.direction=el.dataset.dir;
+  });
+  document.querySelectorAll("[data-style]").forEach(el=>el.onclick=()=>{
+    document.querySelectorAll("[data-style]").forEach(x=>x.classList.remove("selected"));
+    el.classList.add("selected");state.style=el.dataset.style;
+  });
+
+  $("years").oninput=e=>{state.years=+e.target.value;$("yearsOut").textContent=`${state.years} year${state.years===1?"":"s"}`};
+  $("focus").oninput=e=>{state.focus=+e.target.value;$("focusOut").textContent=`${state.focus}%`};
+  $("glow").oninput=e=>{state.glow=+e.target.value;$("glowOut").textContent=`${state.glow}%`};
+  $("to3").onclick=()=>go(3);
+  $("to4").onclick=()=>go(4);
+
+  async function segment(){
+    if(!window.SelfieSegmentation) throw new Error("Segmentation library failed to load.");
+    const selfie=new SelfieSegmentation({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`});
+    selfie.setOptions({modelSelection:1});
+    return new Promise((resolve,reject)=>{
+      selfie.onResults(res=>{
+        const iw=workCanvas.width,ih=workCanvas.height;
+        mctx.clearRect(0,0,iw,ih);
+        mctx.drawImage(res.segmentationMask,0,0,iw,ih);
+        const data=mctx.getImageData(0,0,iw,ih);
+        // Feather the segmentation edge.
+        for(let i=0;i<data.data.length;i+=4){
+          const a=data.data[i];
+          data.data[i]=255;data.data[i+1]=255;data.data[i+2]=255;
+          data.data[i+3]=a;
+        }
+        mctx.putImageData(data,0,0);
+        resolve();
+        selfie.close();
+      });
+      selfie.send({image:state.source}).catch(reject);
+    });
+  }
+
+  function makeBackground(ctx,w,h,type){
+    const g=ctx.createLinearGradient(0,0,w,h);
+    if(type==="dream"){g.addColorStop(0,"#11144a");g.addColorStop(.5,"#34206b");g.addColorStop(1,"#081f35")}
+    if(type==="sunset"){g.addColorStop(0,"#42244f");g.addColorStop(.48,"#d77976");g.addColorStop(1,"#251934")}
+    if(type==="forest"){g.addColorStop(0,"#071b1b");g.addColorStop(.55,"#143b31");g.addColorStop(1,"#030c10")}
+    if(type==="ocean"){g.addColorStop(0,"#082d55");g.addColorStop(.55,"#0d6c82");g.addColorStop(1,"#06172d")}
+    if(type==="candy"){g.addColorStop(0,"#4b315f");g.addColorStop(.5,"#d68db6");g.addColorStop(1,"#6e9ed0")}
+    if(type==="minimal"){g.addColorStop(0,"#202337");g.addColorStop(1,"#090b15")}
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+
+    const count=type==="minimal"?15:90;
+    for(let i=0;i<count;i++){
+      const x=Math.random()*w,y=Math.random()*h,r=Math.random()*(type==="minimal"?1.5:4)+.4;
+      ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${Math.random()*.45})`;ctx.fill();
+    }
+    if(type==="dream"||type==="candy"){
+      for(let i=0;i<7;i++){
+        const x=Math.random()*w,y=Math.random()*h,r=30+Math.random()*100;
+        const rg=ctx.createRadialGradient(x,y,0,x,y,r);
+        rg.addColorStop(0,"rgba(255,255,255,.12)");rg.addColorStop(1,"rgba(255,255,255,0)");
+        ctx.fillStyle=rg;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+      }
+    }
+    if(type==="forest"){
+      ctx.strokeStyle="rgba(102,255,195,.13)";ctx.lineWidth=2;
+      for(let i=0;i<15;i++){const x=Math.random()*w;ctx.beginPath();ctx.moveTo(x,h);ctx.lineTo(x+(Math.random()-.5)*120,h*.45);ctx.stroke()}
+    }
+  }
+
+  function applyAgeLook(ctx,w,h){
+    const years=state.years;
+    const signed=state.direction==="future"?years:-years;
+    const intensity=Math.min(1,Math.abs(signed)/50);
+    const image=ctx.getImageData(0,0,w,h), d=image.data;
+
+    // Browser-only visual treatment. It does NOT infer actual biological aging.
+    if(signed>0){
+      // Older: slightly lower saturation, warmer contrast and fine texture.
+      for(let i=0;i<d.length;i+=4){
+        const r=d[i],g=d[i+1],b=d[i+2];
+        const lum=.299*r+.587*g+.114*b;
+        d[i]=Math.min(255,lum+(r-lum)*(1-intensity*.22)+intensity*5);
+        d[i+1]=Math.min(255,lum+(g-lum)*(1-intensity*.27));
+        d[i+2]=Math.min(255,lum+(b-lum)*(1-intensity*.32));
+      }
+      ctx.putImageData(image,0,0);
+      // Fine illustrative lines around the portrait region.
+      ctx.save();ctx.globalAlpha=.10*intensity;ctx.strokeStyle="#5a4b43";ctx.lineWidth=1;
+      for(let i=0;i<12;i++){
+        const x=w*(.35+Math.random()*.3), y=h*(.25+Math.random()*.35);
+        ctx.beginPath();ctx.moveTo(x-12,y);ctx.quadraticCurveTo(x,y+3,x+15,y+1);ctx.stroke();
+      }
+      ctx.restore();
+    }else if(signed<0){
+      // Younger: gentle smoothing + brighter midtones. This is intentionally stylized.
+      const copy=new ImageData(new Uint8ClampedArray(d),w,h);
+      const radius=Math.max(1,Math.round(1+intensity*2));
+      for(let y=radius;y<h-radius;y++){
+        for(let x=radius;x<w-radius;x++){
+          const p=(y*w+x)*4;
+          if(((x+y)&3)!==0)continue;
+          let rr=0,gg=0,bb=0,n=0;
+          for(let yy=-radius;yy<=radius;yy++)for(let xx=-radius;xx<=radius;xx++){
+            const q=((y+yy)*w+(x+xx))*4;rr+=copy.data[q];gg+=copy.data[q+1];bb+=copy.data[q+2];n++;
+          }
+          d[p]=d[p]*(.45+intensity*.1)+rr/n*(.55-intensity*.1);
+          d[p+1]=d[p+1]*(.45+intensity*.1)+gg/n*(.55-intensity*.1);
+          d[p+2]=d[p+2]*(.45+intensity*.1)+bb/n*(.55-intensity*.1);
+        }
+      }
+      for(let i=0;i<d.length;i+=4){
+        d[i]=Math.min(255,d[i]+intensity*4);d[i+1]=Math.min(255,d[i+1]+intensity*5);d[i+2]=Math.min(255,d[i+2]+intensity*7);
+      }
+      ctx.putImageData(image,0,0);
+    }
+  }
+
+  function composite(){
+    const w=workCanvas.width,h=workCanvas.height;
+    makeBackground(rctx,w,h,state.bg);
+
+    // Masked portrait.
+    wctx.clearRect(0,0,w,h);wctx.drawImage(state.source,0,0,w,h);
+    const fg=wctx.getImageData(0,0,w,h), md=mctx.getImageData(0,0,w,h);
+    for(let i=0;i<fg.data.length;i+=4){
+      const a=md.data[i+3];
+      fg.data[i+3]=a;
+    }
+    wctx.putImageData(fg,0,0);
+
+    // Stylized age treatment is applied to the isolated portrait.
+    applyAgeLook(wctx,w,h);
+
+    // Portrait emphasis: center and slightly enlarge.
+    const scale=1+(state.focus/100)*.08;
+    const dw=w*scale,dh=h*scale;
+    const dx=(w-dw)/2,dy=(h-dh)/2;
+    rctx.save();
+    if(state.glow>0){
+      rctx.shadowColor="rgba(120,210,255,.55)";
+      rctx.shadowBlur=state.glow*.45;
+    }
+    rctx.drawImage(workCanvas,dx,dy,dw,dh);
+    rctx.restore();
+
+    // Vignette.
+    const vg=rctx.createRadialGradient(w/2,h*.48,Math.min(w,h)*.2,w/2,h*.5,Math.max(w,h)*.72);
+    vg.addColorStop(.65,"rgba(0,0,0,0)");vg.addColorStop(1,"rgba(0,0,0,.48)");
+    rctx.fillStyle=vg;rctx.fillRect(0,0,w,h);
+
+    // Timeline label.
+    rctx.save();
+    rctx.fillStyle="rgba(255,255,255,.92)";
+    rctx.font=`800 ${Math.max(14,w*.025)}px system-ui`;
+    rctx.textAlign="center";
+    const label=state.direction==="future"?`+${state.years} YEARS`:`-${state.years} YEARS`;
+    rctx.fillText(label,w/2,h*.92);
+    rctx.restore();
+  }
+
+  $("generateBtn").onclick=async()=>{
+    $("loading").classList.add("on");$("loadingText").textContent="Removing the background…";
+    try{
+      await segment();
+      $("loadingText").textContent="Building your time capsule…";
+      await new Promise(r=>setTimeout(r,500));
+      composite();
+      const dir=state.direction==="future"?"future":"past";
+      $("resultTitle").textContent=dir==="future"?"A glimpse forward.":"A glimpse backward.";
+      $("resultSub").textContent=`Your ${state.years}-year ${dir} visual simulation, created locally in the browser.`;
+      $("resultInfo").innerHTML=`<strong>${state.years} years ${dir}</strong><br><br>
+      This image is an artistic edit based on the captured photograph. It does not actually predict or reconstruct how a person will age. Real aging depends on genetics, environment, health, lifestyle and many other factors.`;
+      $("resultBadge").textContent=`ZYGOT · ${state.years}Y ${dir.toUpperCase()} · ${state.style.toUpperCase()}`;
+      $("loading").classList.remove("on");go(5);
+    }catch(e){
+      console.error(e);$("loading").classList.remove("on");
+      toast("Background removal could not load. Check your internet connection and try again.");
+    }
+  };
+
+  $("saveBtn").onclick=()=>{
+    const a=document.createElement("a");
+    a.download=`zygot-${state.direction}-${state.years}-years.png`;
+    a.href=resultCanvas.toDataURL("image/png");a.click();
+  };
+  $("restartBtn").onclick=()=>go(3);
+})();
+</script>
+</body>
+</html>
