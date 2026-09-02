@@ -12,323 +12,285 @@
     --font-serif:'Fraunces', serif;
     --radius:14px;
   }
-
   *{ box-sizing:border-box; }
-
   html,body{
     margin:0; padding:0; height:100%;
     background:var(--bg);
     color:var(--text);
     transition:background 0.6s ease, color 0.6s ease;
-    overflow:hidden;
   }
-
   body.mode-personal{
-    --bg:#15101f;
-    --bg2:#1d1630;
-    --panel:#1a1428;
-    --text:#ece4f7;
-    --dim:#9c8fb8;
-    --accent:#f2a65a;
-    --accent-soft:#c97b84;
-    --bubble-pal:#241a38;
-    --bubble-user:#2d2144;
-    --border:#33274a;
-    --font-body:var(--font-serif);
-    --glow: 0 0 24px rgba(242,166,90,0.18);
+    --bg:#15101f; --bg2:#1d1630; --panel:#1a1428;
+    --text:#ece4f7; --dim:#9c8fb8;
+    --accent:#f2a65a; --accent-soft:#c97b84;
+    --bubble-pal:#241a38; --bubble-user:#2d2144;
+    --border:#33274a; --font-body:var(--font-serif);
+    --glow:0 0 24px rgba(242,166,90,0.16);
+    --grid-line: rgba(242,166,90,0.05);
   }
-
   body.mode-required{
-    --bg:#090d0c;
-    --bg2:#0d1412;
-    --panel:#0b1210;
-    --text:#d9f2ea;
-    --dim:#5f8b80;
-    --accent:#5eead4;
-    --accent-soft:#3fb897;
-    --bubble-pal:#0f1a18;
-    --bubble-user:#12211d;
-    --border:#1c2d29;
-    --font-body:var(--font-mono);
-    --glow: 0 0 18px rgba(94,234,212,0.14);
+    --bg:#090d0c; --bg2:#0d1412; --panel:#0b1210;
+    --text:#d9f2ea; --dim:#5f8b80;
+    --accent:#5eead4; --accent-soft:#3fb897;
+    --bubble-pal:#0f1a18; --bubble-user:#12211d;
+    --border:#1c2d29; --font-body:var(--font-mono);
+    --glow:0 0 18px rgba(94,234,212,0.13);
+    --grid-line: rgba(94,234,212,0.05);
   }
-
   body{
     font-family:var(--font-mono);
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:flex; align-items:center; justify-content:center;
     min-height:100vh;
+    position:relative;
     background-image:
-      radial-gradient(circle at 15% 10%, var(--bg2), transparent 45%),
-      radial-gradient(circle at 85% 90%, var(--bg2), transparent 45%);
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 34px 34px, 34px 34px;
   }
 
+  /* ---------- AMBIENT DRIFTING BACKGROUND ("cooling" layer) ---------- */
+  .ambient{
+    position:fixed; inset:-15%;
+    z-index:0; pointer-events:none;
+    filter:blur(75px); opacity:0.55;
+    transition:opacity 0.8s ease;
+  }
+  .ambient span{ position:absolute; width:36%; height:36%; border-radius:50%; }
+  .ambient span:nth-child(1){ background:var(--accent); top:-4%; left:-4%; animation:driftA 24s ease-in-out infinite; }
+  .ambient span:nth-child(2){ background:var(--accent-soft); bottom:-6%; right:-4%; animation:driftB 29s ease-in-out infinite; }
+  .ambient span:nth-child(3){ background:var(--bg2); top:32%; right:18%; animation:driftC 33s ease-in-out infinite; }
+  @keyframes driftA{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(9%,11%) scale(1.18); } }
+  @keyframes driftB{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-11%,-7%) scale(1.1); } }
+  @keyframes driftC{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-6%,9%) scale(0.88); } }
+
   .console{
-    width:min(560px, 94vw);
-    height:min(760px, 92vh);
+    position:relative; z-index:1;
+    width:min(580px, 94vw);
+    height:min(780px, 92vh);
     background:var(--panel);
     border:1px solid var(--border);
     border-radius:20px;
-    display:flex;
-    flex-direction:column;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.45), var(--glow);
+    display:flex; flex-direction:column;
+    box-shadow:0 30px 80px rgba(0,0,0,0.45), var(--glow);
     overflow:hidden;
     transition:box-shadow 0.6s ease;
   }
 
   /* ---------- HEADER ---------- */
   header{
-    padding:16px 18px 14px;
+    padding:14px 16px 12px;
     border-bottom:1px solid var(--border);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:8px;
   }
+  .identity{ display:flex; align-items:center; gap:10px; min-width:0; }
 
-  .identity{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-
-  .glyph{
-    width:34px; height:34px;
+  .glyph{ position:relative; width:34px; height:34px; flex-shrink:0; }
+  .glyph .cell{
+    position:absolute; top:50%; left:50%;
+    width:16px; height:16px; margin:-8px 0 0 -8px;
     border-radius:50%;
-    background:conic-gradient(from 90deg, var(--accent), var(--accent-soft), var(--accent));
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-mono);
-    font-weight:700; font-size:13px;
-    color:var(--bg);
-    flex-shrink:0;
-    animation:spin 12s linear infinite;
+    background:radial-gradient(circle at 35% 30%, var(--accent), var(--accent-soft));
   }
-  @keyframes spin{ to{ filter:hue-rotate(360deg); } }
+  .glyph .cell-a{ animation:mitosisA 4.2s ease-in-out infinite; }
+  .glyph .cell-b{ animation:mitosisB 4.2s ease-in-out infinite; opacity:0.85; }
+  @keyframes mitosisA{ 0%,100%{ transform:translateX(0) scale(1); } 50%{ transform:translateX(-6px) scale(0.82); } }
+  @keyframes mitosisB{ 0%,100%{ transform:translateX(0) scale(1); } 50%{ transform:translateX(6px) scale(0.82); } }
 
   .identity h1{
-    font-family:var(--font-mono);
-    font-size:15px;
-    margin:0;
-    letter-spacing:0.5px;
+    font-family:var(--font-mono); font-size:15px; margin:0; letter-spacing:0.5px;
+    position:relative; display:inline-block;
   }
-  .identity p{
-    margin:1px 0 0;
-    font-size:11px;
-    color:var(--dim);
-    font-family:var(--font-mono);
+  .identity h1.glitch::before, .identity h1.glitch::after{
+    content:"Pal"; position:absolute; left:0; top:0; width:100%; overflow:hidden;
+  }
+  .identity h1.glitch::before{ color:var(--accent); animation:glitchTop 6s infinite; opacity:0; }
+  .identity h1.glitch::after{ color:var(--accent-soft); animation:glitchBot 6s infinite; opacity:0; }
+  @keyframes glitchTop{ 0%,94%,100%{ opacity:0; transform:translate(0,0); } 95%{ opacity:0.7; transform:translate(-2px,-1px); } 96%{ opacity:0; } }
+  @keyframes glitchBot{ 0%,95%,100%{ opacity:0; transform:translate(0,0); } 96%{ opacity:0.7; transform:translate(2px,1px); } 97%{ opacity:0; } }
+  .identity p{ margin:1px 0 0; font-size:10.5px; color:var(--dim); font-family:var(--font-mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .header-controls{ display:flex; align-items:center; gap:9px; flex-shrink:0; }
+
+  .tasks-btn{
+    position:relative;
+    background:none; border:1px solid var(--border); color:var(--text);
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.5px;
+    padding:6px 9px; border-radius:8px; cursor:pointer;
+  }
+  .tasks-btn .badge{
+    display:inline-block; margin-left:5px; background:var(--accent); color:var(--bg);
+    border-radius:8px; padding:0 5px; font-weight:700; font-size:10px;
   }
 
-  /* ---------- MODE SWITCH (signature element) ---------- */
-  .switch-plate{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:4px;
-    user-select:none;
+  .icon-btn{
+    background:none; border:1px solid var(--border); color:var(--dim);
+    width:28px; height:28px; border-radius:8px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:13px;
+    transition:color 0.2s ease, border-color 0.2s ease;
   }
-  .switch-plate .plate-label{
-    font-size:9px;
-    letter-spacing:2px;
-    color:var(--dim);
-    font-family:var(--font-mono);
-  }
+  .icon-btn:hover{ color:var(--text); border-color:var(--accent); }
+  .icon-btn.active{ color:var(--accent); border-color:var(--accent); }
+
+  /* ---------- MODE SWITCH ---------- */
+  .switch-plate{ display:flex; flex-direction:column; align-items:center; gap:3px; user-select:none; }
+  .switch-plate .plate-label{ font-size:8.5px; letter-spacing:1.5px; color:var(--dim); }
   .switch-track{
-    position:relative;
-    width:76px;
-    height:30px;
-    border-radius:8px;
-    background:var(--bg);
-    border:1px solid var(--border);
-    cursor:pointer;
-    padding:3px;
+    position:relative; width:64px; height:28px; border-radius:8px;
+    background:var(--bg); border:1px solid var(--border); cursor:pointer; padding:3px;
   }
   .switch-knob{
-    position:absolute;
-    top:3px; left:3px;
-    width:34px; height:22px;
-    border-radius:5px;
+    position:absolute; top:3px; left:3px; width:28px; height:20px; border-radius:5px;
     background:var(--accent);
     transition:left 0.35s cubic-bezier(.65,-0.4,.35,1.4), background 0.4s ease;
     box-shadow:0 0 10px rgba(0,0,0,0.3);
   }
-  body.mode-required .switch-knob{ left:37px; }
+  body.mode-required .switch-knob{ left:33px; }
   .switch-track::before, .switch-track::after{
-    position:absolute;
-    top:50%; transform:translateY(-50%);
-    font-size:8px; font-family:var(--font-mono); letter-spacing:0.5px;
-    color:var(--dim);
-    pointer-events:none;
+    position:absolute; top:50%; transform:translateY(-50%);
+    font-size:7.5px; letter-spacing:0.4px; color:var(--dim); pointer-events:none;
   }
-  .switch-track::before{ content:"YOU"; left:6px; }
+  .switch-track::before{ content:"YOU"; left:5px; }
   .switch-track::after{ content:"JOB"; right:5px; }
-  .switch-track.spark::after{
-    content:"⚡";
-  }
   .spark-flash{
-    position:absolute; inset:0;
-    border-radius:8px;
+    position:absolute; inset:0; border-radius:8px;
     background:radial-gradient(circle, var(--accent), transparent 70%);
-    opacity:0;
-    pointer-events:none;
+    opacity:0; pointer-events:none;
   }
-  .spark-flash.active{
-    animation:flash 0.4s ease-out;
-  }
+  .spark-flash.active{ animation:flash 0.4s ease-out; }
   @keyframes flash{ 0%{opacity:0.85;} 100%{opacity:0;} }
 
   /* ---------- CHAT LOG ---------- */
-  .log{
-    flex:1;
-    overflow-y:auto;
-    padding:18px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    scroll-behavior:smooth;
-  }
+  .log{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; scroll-behavior:smooth; }
   .log::-webkit-scrollbar{ width:6px; }
   .log::-webkit-scrollbar-thumb{ background:var(--border); border-radius:4px; }
 
   .msg{
-    max-width:82%;
-    padding:10px 13px;
-    border-radius:var(--radius);
-    font-family:var(--font-body);
-    font-size:15px;
-    line-height:1.45;
-    animation:rise 0.3s ease;
-    white-space:pre-wrap;
+    max-width:82%; padding:10px 13px; border-radius:var(--radius);
+    font-family:var(--font-body); font-size:15px; line-height:1.5;
+    animation:rise 0.3s ease; white-space:pre-wrap;
   }
-  body.mode-required .msg{ font-size:13.5px; line-height:1.5; }
-  @keyframes rise{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
-
-  .msg.pal{
-    align-self:flex-start;
-    background:var(--bubble-pal);
-    border-bottom-left-radius:4px;
-    color:var(--text);
-  }
-  .msg.user{
-    align-self:flex-end;
-    background:var(--bubble-user);
-    border-bottom-right-radius:4px;
-    color:var(--text);
-  }
-  .msg.system{
-    align-self:center;
-    color:var(--dim);
-    font-family:var(--font-mono);
-    font-size:11px;
-    letter-spacing:0.5px;
-    background:none;
-    padding:2px 8px;
-  }
+  body.mode-required .msg{ font-size:13.5px; line-height:1.55; }
+  @keyframes rise{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .msg.pal{ align-self:flex-start; background:var(--bubble-pal); border-bottom-left-radius:4px; }
+  .msg.user{ align-self:flex-end; background:var(--bubble-user); border-bottom-right-radius:4px; }
+  .msg.system{ align-self:center; color:var(--dim); font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.5px; padding:2px 8px; }
 
   .typing{
-    align-self:flex-start;
-    display:flex;
-    gap:4px;
-    padding:12px 14px;
-    background:var(--bubble-pal);
-    border-radius:var(--radius);
-    border-bottom-left-radius:4px;
+    align-self:flex-start; display:flex; gap:4px; padding:12px 14px;
+    background:var(--bubble-pal); border-radius:var(--radius); border-bottom-left-radius:4px;
   }
-  .typing span{
-    width:5px; height:5px;
-    border-radius:50%;
-    background:var(--dim);
-    animation:bounce 1.1s infinite;
-  }
+  .typing span{ width:5px; height:5px; border-radius:50%; background:var(--dim); animation:bounce 1.1s infinite; }
   .typing span:nth-child(2){ animation-delay:0.15s; }
   .typing span:nth-child(3){ animation-delay:0.3s; }
-  @keyframes bounce{ 0%,60%,100%{ transform:translateY(0); opacity:0.4;} 30%{ transform:translateY(-4px); opacity:1;} }
+  @keyframes bounce{ 0%,60%,100%{transform:translateY(0);opacity:0.4;} 30%{transform:translateY(-4px);opacity:1;} }
+
+  /* ---------- TASKS DRAWER ---------- */
+  .drawer{
+    position:absolute; inset:0; top:0; background:var(--panel);
+    display:flex; flex-direction:column;
+    transform:translateY(100%); transition:transform 0.35s cubic-bezier(.4,0,.2,1);
+    z-index:5;
+  }
+  .drawer.open{ transform:translateY(0); }
+  .drawer-header{ padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .drawer-header h2{ font-family:var(--font-mono); font-size:13px; margin:0; letter-spacing:1px; color:var(--dim); }
+  .drawer-actions{ display:flex; gap:8px; padding:10px 16px; border-bottom:1px solid var(--border); }
+  .drawer-actions button{
+    flex:1; background:none; border:1px solid var(--border); color:var(--dim);
+    font-family:var(--font-mono); font-size:10.5px; padding:7px; border-radius:8px; cursor:pointer;
+  }
+  .drawer-actions button:hover{ color:var(--text); border-color:var(--accent); }
+  .todo-list{ flex:1; overflow-y:auto; padding:10px 14px; display:flex; flex-direction:column; gap:8px; }
+  .todo-empty{ color:var(--dim); font-family:var(--font-mono); font-size:12px; text-align:center; margin-top:30px; }
+
+  .todo-item{ display:flex; align-items:flex-start; gap:10px; background:var(--bubble-pal); border-radius:10px; padding:10px 12px; animation:rise 0.25s ease; }
+  .todo-item input[type=checkbox]{
+    appearance:none; -webkit-appearance:none;
+    width:17px; height:17px; border-radius:5px; border:1.5px solid var(--dim);
+    margin-top:2px; flex-shrink:0; cursor:pointer; position:relative;
+  }
+  .todo-item input[type=checkbox]:checked{ background:var(--accent); border-color:var(--accent); }
+  .todo-item input[type=checkbox]:checked::after{ content:"✓"; position:absolute; top:-3px; left:2px; font-size:12px; color:var(--bg); }
+  .todo-item .todo-text{ flex:1; font-family:var(--font-mono); font-size:13px; line-height:1.4; word-break:break-word; }
+  .todo-item.done .todo-text{ text-decoration:line-through; color:var(--dim); }
+  .todo-item .todo-del{ background:none; border:none; color:var(--dim); cursor:pointer; font-size:15px; line-height:1; padding:2px; }
+  .todo-item .todo-del:hover{ color:var(--accent-soft); }
 
   /* ---------- INPUT ---------- */
-  form{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:12px 14px;
-    border-top:1px solid var(--border);
-    background:var(--bg);
-  }
-  .prompt-marker{
-    font-family:var(--font-mono);
-    color:var(--accent);
-    font-size:14px;
-    flex-shrink:0;
-  }
-  input[type=text]{
-    flex:1;
-    background:none;
-    border:none;
-    outline:none;
-    color:var(--text);
-    font-family:var(--font-body);
-    font-size:14.5px;
-    padding:8px 0;
-  }
+  form{ display:flex; align-items:center; gap:8px; padding:12px 14px; border-top:1px solid var(--border); background:var(--bg); }
+  .prompt-marker{ font-family:var(--font-mono); color:var(--accent); font-size:14px; flex-shrink:0; }
+  input[type=text]{ flex:1; background:none; border:none; outline:none; color:var(--text); font-family:var(--font-body); font-size:14.5px; padding:8px 0; }
   input[type=text]::placeholder{ color:var(--dim); }
-  button{
-    background:var(--accent);
-    color:var(--bg);
-    border:none;
-    border-radius:8px;
-    padding:8px 14px;
-    font-family:var(--font-mono);
-    font-weight:700;
-    font-size:12px;
-    letter-spacing:0.5px;
-    cursor:pointer;
-    transition:transform 0.15s ease, opacity 0.2s ease;
+  button[type=submit]{
+    background:var(--accent); color:var(--bg); border:none; border-radius:8px;
+    padding:8px 14px; font-family:var(--font-mono); font-weight:700; font-size:12px;
+    letter-spacing:0.5px; cursor:pointer; transition:transform 0.15s ease, opacity 0.2s ease;
   }
-  button:hover{ transform:translateY(-1px); }
-  button:active{ transform:translateY(0); opacity:0.85; }
+  button[type=submit]:hover{ transform:translateY(-1px); }
+  button[type=submit]:active{ transform:translateY(0); opacity:0.85; }
 
-  footer{
-    text-align:center;
-    font-family:var(--font-mono);
-    font-size:9.5px;
-    color:var(--dim);
-    padding:6px 10px 10px;
-    letter-spacing:0.3px;
-    opacity:0.8;
-  }
+  footer{ text-align:center; font-family:var(--font-mono); font-size:9px; color:var(--dim); padding:5px 10px 9px; letter-spacing:0.3px; opacity:0.75; }
 
-  @media (prefers-reduced-motion: reduce){
-    *{ animation:none !important; transition:none !important; }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  @media (max-width:420px){
+    .switch-plate .plate-label{ display:none; }
+    .identity p{ display:none; }
+    .header-controls{ gap:6px; }
+    .tasks-btn{ padding:5px 7px; font-size:9.5px; }
+    .icon-btn{ width:25px; height:25px; }
+    .switch-track{ width:56px; }
+    .switch-track::before, .switch-track::after{ font-size:6.8px; }
   }
 </style>
 </head>
 <body class="mode-personal">
 
+<div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
+
 <div class="console">
   <header>
     <div class="identity">
-      <div class="glyph">P</div>
+      <div class="glyph"><div class="cell cell-a"></div><div class="cell cell-b"></div></div>
       <div>
-        <h1>Pal</h1>
+        <h1 class="glitch">Pal</h1>
         <p id="modeCaption">personal · off the clock</p>
       </div>
     </div>
-    <div class="switch-plate">
-      <span class="plate-label">MODE</span>
-      <div class="switch-track" id="switchTrack">
-        <div class="spark-flash" id="sparkFlash"></div>
-        <div class="switch-knob"></div>
+    <div class="header-controls">
+      <button class="tasks-btn" id="tasksBtn" type="button">TASKS<span class="badge" id="taskBadge">0</span></button>
+      <button class="icon-btn" id="musicBtn" type="button" title="Ambient sound">♪</button>
+      <button class="icon-btn" id="deleteSessionBtn" type="button" title="Delete session">⟲</button>
+      <div class="switch-plate">
+        <span class="plate-label">MODE</span>
+        <div class="switch-track" id="switchTrack">
+          <div class="spark-flash" id="sparkFlash"></div>
+          <div class="switch-knob"></div>
+        </div>
       </div>
     </div>
   </header>
 
   <div class="log" id="log"></div>
 
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h2>TASK LIST</h2>
+      <button class="icon-btn" id="closeDrawerBtn" type="button">✕</button>
+    </div>
+    <div class="drawer-actions">
+      <button id="clearCompletedBtn" type="button">Clear completed</button>
+      <button id="clearAllBtn" type="button">Clear all</button>
+    </div>
+    <div class="todo-list" id="todoList"></div>
+  </div>
+
   <form id="chatForm">
     <span class="prompt-marker">&gt;</span>
     <input type="text" id="input" placeholder="say something to Pal…" autocomplete="off" />
     <button type="submit">SEND</button>
   </form>
-  <footer>Pal reflects, it doesn't diagnose. For the real stuff, a real person still wins.</footer>
+  <footer>Pal listens, and will gently flag if something sounds bigger than it can help with — it isn't a therapist. Everything here stays on this device. For urgent, real-world danger, contact local emergency services or a crisis line.</footer>
 </div>
 
 <script>
@@ -340,88 +302,248 @@
   const switchTrack = document.getElementById('switchTrack');
   const sparkFlash = document.getElementById('sparkFlash');
   const modeCaption = document.getElementById('modeCaption');
+  const tasksBtn = document.getElementById('tasksBtn');
+  const taskBadge = document.getElementById('taskBadge');
+  const drawer = document.getElementById('drawer');
+  const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+  const todoListEl = document.getElementById('todoList');
+  const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+  const deleteSessionBtn = document.getElementById('deleteSessionBtn');
+  const musicBtn = document.getElementById('musicBtn');
+
+  const CHAT_KEY = 'pal_chat_v1';
+  const TODO_KEY = 'pal_todos_v1';
 
   let mode = 'personal';
-  let taskList = [];
-  let lastTopics = []; // short session memory of confided keywords, personal mode only
+  let todos = [];
+  let storageAvailable = true;
 
-  // ---------- reflection (classic ELIZA pronoun swap) ----------
-  const reflections = {
-    "i":"you", "am":"are", "my":"your", "was":"were", "i'd":"you would",
-    "i've":"you have", "i'll":"you will", "my":"your", "myself":"yourself",
-    "me":"you", "i'm":"you're", "mine":"yours",
-    "you":"I", "your":"my", "you're":"I'm", "you've":"I've",
-    "you'll":"I'll", "yours":"mine", "yourself":"myself"
+  // ---------- emotional-thread tracking (session only, never persisted, never sent anywhere) ----------
+  let recentTags = [];
+  let lastTag = null;
+  let tagStreak = 0;
+  let pivotShownForStreak = false;
+  let clusterScores = { anxiety:0, lowMood:0, ocd:0, generic:0 };
+  let clusterNudged = { anxiety:false, lowMood:false, ocd:false, generic:false };
+
+  // ---------- storage helpers (all local — nothing here ever leaves this browser) ----------
+  function safeGet(key){
+    try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
+    catch(e){ storageAvailable = false; return null; }
+  }
+  function safeSet(key, value){
+    try{ localStorage.setItem(key, JSON.stringify(value)); }
+    catch(e){ storageAvailable = false; }
+  }
+
+  // ---------- anti-repeat picker: cycles every variant once before any repeat ----------
+  const bagCache = new Map();
+  function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+  function pickVariant(arr){
+    if(arr.length === 1) return arr[0];
+    if(!bagCache.has(arr)) bagCache.set(arr, []);
+    let bag = bagCache.get(arr);
+    if(bag.length === 0){ bag = shuffle(arr.map((_,i)=>i)); bagCache.set(arr, bag); }
+    const idx = bag.pop();
+    return arr[idx];
+  }
+  function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  // ---------- reflection: mirrors the user's own words back (classic, but genuinely responsive) ----------
+  const REFLECTIONS = {
+    "i":"you","am":"are","my":"your","was":"were","i'd":"you would","i've":"you have",
+    "i'll":"you will","myself":"yourself","me":"you","i'm":"you're","mine":"yours",
+    "you":"I","your":"my","you're":"I'm","you've":"I've","you'll":"I'll","yours":"mine","yourself":"myself"
   };
   function reflect(text){
     return text.split(/\b/).map(w=>{
       const lw = w.toLowerCase();
-      return reflections.hasOwnProperty(lw) ? reflections[lw] : w;
+      return REFLECTIONS.hasOwnProperty(lw) ? REFLECTIONS[lw] : w;
     }).join('');
   }
+  function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
   // ---------- greetings ----------
   const greetings = {
     personal: "Hey. It's Pal. Whatever's going on, I'm not going anywhere — what's up?",
-    required: "Pal, on the clock. Give me the task and I'll keep it straight."
+    required: "Pal, on the clock. Tell me what's on your plate and I'll help sort it."
   };
 
-  // ---------- PERSONAL MODE RULES ----------
+  // ---------- safety net: acute crisis language, checked before anything else ----------
+  const crisisPattern = /\b(kill myself|suicide|end my life|hurt myself|self harm|self-harm|want to die|don'?t want to (live|be here))\b/i;
+  function crisisResponse(){
+    return "That sounds like a lot to carry, and I want to take it seriously: I'm not able to give the kind of help this needs. Please reach out to a crisis line or someone you trust right now — if you're in the US, 988 connects you to the Suicide & Crisis Lifeline by call or text; if you're elsewhere, a quick search for \"crisis line\" plus your country will get you a local number. You don't have to go through this alone.";
+  }
+
+  // ---------- symptom-pattern clusters ----------
+  // Pal can't diagnose anything — a keyword script can't tell anxiety from a bad week.
+  // What it can do honestly: notice when language matches a recognizable pattern more than
+  // once, name that pattern in plain terms, and point toward a professional and a helpline.
+  // Each cluster fires at most once per session so it never turns into nagging.
+  const clusterPatterns = {
+    anxiety: /\b(anxious|anxiety|racing thoughts|can'?t (switch off|stop worrying|relax)|on edge|panic attack|restless|worry(ing)? (all the time|constantly)|overthink(ing)?)\b/i,
+    lowMood: /\b(hopeless|worthless|numb|can'?t get out of bed|lost interest|nothing (feels|matters)|empty inside|no energy|down for (weeks|months)|don'?t enjoy anything anymore)\b/i,
+    ocd: /\b(intrusive thoughts|keep checking|can'?t stop (checking|counting|cleaning|rearranging)|need (things|it) to be (even|just right|perfect)|have to do it (a certain way|just right)|repeat(ing)? (the same|it) over and over|can'?t stop replaying)\b/i,
+    generic: /\b(can'?t take (it|this) anymore|too much to handle|falling apart|breaking down|can'?t cope)\b/i
+  };
+  const clusterThreshold = 2; // needs to show up twice in the session, not just once in passing
+  function scoreClusters(text){
+    for(const key in clusterPatterns){ if(clusterPatterns[key].test(text)) clusterScores[key]++; }
+  }
+  function pendingClusterNudge(){
+    const order = ['anxiety','lowMood','ocd','generic'];
+    for(const key of order){
+      if(!clusterNudged[key] && clusterScores[key] >= clusterThreshold) return key;
+    }
+    return null;
+  }
+  const nudgeTexts = {
+    anxiety: "Can I point something out, gently? The worry, the racing thoughts, feeling like you can't switch off — that's a pattern, and it's specifically the kind of thing therapists work with, the anxiety-type territory. Might be worth actually talking to someone about it — not because anything's wrong with you, just because it sounds like it's been a lot to carry alone. And if it ever spikes hard, in the US you can call or text 988 any time, not only for emergencies.",
+    lowMood: "I want to be honest with you: feeling this low, this drained, for this long — that's the kind of pattern that usually points toward talking to a professional, the low-mood, depression-type territory. It doesn't mean anything's broken about you. It might just mean it's time for more support than I can give. In the US, 988 is there any time you want to talk to someone, not only in an emergency.",
+    ocd: "Something in what you're describing has a recognizable shape — the thoughts that keep repeating, needing to check or redo things a certain way. That's closer to OCD-type territory, and it's genuinely treatable. A therapist who works with it could help a lot more than I can. Worth looking into when you're able to.",
+    generic: "What you're carrying right now sounds like more than one person should have to hold alone. I think this is worth bringing to an actual professional — a therapist, a doctor, even a helpline conversation. In the US, 988 is available any time, not just for emergencies. I'm still here too, for whatever that's worth."
+  };
+
+  // ---------- task extraction (works in any mode) ----------
+  const taskPatterns = [
+    /\bi (?:have|need|got|gotta) (?:this |to |a )?(.+?) (?:to do|due|to finish|to submit|to complete)\b/i,
+    /\b(?:i need to|i have to|i should|i must|i gotta|need to|have to)\s+(.+)/i,
+    /\bremind me to\s+(.+)/i,
+    /\bdon'?t let me forget to\s+(.+)/i,
+    /\b(?:todo|to-do|to do)[:\-]?\s+(.+)/i,
+    /\bnote to self[:\-]?\s+(.+)/i,
+    /\badd (?:task|to (?:my )?list)[:\-]?\s+(.+)/i
+  ];
+  function extractTask(text){
+    for(const p of taskPatterns){
+      const m = text.match(p);
+      if(m && m[1]){
+        let t = m[1].trim().replace(/[.!?]+$/,'');
+        if(t.length > 2 && t.length < 120) return t;
+      }
+    }
+    return null;
+  }
+
+  // ---------- soft reflection net: catches anything the named rules miss, still feels heard ----------
+  const softReflectPatterns = [ /\bi'?m\s+(?:feeling\s+)?(.+)/i, /\bi feel like\s+(.+)/i ];
+  function trySoftReflect(text){
+    for(const p of softReflectPatterns){
+      const m = text.match(p);
+      if(m && m[1]){
+        let clause = m[1].trim().replace(/[.!?]+$/,'');
+        if(clause.length > 1 && clause.length < 140){
+          clause = reflect(clause);
+          const templates = [
+            `So you're ${clause}? What's that been like?`,
+            `${cap(clause)} — how long has that been going on?`,
+            `Sounds like ${clause}. What would help, even a little, right now?`
+          ];
+          return pickRandom(templates);
+        }
+      }
+    }
+    return null;
+  }
+
+  // ---------- PERSONAL (emotional) RULES ----------
   const personalRules = [
-    { pattern:/\b(bug|debug|stuck|broken|error|crash)\b/i,
-      responses:[
-        "Sounds like something you're building is fighting back. Is it the logic that's stuck, or the motivation?",
-        "The stubborn bugs are usually the ones worth remembering later. What have you tried so far?",
-        "Stuck code has a way of following you off-screen. Is it just the code, or is today just like that?"
-      ]},
-    { pattern:/\b(zygote|github pages|deploy|portfolio|three\.js|cannon\.js)\b/i,
-      responses:[
-        "The lab again, huh. What's it asking of you today?",
-        "You built that place from nothing — does it still feel like a lab, or more like a job some days?",
-        "Tell me what part of Zygote is on your mind."
-      ]},
-    { pattern:/\b(tired|exhausted|burnt out|burned out|drained)\b/i,
-      responses:[
-        "That sounds heavy. How long has it been sitting on you?",
-        "Tired like you need sleep, or tired like you need a different kind of week?",
-        "Worth saying out loud: you're allowed to be tired without justifying it."
-      ]},
-    { pattern:/\b(proud|shipped|finished|launched|finally works)\b/i,
-      responses:[
-        "That's worth sitting with for a second — say more about it.",
-        "Good. What part of it are you most proud of?",
-        "Let yourself have that one. What made it click?"
-      ]},
-    { pattern:/\b(anxious|worried|nervous|scared|afraid)\b/i,
-      responses:[
-        "What's the worry actually about, underneath it?",
-        "Is this a today worry, or one that's been hanging around a while?",
-        "Named worries are easier to hold than vague ones. What's the specific thing?"
-      ]},
-    { pattern:/\b(alone|lonely|isolated)\b/i,
-      responses:[
-        "That's a hard thing to carry quietly. When did it start feeling this way?",
-        "I'm here for this part, at least. What's making it feel that way right now?"
-      ]},
-    { pattern:/\b(sad|down|low|upset|hurt)\b/i,
-      responses:[
-        "I hear that. Do you know what brought it on, or is it more of a fog?",
-        "That's allowed to just be true right now. Want to tell me more?"
-      ]},
-    { pattern:/\b(happy|good|great|excited|glad)\b/i,
-      responses:[
-        "I like hearing that. What's behind it?",
-        "Good — hold onto that one. What's making today lighter?"
-      ]},
-    { pattern:/\bthank(s| you)\b/i,
-      responses:["Anytime. That's what I'm here for.", "Of course. I meant it."]},
-    { pattern:/\bwhy\b.*\byou\b/i,
-      responses:["Why do you think I'd ask that?", "Does the reason matter, or just the fact that I'm asking?"]},
-    { pattern:/\b(i think|i feel|i believe)\b/i,
-      responses:[
-        "Go on — what makes you feel that way?",
-        "Sit with that for a second. What's underneath it?"
-      ]},
+    { tag:'code-stuck', weight:0, pattern:/\b(bug|debug|stuck|broken|error|crash)\b/i, responses:[
+      "Ugh, okay — sounds like something you're building is fighting back. Is it the logic that's stuck, or the motivation?",
+      "The stubborn bugs are usually the ones worth remembering later, for what it's worth. What have you tried so far?",
+      "Stuck code has a way of following you off-screen. Is it just the code, or is today just like that?",
+      "That kind of stuck is its own special flavor of tired. What's the actual error telling you, if anything?"]},
+    { tag:'lab', weight:0, pattern:/\b(zygote|github pages|deploy|portfolio|three\.js|cannon\.js)\b/i, responses:[
+      "The lab again, huh. What's it asking of you today?",
+      "You built that place from nothing — does it still feel like a lab, or more like a job some days?",
+      "Tell me what part of it's on your mind.",
+      "What's the lab throwing at you this time?"]},
+    { tag:'tired', weight:1, pattern:/\b(tired|exhausted|burnt out|burned out|drained)\b/i, responses:[
+      "That sounds heavy. How long has it been sitting on you?",
+      "Tired like you need sleep, or tired like you need a different kind of week?",
+      "Worth saying out loud: you're allowed to be tired without justifying it.",
+      "Where's most of that tiredness coming from, if you had to guess?"]},
+    { tag:'positive', weight:0, pattern:/\b(proud|shipped|finally works|nailed it|happy|good|great|excited|glad|grateful)\b/i, responses:[
+      "Wait, that's genuinely great — say more about it.",
+      "Good. What part of it are you most proud of?",
+      "Let yourself have that one. What made it click?",
+      "I like hearing that. What's behind it?"]},
+    { tag:'anxious', weight:0, pattern:/\b(anxious|anxiety|worried|nervous|on edge)\b/i, responses:[
+      "What's the worry actually about, underneath it?",
+      "Is this a today worry, or one that's been hanging around a while?",
+      "Named worries are easier to hold than vague ones. What's the specific thing?",
+      "Where do you feel that worry — is it a thought loop, or more physical than that?"]},
+    { tag:'lonely', weight:0, pattern:/\b(alone|lonely|isolated|no one gets it)\b/i, responses:[
+      "That's a hard thing to carry quietly. When did it start feeling this way?",
+      "I'm here for this part, at least. What's making it feel that way right now?",
+      "Being surrounded by people and still feeling this is its own particular kind of hard. Is that close to it?"]},
+    { tag:'sad', weight:0, pattern:/\b(sad|down|low|upset|hurt|heartbroken)\b/i, responses:[
+      "I hear that. Do you know what brought it on, or is it more of a fog?",
+      "That's allowed to just be true right now. Want to tell me more?",
+      "No pressure to explain it neatly. What's it feel like, if you had to describe it?"]},
+    { tag:'angry', weight:0, pattern:/\b(angry|furious|pissed|frustrated|irritated)\b/i, responses:[
+      "That's a fair thing to feel. What set it off?",
+      "Anger usually points at something that mattered — what got stepped on?",
+      "What would it look like to actually let that out, safely?"]},
+    { tag:'grief', weight:0, pattern:/\b(lost someone|grief|grieving|passed away|miss (him|her|them))\b/i, responses:[
+      "I'm really sorry. That kind of loss doesn't move on a schedule — take whatever time this takes.",
+      "That's a heavy thing to be sitting with. I'm here if you want to talk about them.",
+      "Grief doesn't really go in a straight line. What's today's version of it like?"]},
+    { tag:'imposter', weight:0, pattern:/\b(imposter|not good enough|fraud|don'?t deserve|behind everyone)\b/i, responses:[
+      "That voice is loud, but it's rarely accurate. What's it telling you right now?",
+      "A lot of people who are actually good at what they do feel exactly this. What triggered it today?",
+      "What would you say to someone else who told you they felt like a fraud?"]},
+    { tag:'conflict', weight:0, pattern:/\b(fight|argument|broke up|breakup|conflict with)\b/i, responses:[
+      "That sounds tense. What happened, from your side of it?",
+      "Do you want to vent about it, or think through what to do next?",
+      "How are you feeling about it now versus right when it happened?"]},
+    { tag:'bored', weight:0, pattern:/\b(bored|nothing to do|stuck in a rut|uninspired)\b/i, responses:[
+      "Bored, or bored of the specific thing you're supposed to be doing?",
+      "What's the last thing that actually pulled your attention in?",
+      "Ruts are sneaky — how long has this one been going?"]},
+    { tag:'procrastination', weight:0, pattern:/\b(procrastinat|avoiding|putting off|can'?t start)\b/i, responses:[
+      "What's the actual first physical action, if you stripped away everything else?",
+      "Sometimes avoidance is about the task, sometimes it's about something the task represents. Which is it?",
+      "What happens in your head right before you'd normally start?"]},
+    { tag:'fear', weight:0, pattern:/\b(scared|afraid|fear of failing|what if i fail)\b/i, responses:[
+      "What's the worst version of this you're picturing?",
+      "Fear like that usually has a specific shape. What does yours look like?",
+      "If it did go badly, what would actually happen next? Walk me through it."]},
+    { tag:'doubt', weight:0, pattern:/\b(can'?t do this|too hard|give up|giving up|not (strong|good) enough|don'?t think i can)\b/i, responses:[
+      "That's the doubt talking, and it's loud right now — but it's not the whole truth. What part feels hardest, specifically?",
+      "You don't have to feel ready to keep going. What's one small next step — not the whole mountain?",
+      "Hard doesn't mean impossible. What's making it feel impossible today?",
+      "You've gotten through hard days before this one. What got you through the last one?"]},
+    { tag:'solution-seek', weight:0, pattern:/\b(?:what should i do|how do i fix|how do i deal with|what can i do about)\b\s*(.*)/i, handler:(m)=>{
+        let tail = (m[1]||'').trim().replace(/^(this|that|it)\b/i,'').trim().replace(/[?.!]+$/,'');
+        const clause = tail ? reflect(tail) : '';
+        const templates = clause ? [
+          `Let's break down ${clause} — what's the one piece of it you actually have control over right now?`,
+          `On ${clause}: what's already worked for you before, even a little, in something like this?`,
+          `If you picked just one small thing to try on ${clause} today, what would it be?`
+        ] : [
+          "Let's break it down — what's the one piece of this you actually have control over right now?",
+          "What's already worked for you before, even a little, in something like this?",
+          "If you picked just one small thing to try today, what would it be?"
+        ];
+        return pickRandom(templates);
+      }},
+    { tag:'thanks', weight:0, pattern:/\bthank(s| you)\b/i, responses:["Anytime. That's what I'm here for.", "Of course. I meant it.", "Any time, genuinely."]},
+    { tag:'meta', weight:0, pattern:/\bwhy\b.*\byou\b/i, responses:["Why do you think I'd ask that?", "Does the reason matter, or just the fact that I'm asking?"]},
+    { tag:'reflect', weight:0, pattern:/\b(?:i think|i feel|i believe)\s+(.+)/i, handler:(m)=>{
+        const clause = reflect(m[1].trim().replace(/[.!?]+$/,''));
+        const templates = [
+          `So you feel like ${clause}? What's underneath that?`,
+          `${cap(clause)} — what makes that feel true right now?`,
+          `Sit with that for a second: ${clause}. Where does that come from, do you think?`
+        ];
+        return pickRandom(templates);
+      }},
+    { tag:'compare', weight:0, pattern:/\bcompar(e|ing) myself\b/i, responses:[
+      "Whoever you're measuring against is running a race you can't see the whole track of. What set this off?",
+      "Comparison's a bad ruler. What actually matters to you here?"]},
+    { tag:'guilt', weight:0, pattern:/\bsorry\b/i, responses:["What are you apologizing for — to me, or to yourself?", "You don't need to apologize here."]}
   ];
 
   const personalFallbacks = [
@@ -431,45 +553,69 @@
     "I'm listening — keep going.",
     "What's the part of that you haven't said out loud yet?",
     "And how did that leave you feeling?",
-    "What would you tell someone else in this exact spot?"
+    "What would you tell someone else in this exact spot?",
+    "Take your time. I'm not going anywhere."
   ];
 
-  // ---------- REQUIRED MODE RULES ----------
+  const categoryPhrase = {
+    'code-stuck':'the bug you were wrestling with', 'lab':"what's going on with the lab",
+    'tired':"how drained you've been feeling", 'anxious':'that worry', 'lonely':'feeling alone in this',
+    'sad':'feeling low', 'angry':'what set you off', 'grief':'losing them',
+    'imposter':"that not-good-enough feeling", 'conflict':'that fight', 'bored':'feeling stuck in a rut',
+    'procrastination':'putting it off', 'fear':'that fear of failing', 'doubt':'doubting whether you could do this',
+    'compare':'comparing yourself to others', 'guilt':'whatever you were apologizing for'
+  };
+  const EXCLUDE_FROM_CALLBACK = ['thanks','meta','reflect','positive','solution-seek'];
+  const EXCLUDE_FROM_PIVOT = ['code-stuck','lab','bored','procrastination','doubt','solution-seek','positive','thanks','meta','reflect'];
+  const pivotOffers = [
+    " Do you want to keep talking this through, or think about what might actually help?",
+    " Want to just keep venting, or start figuring out a next step?",
+    " I can just listen, or we can think about what to do about it — up to you."
+  ];
+  const personalOpeners = ["Yeah — ", "Okay. ", "I hear you. ", "Mm. ", "That's real. ", "Fair enough. ", "Right. "];
+  const requiredOpeners = ["Got it. ", "Okay. ", "Right. ", "Noted. "];
+
+  // ---------- REQUIRED (productive) RULES ----------
   const requiredRules = [
-    { pattern:/^(add|remind me to|todo|task)[:\s]+(.+)/i,
-      handler:(m)=>{
-        const item = m[2].trim();
-        taskList.push(item);
-        return `Logged: "${item}". ${taskList.length} on the list now.`;
-      }},
-    { pattern:/\b(list|show).*(task|todo)/i,
-      handler:()=>{
-        if(taskList.length===0) return "Nothing on the list. Clean slate.";
-        return taskList.map((t,i)=>`${i+1}. ${t}`).join('\n');
-      }},
-    { pattern:/\b(done|finished|complete)[:\s]+(.+)/i,
-      handler:(m)=>{
-        const term = m[2].trim().toLowerCase();
-        const idx = taskList.findIndex(t=>t.toLowerCase().includes(term));
-        if(idx>-1){ const removed = taskList.splice(idx,1); return `Cleared: "${removed[0]}". ${taskList.length} remaining.`; }
-        return "Didn't find that on the list — check the wording?";
-      }},
-    { pattern:/\bclear (the )?(list|tasks)/i,
-      handler:()=>{ taskList = []; return "List cleared."; }},
-    { pattern:/\b(focus|distracted|can'?t concentrate)\b/i,
-      responses:[
-        "One task, one window, timer on. What's the single next action?",
-        "Pick the smallest next step and do only that. What is it?"
-      ]},
-    { pattern:/\b(deadline|due|urgent)\b/i,
-      responses:[
-        "What's actually due, and by when — exact time helps.",
-        "Name the deliverable. We'll work backward from there."
-      ]},
-    { pattern:/\bpriorit/i,
-      responses:["What's the one thing that, if it slipped, would actually cost you? Start there."]},
-    { pattern:/\b(help|what can you do)\b/i,
-      responses:["In this mode: \"add: <task>\", \"list tasks\", \"done: <task>\", \"clear list\". Say the word and I'll track it."]},
+    { pattern:/\b(list|show).*(task|todo)/i, handler:()=>{
+      if(todos.length===0) return "Nothing on the list yet. Open TASKS or just tell me what you need to do.";
+      return `You've got ${todos.filter(t=>!t.done).length} open. Check the TASKS panel for the full list.`;
+    }},
+    { pattern:/\bclear (the )?(list|tasks)/i, handler:()=>{ todos = []; saveTodos(); renderTodos(); return "Task list cleared."; }},
+    { pattern:/\b(focus|distracted|can'?t concentrate)\b/i, responses:[
+      "One task, one window, timer on. What's the single next action?",
+      "Pick the smallest next step and do only that. What is it?",
+      "Close everything except the one thing. What's the one thing?"]},
+    { pattern:/\b(deadline|due|urgent|running out of time)\b/i, responses:[
+      "What's actually due, and by when — exact time helps.",
+      "Name the deliverable. We'll work backward from there.",
+      "How much of it actually exists right now versus still needs building?"]},
+    { pattern:/\bpriorit/i, responses:["What's the one thing that, if it slipped, would actually cost you? Start there.", "Rank the top three — what's genuinely first?"]},
+    { pattern:/\b(overwhelm|too much to do|drowning in work)\b/i, responses:[
+      "Let's shrink it. What's the single next 20-minute chunk?",
+      "Overwhelm usually means the task list needs splitting, not the person. What's the biggest item?",
+      "Brain-dump it all first, sort it after. What's the first thing that comes to mind?"]},
+    { pattern:/\b(plan|planning|scope|scoping)\b/i, responses:[
+      "What's the end state look like, concretely?",
+      "Break it into three pieces. What's piece one?"]},
+    { pattern:/\b(meeting|call|standup)\b/i, responses:[
+      "What's the one outcome you need from it?",
+      "Walk in with one question you need answered — what is it?"]},
+    { pattern:/\b(learn|learning|new tech|new stack)\b/i, responses:[
+      "What's the smallest thing you could build with it today, just to get hands dirty?",
+      "Reading about it or building with it — which is actually next?"]},
+    { pattern:/\b(review|code review|pr)\b/i, responses:[
+      "What's the part of it you're least sure about? Start there.",
+      "Is this about the code, or about how it'll be received?"]},
+    { pattern:/\b(work.?life|burn ?out|too many hours)\b/i, responses:[
+      "What would 'enough for today' look like, specifically?",
+      "Is this a today problem or a pattern? Worth naming which."]},
+    { pattern:/\b(estimate|how long will|eta)\b/i, responses:[
+      "Give me your gut number, then double it. What's the gut number?",
+      "Break it into steps and estimate each — the total is almost always bigger than the vibe-check."]},
+    { pattern:/\bhelp\b/i, responses:[
+      "Just talk normally — mention a task and I'll add it to your list automatically. Say \"list tasks\" any time, or open the TASKS panel to check things off."]},
+    { pattern:/\bthank(s| you)\b/i, responses:["Anytime. Back to it.", "Sure. What's next on the list?"]}
   ];
 
   const requiredFallbacks = [
@@ -479,15 +625,23 @@
     "Fine — what's the concrete deliverable here?"
   ];
 
-  // ---------- rendering ----------
-  function addMessage(text, who){
+  const checkEncouragements = [
+    "Nice — that's one off your shoulders.",
+    "Good. That's real progress.",
+    "Done is done. Keep that pace.",
+    "One less thing weighing on you.",
+    "That's a win, however small it looks from here."
+  ];
+
+  // ---------- rendering: chat ----------
+  function addMessage(text, who, persist){
     const div = document.createElement('div');
     div.className = 'msg ' + who;
     div.textContent = text;
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
+    if(persist !== false) pushChatHistory(text, who);
   }
-
   function addSystem(text){
     const div = document.createElement('div');
     div.className = 'msg system';
@@ -495,34 +649,144 @@
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
   }
-
   function showTyping(){
     const div = document.createElement('div');
-    div.className = 'typing';
-    div.id = 'typingIndicator';
+    div.className = 'typing'; div.id = 'typingIndicator';
     div.innerHTML = '<span></span><span></span><span></span>';
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
+    log.appendChild(div); log.scrollTop = log.scrollHeight;
   }
-  function hideTyping(){
-    const t = document.getElementById('typingIndicator');
-    if(t) t.remove();
+  function hideTyping(){ const t = document.getElementById('typingIndicator'); if(t) t.remove(); }
+
+  function pushChatHistory(text, who){
+    const history = safeGet(CHAT_KEY) || [];
+    history.push({text, who});
+    safeSet(CHAT_KEY, history);
   }
+  function restoreChat(){
+    const history = safeGet(CHAT_KEY);
+    if(history && history.length){ history.forEach(m => addMessage(m.text, m.who, false)); }
+    else { addMessage(greetings.personal, 'pal'); }
+  }
+
+  // ---------- rendering: todos ----------
+  function saveTodos(){ safeSet(TODO_KEY, todos); updateBadge(); }
+  function updateBadge(){ taskBadge.textContent = todos.filter(t=>!t.done).length; }
+  function renderTodos(){
+    todoListEl.innerHTML = '';
+    if(todos.length === 0){
+      todoListEl.innerHTML = '<div class="todo-empty">No tasks yet. Mention something you need to do in chat and Pal will catch it here.</div>';
+      updateBadge(); return;
+    }
+    todos.forEach(item=>{
+      const row = document.createElement('div');
+      row.className = 'todo-item' + (item.done ? ' done' : '');
+      row.innerHTML = `
+        <input type="checkbox" ${item.done ? 'checked' : ''} data-id="${item.id}">
+        <div class="todo-text">${escapeHtml(item.text)}</div>
+        <button class="todo-del" data-id="${item.id}" title="Delete">×</button>
+      `;
+      todoListEl.appendChild(row);
+    });
+    updateBadge();
+  }
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  todoListEl.addEventListener('change', function(e){
+    if(e.target.matches('input[type=checkbox]')){
+      const id = e.target.getAttribute('data-id');
+      const item = todos.find(t=>String(t.id)===id);
+      if(item){
+        const wasDone = item.done;
+        item.done = e.target.checked;
+        saveTodos(); renderTodos();
+        if(!wasDone && item.done){
+          const allDone = todos.length>0 && todos.every(t=>t.done);
+          addMessage(allDone ? "That's the whole list, cleared. Take the win — you earned it." : pickVariant(checkEncouragements), 'pal');
+        }
+      }
+    }
+  });
+  todoListEl.addEventListener('click', function(e){
+    if(e.target.matches('.todo-del')){
+      const id = e.target.getAttribute('data-id');
+      todos = todos.filter(t=>String(t.id)!==id);
+      saveTodos(); renderTodos();
+    }
+  });
+  clearCompletedBtn.addEventListener('click', function(){ todos = todos.filter(t=>!t.done); saveTodos(); renderTodos(); });
+  clearAllBtn.addEventListener('click', function(){
+    if(todos.length && !confirm('Clear the entire task list?')) return;
+    todos = []; saveTodos(); renderTodos();
+  });
+
+  tasksBtn.addEventListener('click', ()=> drawer.classList.add('open'));
+  closeDrawerBtn.addEventListener('click', ()=> drawer.classList.remove('open'));
+
+  deleteSessionBtn.addEventListener('click', function(){
+    if(!confirm('Delete this chat session? Your task list stays untouched.')) return;
+    log.innerHTML = '';
+    safeSet(CHAT_KEY, []);
+    recentTags = []; lastTag = null; tagStreak = 0; pivotShownForStreak = false;
+    clusterScores = { anxiety:0, lowMood:0, ocd:0, generic:0 };
+    clusterNudged = { anxiety:false, lowMood:false, ocd:false, generic:false };
+    addMessage(greetings[mode], 'pal');
+  });
 
   // ---------- brain ----------
   function respondPersonal(text){
+    scoreClusters(text);
+
+    let matchedRule = null, m = null;
     for(const rule of personalRules){
-      if(rule.pattern.test(text)){
-        const opts = rule.responses;
-        return opts[Math.floor(Math.random()*opts.length)];
+      const mm = text.match(rule.pattern);
+      if(mm){ matchedRule = rule; m = mm; break; }
+    }
+
+    let reply;
+    if(matchedRule){
+      reply = matchedRule.handler ? matchedRule.handler(m) : pickVariant(matchedRule.responses);
+
+      if(matchedRule.tag === lastTag){ tagStreak++; } else { tagStreak = 1; pivotShownForStreak = false; }
+      lastTag = matchedRule.tag;
+      if(tagStreak === 2 && !pivotShownForStreak && !EXCLUDE_FROM_PIVOT.includes(matchedRule.tag)){
+        reply += pickVariant(pivotOffers);
+        pivotShownForStreak = true;
+      }
+      if(!EXCLUDE_FROM_CALLBACK.includes(matchedRule.tag)){
+        recentTags.push(matchedRule.tag);
+        if(recentTags.length > 4) recentTags.shift();
+      }
+
+      if(!matchedRule.handler && Math.random() < 0.4){
+        const op = pickVariant(personalOpeners);
+        reply = op + reply.charAt(0).toLowerCase() + reply.slice(1);
+      }
+    } else {
+      lastTag = null; tagStreak = 0;
+      const soft = trySoftReflect(text);
+      if(soft){
+        reply = soft;
+      } else if(recentTags.length && Math.random() < 0.3){
+        const t = pickRandom(recentTags);
+        reply = `Earlier you mentioned ${categoryPhrase[t] || 'that'} — is this connected, or something new?`;
+      } else {
+        reply = pickVariant(personalFallbacks);
+        if(Math.random() < 0.4){
+          const op = pickVariant(personalOpeners);
+          reply = op + reply.charAt(0).toLowerCase() + reply.slice(1);
+        }
       }
     }
-    // occasional callback to something confided earlier in session
-    if(lastTopics.length && Math.random() < 0.25){
-      const topic = lastTopics[Math.floor(Math.random()*lastTopics.length)];
-      return `Earlier you brought up ${topic} — is this connected, or something new?`;
+
+    const nudgeKey = pendingClusterNudge();
+    if(nudgeKey){
+      reply += '\n\n' + nudgeTexts[nudgeKey];
+      clusterNudged[nudgeKey] = true;
     }
-    return personalFallbacks[Math.floor(Math.random()*personalFallbacks.length)];
+
+    return reply;
   }
 
   function respondRequired(text){
@@ -530,21 +794,15 @@
       const m = text.match(rule.pattern);
       if(m){
         if(rule.handler) return rule.handler(m);
-        const opts = rule.responses;
-        return opts[Math.floor(Math.random()*opts.length)];
+        let reply = pickVariant(rule.responses);
+        if(Math.random() < 0.35){
+          const op = pickVariant(requiredOpeners);
+          reply = op + reply.charAt(0).toLowerCase() + reply.slice(1);
+        }
+        return reply;
       }
     }
-    return requiredFallbacks[Math.floor(Math.random()*requiredFallbacks.length)];
-  }
-
-  function trackTopic(text){
-    const notable = ["zygote","deadline","bug","launch","tired","project","github"];
-    for(const n of notable){
-      if(text.toLowerCase().includes(n) && !lastTopics.includes(n)){
-        lastTopics.push(n);
-        if(lastTopics.length>4) lastTopics.shift();
-      }
-    }
+    return pickVariant(requiredFallbacks);
   }
 
   form.addEventListener('submit', function(e){
@@ -554,13 +812,31 @@
     addMessage(text, 'user');
     input.value = '';
 
-    if(mode === 'personal') trackTopic(text);
+    if(crisisPattern.test(text)){
+      showTyping();
+      setTimeout(()=>{ hideTyping(); addMessage(crisisResponse(), 'pal'); }, 400);
+      return;
+    }
+
+    const task = extractTask(text);
+    let addedNote = null;
+    if(task){
+      const exists = todos.some(t => t.text.toLowerCase() === task.toLowerCase());
+      if(!exists){
+        todos.push({ id: Date.now() + Math.floor(Math.random()*1000), text: task, done:false });
+        saveTodos(); renderTodos();
+        addedNote = `Added to your list: "${task}".`;
+      } else {
+        addedNote = `Already tracking "${task}" — check it off when it's done.`;
+      }
+    }
 
     showTyping();
-    const delay = 500 + Math.random()*500;
+    const delay = 450 + Math.random()*450;
     setTimeout(()=>{
       hideTyping();
-      const reply = mode === 'personal' ? respondPersonal(text) : respondRequired(text);
+      let reply = mode === 'personal' ? respondPersonal(text) : respondRequired(text);
+      if(addedNote){ reply = `${addedNote} ${reply}`; }
       addMessage(reply, 'pal');
     }, delay);
   });
@@ -572,19 +848,93 @@
     modeCaption.textContent = mode === 'personal' ? 'personal · off the clock' : 'required · on the clock';
 
     sparkFlash.classList.remove('active');
-    void sparkFlash.offsetWidth; // restart animation
+    void sparkFlash.offsetWidth;
     sparkFlash.classList.add('active');
 
     addSystem(mode === 'personal' ? '— switched to PERSONAL —' : '— switched to REQUIRED —');
     showTyping();
+    setTimeout(()=>{ hideTyping(); addMessage(greetings[mode], 'pal'); }, 400);
+  });
+
+  // ---------- ambient music: procedurally generated, nothing streamed or embedded ----------
+  let audioCtx = null, masterGain = null, musicPlaying = false;
+  let oscNodes = [], lfoNodes = [];
+
+  function startAmbientMusic(){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0;
+    masterGain.connect(audioCtx.destination);
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 900;
+    filter.connect(masterGain);
+
+    const delay = audioCtx.createDelay();
+    delay.delayTime.value = 0.35;
+    const feedback = audioCtx.createGain();
+    feedback.gain.value = 0.25;
+    delay.connect(feedback); feedback.connect(delay);
+    delay.connect(masterGain);
+
+    const freqs = [65.41, 98.00, 130.81, 196.00]; // calm open fifth/octave pad, C2–G3
+    freqs.forEach((f, i)=>{
+      const osc = audioCtx.createOscillator();
+      osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+      osc.frequency.value = f;
+      const g = audioCtx.createGain();
+      g.gain.value = 0.18 / (i + 1);
+      osc.connect(g); g.connect(filter); g.connect(delay);
+      osc.start(); oscNodes.push(osc);
+
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = osc.type;
+      osc2.frequency.value = f * 1.004; // slight detune for warmth
+      const g2 = audioCtx.createGain();
+      g2.gain.value = 0.09 / (i + 1);
+      osc2.connect(g2); g2.connect(filter);
+      osc2.start(); oscNodes.push(osc2);
+    });
+
+    const lfo = audioCtx.createOscillator();
+    lfo.frequency.value = 0.05;
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.value = 260;
+    lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
+    lfo.start(); lfoNodes.push(lfo);
+
+    masterGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 2.5);
+    musicPlaying = true;
+  }
+
+  function stopAmbientMusic(){
+    if(!audioCtx) return;
+    const now = audioCtx.currentTime;
+    masterGain.gain.linearRampToValueAtTime(0, now + 1.2);
+    const ctxToClose = audioCtx;
+    const nodesToStop = oscNodes.concat(lfoNodes);
     setTimeout(()=>{
-      hideTyping();
-      addMessage(greetings[mode], 'pal');
-    }, 450);
+      nodesToStop.forEach(o=>{ try{ o.stop(); }catch(e){} });
+      oscNodes = []; lfoNodes = [];
+      try{ ctxToClose.close(); }catch(e){}
+    }, 1300);
+    audioCtx = null;
+    musicPlaying = false;
+  }
+
+  musicBtn.addEventListener('click', function(){
+    if(!musicPlaying){ startAmbientMusic(); musicBtn.textContent = '♫'; musicBtn.classList.add('active'); }
+    else { stopAmbientMusic(); musicBtn.textContent = '♪'; musicBtn.classList.remove('active'); }
   });
 
   // ---------- boot ----------
-  addMessage(greetings.personal, 'pal');
+  todos = safeGet(TODO_KEY) || [];
+  renderTodos();
+  restoreChat();
+  if(!storageAvailable){
+    addSystem('local storage unavailable in this view — session won\'t persist after reload');
+  }
 })();
 </script>
 
