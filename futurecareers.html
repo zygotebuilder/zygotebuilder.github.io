@@ -1,0 +1,3464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<meta name="theme-color"
+      content="#5b4bb7">
+
+<title>Future Unfolds | Discover Your Future</title>
+
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef7ff 0%,
+            #f8f4ff 50%,
+            #fffaf0 100%
+        );
+
+    color: #263044;
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+:root {
+
+    --purple: #5b4bb7;
+    --dark: #222b45;
+    --muted: #687386;
+    --white: #ffffff;
+
+    --creator: #d69a00;
+    --innovator: #287dcc;
+    --planet: #32965d;
+    --change: #d84c67;
+    --shaper: #7455c8;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.page {
+
+    width: 100%;
+    max-width: 1120px;
+
+    margin: auto;
+
+    padding:
+        18px
+        18px
+        60px;
+}
+
+
+/* =========================================================
+   TOP BRAND
+========================================================= */
+
+.brand {
+
+    text-align: center;
+
+    padding:
+        15px
+        5px
+        10px;
+}
+
+.brand-name {
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    color: var(--purple);
+
+    margin-bottom: 10px;
+}
+
+.brand h1 {
+
+    font-size:
+        clamp(32px, 7vw, 58px);
+
+    line-height: 1.05;
+
+    color: var(--dark);
+
+    margin-bottom: 12px;
+}
+
+.brand p {
+
+    color: var(--muted);
+
+    font-size:
+        clamp(15px, 3vw, 19px);
+
+    line-height: 1.5;
+
+    max-width: 700px;
+
+    margin: auto;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+
+    background: rgba(255,255,255,0.96);
+
+    border:
+        1px solid #e6e9f2;
+
+    border-radius: 30px;
+
+    padding:
+        35px
+        22px
+        32px;
+
+    margin-top: 22px;
+
+    text-align: center;
+
+    box-shadow:
+        0 15px 40px
+        rgba(40,50,80,0.12);
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/* decorative circles */
+
+.hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 180px;
+    height: 180px;
+
+    border-radius: 50%;
+
+    background: rgba(91,75,183,0.06);
+
+    top: -90px;
+    left: -60px;
+}
+
+.hero::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 220px;
+    height: 220px;
+
+    border-radius: 50%;
+
+    background: rgba(52,152,219,0.05);
+
+    bottom: -130px;
+    right: -70px;
+}
+
+
+.strength-icon {
+
+    font-size:
+        clamp(55px, 12vw, 85px);
+
+    margin-bottom: 8px;
+
+    position: relative;
+
+    z-index: 2;
+
+    animation:
+        floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+
+    0%,100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+
+.strength-label {
+
+    text-transform: uppercase;
+
+    font-size: 13px;
+
+    letter-spacing: 2px;
+
+    color: #8992a3;
+
+    margin-bottom: 7px;
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+.strength-name {
+
+    font-size:
+        clamp(30px, 7vw, 52px);
+
+    font-weight: 900;
+
+    margin-bottom: 12px;
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+.strength-tagline {
+
+    font-size:
+        clamp(17px, 3vw, 21px);
+
+    line-height: 1.55;
+
+    max-width: 700px;
+
+    margin: auto;
+
+    color: var(--muted);
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+/* =========================================================
+   START BUTTON
+========================================================= */
+
+.primary-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-top: 23px;
+
+    border: none;
+
+    border-radius: 40px;
+
+    padding:
+        14px
+        26px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5b4bb7,
+            #8064d9
+        );
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 18px
+        rgba(91,75,183,0.25);
+
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+.primary-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 10px 24px
+        rgba(91,75,183,0.30);
+}
+
+
+/* =========================================================
+   SECTION HEADINGS
+========================================================= */
+
+.section {
+
+    margin-top: 38px;
+}
+
+.section-heading {
+
+    text-align: center;
+
+    margin-bottom: 22px;
+}
+
+.section-heading h2 {
+
+    font-size:
+        clamp(25px, 5vw, 34px);
+
+    color: var(--dark);
+
+    margin-bottom: 8px;
+}
+
+.section-heading p {
+
+    color: var(--muted);
+
+    line-height: 1.5;
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   CAREER GRID
+========================================================= */
+
+.career-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   CAREER CARD
+========================================================= */
+
+.career-card {
+
+    background: white;
+
+    border-radius: 22px;
+
+    padding: 23px 20px;
+
+    border-top:
+        5px solid var(--purple);
+
+    box-shadow:
+        0 8px 24px
+        rgba(40,50,80,0.08);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+.career-card:hover {
+
+    transform:
+        translateY(-6px);
+
+    box-shadow:
+        0 15px 32px
+        rgba(40,50,80,0.14);
+}
+
+
+.career-card::after {
+
+    content: "EXPLORE →";
+
+    position: absolute;
+
+    right: 15px;
+
+    bottom: 13px;
+
+    font-size: 10px;
+
+    letter-spacing: 1px;
+
+    color: #9aa2b2;
+
+    font-weight: bold;
+}
+
+
+.career-icon {
+
+    font-size: 46px;
+
+    margin-bottom: 12px;
+}
+
+
+.career-name {
+
+    font-size: 20px;
+
+    font-weight: 800;
+
+    color: #273044;
+
+    margin-bottom: 8px;
+}
+
+
+.career-short {
+
+    color: #6c7586;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    padding-right: 5px;
+}
+
+
+/* =========================================================
+   EXPLORED INDICATOR
+========================================================= */
+
+.career-card.explored {
+
+    box-shadow:
+        0 0 0 3px
+        rgba(91,75,183,0.10),
+        0 10px 25px
+        rgba(40,50,80,0.10);
+}
+
+
+.career-card.explored::before {
+
+    content: "✓ EXPLORED";
+
+    position: absolute;
+
+    top: 12px;
+
+    right: 12px;
+
+    background: #eef7f0;
+
+    color: #328653;
+
+    padding:
+        5px
+        8px;
+
+    border-radius: 12px;
+
+    font-size: 9px;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   FUTURE MIX
+========================================================= */
+
+.future-mix {
+
+    background: white;
+
+    border-radius: 26px;
+
+    padding:
+        30px
+        22px;
+
+    box-shadow:
+        0 10px 30px
+        rgba(40,50,80,0.09);
+
+    text-align: center;
+
+    border:
+        1px solid #e7e9f0;
+}
+
+
+.mix-title {
+
+    font-size: 28px;
+
+    margin-bottom: 8px;
+}
+
+
+.mix-subtitle {
+
+    color: var(--muted);
+
+    line-height: 1.5;
+
+    max-width: 650px;
+
+    margin:
+        0
+        auto
+        22px;
+}
+
+
+.explored-list {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    min-height: 45px;
+}
+
+
+.explored-pill {
+
+    background: #f2efff;
+
+    color: #5b4bb7;
+
+    border-radius: 25px;
+
+    padding:
+        9px
+        15px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+.no-careers {
+
+    color: #9299a8;
+
+    font-size: 14px;
+}
+
+
+.mix-message {
+
+    margin-top: 25px;
+
+    padding:
+        18px;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8f6ff,
+            #f1f8ff
+        );
+
+    color: #4d5669;
+
+    line-height: 1.6;
+
+    display: none;
+}
+
+
+/* =========================================================
+   FINAL MESSAGE
+========================================================= */
+
+.final-card {
+
+    margin-top: 30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #28224e,
+            #5b4bb7
+        );
+
+    color: white;
+
+    border-radius: 27px;
+
+    padding:
+        35px
+        22px;
+
+    text-align: center;
+
+    box-shadow:
+        0 15px 35px
+        rgba(40,30,80,0.22);
+}
+
+
+.final-card .star {
+
+    font-size: 48px;
+
+    margin-bottom: 10px;
+}
+
+
+.final-card h2 {
+
+    font-size:
+        clamp(25px, 5vw, 36px);
+
+    margin-bottom: 13px;
+}
+
+
+.final-card p {
+
+    max-width: 650px;
+
+    margin: auto;
+
+    line-height: 1.7;
+
+    font-size: 16px;
+
+    opacity: 0.94;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+
+    text-align: center;
+
+    margin-top: 38px;
+
+    color: #7c8494;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+}
+
+
+footer strong {
+
+    color: var(--purple);
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(25,29,45,0.70);
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 18px;
+
+    z-index: 1000;
+
+    backdrop-filter:
+        blur(5px);
+}
+
+
+.modal-overlay.show {
+
+    display: flex;
+}
+
+
+.modal {
+
+    width: 100%;
+
+    max-width: 680px;
+
+    max-height:
+        90vh;
+
+    overflow-y: auto;
+
+    background: white;
+
+    border-radius: 27px;
+
+    padding:
+        28px
+        22px
+        25px;
+
+    position: relative;
+
+    box-shadow:
+        0 25px 70px
+        rgba(0,0,0,0.25);
+
+    animation:
+        modalIn 0.25s ease;
+}
+
+
+@keyframes modalIn {
+
+    from {
+
+        transform:
+            translateY(20px)
+            scale(0.97);
+
+        opacity: 0;
+    }
+
+    to {
+
+        transform:
+            translateY(0)
+            scale(1);
+
+        opacity: 1;
+    }
+}
+
+
+.close-button {
+
+    position: absolute;
+
+    top: 13px;
+
+    right: 15px;
+
+    width: 38px;
+
+    height: 38px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f0f1f5;
+
+    color: #525b6e;
+
+    font-size: 22px;
+
+    cursor: pointer;
+}
+
+
+.modal-icon {
+
+    font-size: 62px;
+
+    margin-bottom: 8px;
+}
+
+
+.modal h2 {
+
+    font-size:
+        clamp(27px, 6vw, 38px);
+
+    color: var(--dark);
+
+    margin-bottom: 9px;
+}
+
+
+.modal-intro {
+
+    color: var(--muted);
+
+    line-height: 1.6;
+
+    margin-bottom: 22px;
+}
+
+
+.detail-section {
+
+    margin-top: 19px;
+
+    padding-top: 18px;
+
+    border-top:
+        1px solid #eceef3;
+}
+
+
+.detail-section h3 {
+
+    font-size: 18px;
+
+    margin-bottom: 11px;
+
+    color: #30394d;
+}
+
+
+.detail-section p {
+
+    color: #667084;
+
+    line-height: 1.6;
+
+    font-size: 15px;
+}
+
+
+.create-list {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+
+.create-item {
+
+    background: #f4f5f8;
+
+    padding:
+        8px
+        11px;
+
+    border-radius: 15px;
+
+    font-size: 13px;
+
+    color: #566074;
+}
+
+
+.skill-list {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+
+.skill {
+
+    background: #f1edff;
+
+    color: #5b4bb7;
+
+    padding:
+        8px
+        12px;
+
+    border-radius: 18px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.could-be-you {
+
+    margin-top: 23px;
+
+    padding:
+        20px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8f6ff,
+            #f1f8ff
+        );
+
+    text-align: center;
+}
+
+
+.could-be-you h3 {
+
+    font-size: 20px;
+
+    margin-bottom: 8px;
+}
+
+
+.could-be-you p {
+
+    color: #697386;
+
+    line-height: 1.5;
+
+    margin-bottom: 17px;
+}
+
+
+.modal-actions {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+}
+
+
+.action-button {
+
+    border: none;
+
+    border-radius: 25px;
+
+    padding:
+        11px
+        17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+
+.yes-button {
+
+    background: #5b4bb7;
+
+    color: white;
+}
+
+
+.maybe-button {
+
+    background: #eef0f5;
+
+    color: #555f71;
+}
+
+
+/* =========================================================
+   LITTLE INFO BOX
+========================================================= */
+
+.future-note {
+
+    margin-top: 20px;
+
+    text-align: center;
+
+    color: #7b8495;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   STRENGTH THEMES
+========================================================= */
+
+body.creator .strength-name {
+
+    color: var(--creator);
+}
+
+body.creator .career-card {
+
+    border-top-color:
+        var(--creator);
+}
+
+
+body.innovator .strength-name {
+
+    color: var(--innovator);
+}
+
+body.innovator .career-card {
+
+    border-top-color:
+        var(--innovator);
+}
+
+
+body.planet .strength-name {
+
+    color: var(--planet);
+}
+
+body.planet .career-card {
+
+    border-top-color:
+        var(--planet);
+}
+
+
+body.changemaker .strength-name {
+
+    color: var(--change);
+}
+
+body.changemaker .career-card {
+
+    border-top-color:
+        var(--change);
+}
+
+
+body.futureshaper .strength-name {
+
+    color: var(--shaper);
+}
+
+body.futureshaper .career-card {
+
+    border-top-color:
+        var(--shaper);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+    .career-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .page {
+
+        padding:
+            10px
+            12px
+            45px;
+    }
+
+
+    .career-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap: 14px;
+    }
+
+
+    .career-card {
+
+        padding:
+            20px 18px;
+    }
+
+
+    .hero {
+
+        border-radius: 23px;
+
+        padding:
+            30px
+            17px;
+    }
+
+
+    .future-mix {
+
+        padding:
+            25px
+            17px;
+    }
+
+
+    .final-card {
+
+        padding:
+            30px
+            17px;
+    }
+
+
+    .modal {
+
+        border-radius: 23px;
+
+        padding:
+            27px
+            18px
+            22px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="page">
+
+
+<!-- ======================================================
+     HEADER
+====================================================== -->
+
+<header class="brand">
+
+    <div class="brand-name">
+        🚀 FUTURE UNFOLDS
+    </div>
+
+    <h1>
+        Discover Your Future
+    </h1>
+
+    <p>
+        You discovered a Future Strength.
+        Now let's explore where it could take you!
+    </p>
+
+</header>
+
+
+<!-- ======================================================
+     HERO
+====================================================== -->
+
+<section class="hero">
+
+    <div
+        class="strength-icon"
+        id="strengthIcon">
+        💡
+    </div>
+
+    <div class="strength-label">
+        YOUR FUTURE STRENGTH IS
+    </div>
+
+    <div
+        class="strength-name"
+        id="strengthName">
+        CREATOR
+    </div>
+
+    <p
+        class="strength-tagline"
+        id="strengthTagline">
+        You imagine. You design. You create.
+    </p>
+
+    <button
+        class="primary-button"
+        onclick="scrollToCareers()">
+
+        ✨ EXPLORE MY FUTURE
+
+    </button>
+
+</section>
+
+
+<!-- ======================================================
+     CAREER SECTION
+====================================================== -->
+
+<section
+    class="section"
+    id="careerSection">
+
+    <div class="section-heading">
+
+        <h2>
+            🌟 What could you become?
+        </h2>
+
+        <p id="careerIntro">
+
+            These are some of the many paths
+            your strengths could lead you to.
+
+        </p>
+
+    </div>
+
+
+    <div
+        class="career-grid"
+        id="careerGrid">
+
+    </div>
+
+
+    <div class="future-note">
+
+        👆 Tap any career to discover more.
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     FUTURE MIX
+====================================================== -->
+
+<section class="section">
+
+    <div class="future-mix">
+
+        <div class="mix-title">
+            🔮 Your Future Mix
+        </div>
+
+        <p class="mix-subtitle">
+
+            Explore a few careers and see
+            what kinds of futures interest you.
+
+        </p>
+
+
+        <div
+            class="explored-list"
+            id="exploredList">
+
+            <span class="no-careers">
+                Your explored careers will appear here.
+            </span>
+
+        </div>
+
+
+        <div
+            class="mix-message"
+            id="mixMessage">
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     FINAL MESSAGE
+====================================================== -->
+
+<section class="final-card">
+
+    <div class="star">
+        ⭐
+    </div>
+
+    <h2>
+        Your Future Has Many Paths
+    </h2>
+
+    <p>
+
+        You don't have to choose a career today.
+
+        Keep learning.
+
+        Keep exploring.
+
+        Keep creating.
+
+        The things you enjoy and the skills you develop
+        can open many different doors in the future.
+
+        <br><br>
+
+        <strong>
+            The future is yours to help shape.
+        </strong>
+
+    </p>
+
+</section>
+
+
+<!-- ======================================================
+     FOOTER
+====================================================== -->
+
+<footer>
+
+    <strong>FUTURE UNFOLDS</strong>
+
+    <br>
+
+    Imagine • Invent • Protect • Create
+
+    <br><br>
+
+    A Future Unfolds experience
+
+</footer>
+
+
+</div>
+
+
+<!-- ======================================================
+     CAREER MODAL
+====================================================== -->
+
+<div
+    class="modal-overlay"
+    id="modalOverlay"
+    onclick="closeModalOutside(event)">
+
+    <div class="modal">
+
+        <button
+            class="close-button"
+            onclick="closeModal()">
+
+            ×
+
+        </button>
+
+
+        <div
+            class="modal-icon"
+            id="modalIcon">
+
+            🎮
+
+        </div>
+
+
+        <h2
+            id="modalTitle">
+
+            Game Designer
+
+        </h2>
+
+
+        <p
+            class="modal-intro"
+            id="modalIntro">
+
+        </p>
+
+
+        <!-- WHAT THEY DO -->
+
+        <div class="detail-section">
+
+            <h3>
+                🔍 What do they do?
+            </h3>
+
+            <p
+                id="modalDo">
+
+            </p>
+
+        </div>
+
+
+        <!-- WHAT THEY CREATE -->
+
+        <div class="detail-section">
+
+            <h3>
+                🛠️ What might they create?
+            </h3>
+
+            <div
+                class="create-list"
+                id="modalCreate">
+
+            </div>
+
+        </div>
+
+
+        <!-- SKILLS -->
+
+        <div class="detail-section">
+
+            <h3>
+                🌟 Skills that can help
+            </h3>
+
+            <div
+                class="skill-list"
+                id="modalSkills">
+
+            </div>
+
+        </div>
+
+
+        <!-- COULD BE YOU -->
+
+        <div class="could-be-you">
+
+            <h3>
+                ✨ Could this be you?
+            </h3>
+
+            <p
+                id="modalQuestion">
+
+            </p>
+
+
+            <div class="modal-actions">
+
+                <button
+                    class="action-button yes-button"
+                    onclick="exploreCareer()">
+
+                    😍 I LIKE THIS!
+
+                </button>
+
+
+                <button
+                    class="action-button maybe-button"
+                    onclick="showAnotherCareer()">
+
+                    🔮 SHOW ME ANOTHER
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   CAREER DATABASE
+========================================================= */
+
+const careerData = {
+
+    creator: {
+
+        name: "CREATOR",
+
+        icon: "💡",
+
+        tagline:
+            "You imagine. You design. You create.",
+
+        intro:
+            "You enjoy turning ideas and imagination into something new. Explore some careers where creativity can become your superpower.",
+
+        careers: [
+
+            {
+                icon: "🎮",
+                name: "Game Designer",
+
+                short:
+                    "Creates the ideas, challenges and worlds inside games.",
+
+                do:
+                    "Game designers think about how a game should work, what players should do and what makes the experience exciting.",
+
+                create: [
+                    "🎮 Games",
+                    "🧩 Challenges",
+                    "🌎 Game worlds",
+                    "📖 Stories",
+                    "👾 Characters"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "🧩 Problem solving",
+                    "🎨 Design",
+                    "💻 Technology",
+                    "📖 Storytelling"
+                ],
+
+                question:
+                    "Do you enjoy creating games, stories or imaginary worlds?"
+            },
+
+
+            {
+                icon: "🏠",
+                name: "Architect",
+
+                short:
+                    "Imagines and designs buildings and spaces.",
+
+                do:
+                    "Architects think about how buildings and spaces should look, feel and work for the people who use them.",
+
+                create: [
+                    "🏠 Homes",
+                    "🏫 Schools",
+                    "🏙️ Buildings",
+                    "🌳 Spaces",
+                    "🏛️ Structures"
+                ],
+
+                skills: [
+                    "🎨 Creativity",
+                    "📐 Design",
+                    "🧠 Planning",
+                    "📏 Maths",
+                    "🧩 Problem solving"
+                ],
+
+                question:
+                    "Do you enjoy imagining rooms, buildings or places?"
+            },
+
+
+            {
+                icon: "🎨",
+                name: "Product Designer",
+
+                short:
+                    "Designs useful things that people can use.",
+
+                do:
+                    "Product designers think about how everyday objects can look better, work better and be easier to use.",
+
+                create: [
+                    "📱 Products",
+                    "🪑 Furniture",
+                    "🎒 Useful objects",
+                    "🧴 Everyday items",
+                    "💡 New designs"
+                ],
+
+                skills: [
+                    "🎨 Creativity",
+                    "👀 Observation",
+                    "🧠 Problem solving",
+                    "✏️ Design",
+                    "💡 Imagination"
+                ],
+
+                question:
+                    "Do you often think, “I could make this better”?"
+            },
+
+
+            {
+                icon: "🎬",
+                name: "Animator",
+
+                short:
+                    "Turns ideas and drawings into moving stories.",
+
+                do:
+                    "Animators create movement, characters and visual stories using drawings, models or computers.",
+
+                create: [
+                    "🎬 Films",
+                    "👾 Characters",
+                    "📖 Stories",
+                    "🎨 Animation",
+                    "✨ Visual effects"
+                ],
+
+                skills: [
+                    "🎨 Art",
+                    "💡 Imagination",
+                    "📖 Storytelling",
+                    "💻 Technology",
+                    "👀 Observation"
+                ],
+
+                question:
+                    "Do you enjoy drawing characters or making up stories?"
+            },
+
+
+            {
+                icon: "🧩",
+                name: "Toy Designer",
+
+                short:
+                    "Creates toys and games for people to enjoy.",
+
+                do:
+                    "Toy designers imagine toys that are fun, interesting and sometimes help children learn.",
+
+                create: [
+                    "🧩 Puzzles",
+                    "🧸 Toys",
+                    "🎲 Games",
+                    "🚗 Models",
+                    "🧠 Learning toys"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "🧩 Problem solving",
+                    "🎨 Design",
+                    "👀 Observation",
+                    "😊 Understanding people"
+                ],
+
+                question:
+                    "Do you enjoy inventing games or toys?"
+            },
+
+
+            {
+                icon: "👗",
+                name: "Fashion Designer",
+
+                short:
+                    "Creates new clothes, styles and designs.",
+
+                do:
+                    "Fashion designers imagine colours, shapes, materials and styles for clothing and accessories.",
+
+                create: [
+                    "👗 Clothes",
+                    "👟 Footwear",
+                    "👜 Accessories",
+                    "🎨 Patterns",
+                    "✨ New styles"
+                ],
+
+                skills: [
+                    "🎨 Creativity",
+                    "👀 Observation",
+                    "✏️ Design",
+                    "💡 Imagination",
+                    "🧵 Making"
+                ],
+
+                question:
+                    "Do you enjoy choosing colours, patterns and styles?"
+            },
+
+
+            {
+                icon: "📚",
+                name: "Story Creator",
+
+                short:
+                    "Turns imagination into stories and adventures.",
+
+                do:
+                    "Story creators imagine characters, places and events and bring them together into stories.",
+
+                create: [
+                    "📚 Books",
+                    "🎬 Stories",
+                    "👾 Characters",
+                    "🌎 Adventures",
+                    "💭 Imaginary worlds"
+                ],
+
+                skills: [
+                    "💭 Imagination",
+                    "📖 Storytelling",
+                    "🗣️ Communication",
+                    "✍️ Writing",
+                    "👀 Observation"
+                ],
+
+                question:
+                    "Do you often imagine stories or adventures in your head?"
+            },
+
+
+            {
+                icon: "💡",
+                name: "Inventor",
+
+                short:
+                    "Creates new things to solve problems.",
+
+                do:
+                    "Inventors notice problems and imagine new tools, objects or systems that could help.",
+
+                create: [
+                    "💡 Inventions",
+                    "🔧 Tools",
+                    "🤖 Devices",
+                    "⚙️ Machines",
+                    "🧩 Solutions"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "🧠 Problem solving",
+                    "🔍 Curiosity",
+                    "🧪 Experimenting",
+                    "🛠️ Making"
+                ],
+
+                question:
+                    "Do you enjoy thinking of new ways to solve problems?"
+            }
+
+        ]
+    },
+
+
+/* =========================================================
+   INNOVATOR
+========================================================= */
+
+    innovator: {
+
+        name: "INNOVATOR",
+
+        icon: "🤖",
+
+        tagline:
+            "You question. You solve. You build.",
+
+        intro:
+            "You enjoy finding better ways to do things and thinking about how technology can help.",
+
+        careers: [
+
+            {
+                icon: "🤖",
+                name: "Robotics Engineer",
+
+                short:
+                    "Builds and programs robots.",
+
+                do:
+                    "Robotics engineers design machines that can sense, move and perform useful tasks.",
+
+                create: [
+                    "🤖 Robots",
+                    "🦾 Robot arms",
+                    "🚗 Smart machines",
+                    "🏭 Automated systems",
+                    "🚀 Robot explorers"
+                ],
+
+                skills: [
+                    "🧠 Problem solving",
+                    "💻 Coding",
+                    "⚙️ Engineering",
+                    "🔍 Curiosity",
+                    "📐 Maths"
+                ],
+
+                question:
+                    "Would you enjoy building a machine that can help people?"
+            },
+
+
+            {
+                icon: "💻",
+                name: "Software Developer",
+
+                short:
+                    "Creates apps, websites and computer programs.",
+
+                do:
+                    "Software developers turn ideas into programs that people can use on computers, phones and other devices.",
+
+                create: [
+                    "📱 Apps",
+                    "🌐 Websites",
+                    "🎮 Games",
+                    "💻 Programs",
+                    "🛠️ Digital tools"
+                ],
+
+                skills: [
+                    "💻 Coding",
+                    "🧩 Logic",
+                    "🧠 Problem solving",
+                    "💡 Creativity",
+                    "🔍 Curiosity"
+                ],
+
+                question:
+                    "Would you enjoy making something useful with a computer?"
+            },
+
+
+            {
+                icon: "🧠",
+                name: "AI Specialist",
+
+                short:
+                    "Works with intelligent computer systems.",
+
+                do:
+                    "AI specialists help computers learn from information and perform tasks that normally need human thinking.",
+
+                create: [
+                    "🧠 AI systems",
+                    "💬 Smart assistants",
+                    "👀 Recognition tools",
+                    "📊 Smart systems",
+                    "🤖 Intelligent machines"
+                ],
+
+                skills: [
+                    "🧠 Logic",
+                    "💻 Technology",
+                    "📊 Data",
+                    "🧩 Problem solving",
+                    "🔍 Curiosity"
+                ],
+
+                question:
+                    "Are you curious about how computers can learn and make decisions?"
+            },
+
+
+            {
+                icon: "🚀",
+                name: "Space Technology Engineer",
+
+                short:
+                    "Creates technology for exploring space.",
+
+                do:
+                    "Space technology engineers design machines, systems and equipment that help humans explore and work in space.",
+
+                create: [
+                    "🚀 Rockets",
+                    "🛰️ Satellites",
+                    "🤖 Space robots",
+                    "🌙 Space equipment",
+                    "🪐 Exploration systems"
+                ],
+
+                skills: [
+                    "🔬 Science",
+                    "📐 Maths",
+                    "⚙️ Engineering",
+                    "🧩 Problem solving",
+                    "🚀 Curiosity"
+                ],
+
+                question:
+                    "Would you like to help create something that could explore space?"
+            },
+
+
+            {
+                icon: "⚙️",
+                name: "Mechanical Engineer",
+
+                short:
+                    "Designs machines and mechanical systems.",
+
+                do:
+                    "Mechanical engineers think about how machines move, work and can be improved.",
+
+                create: [
+                    "⚙️ Machines",
+                    "🚗 Vehicles",
+                    "🔧 Tools",
+                    "🏭 Systems",
+                    "🦾 Mechanical parts"
+                ],
+
+                skills: [
+                    "📐 Maths",
+                    "🔬 Science",
+                    "🧠 Problem solving",
+                    "⚙️ Design",
+                    "🔍 Curiosity"
+                ],
+
+                question:
+                    "Do you enjoy understanding how machines work?"
+            },
+
+
+            {
+                icon: "🦾",
+                name: "Automation Engineer",
+
+                short:
+                    "Makes machines perform tasks automatically.",
+
+                do:
+                    "Automation engineers design systems that allow machines and computers to perform tasks with less human effort.",
+
+                create: [
+                    "🤖 Automated machines",
+                    "🏭 Smart factories",
+                    "🚦 Smart systems",
+                    "📦 Delivery systems",
+                    "⚙️ Controls"
+                ],
+
+                skills: [
+                    "💻 Coding",
+                    "⚙️ Engineering",
+                    "🧩 Logic",
+                    "🧠 Problem solving",
+                    "🔍 Curiosity"
+                ],
+
+                question:
+                    "Do you enjoy thinking about how machines could do repetitive jobs?"
+            },
+
+
+            {
+                icon: "🚗",
+                name: "Future Mobility Engineer",
+
+                short:
+                    "Works on future transportation.",
+
+                do:
+                    "Future mobility engineers explore cleaner, safer and smarter ways for people and things to move.",
+
+                create: [
+                    "🚗 Electric vehicles",
+                    "🚌 Smart buses",
+                    "🚲 New transport",
+                    "🚁 Flying systems",
+                    "🚆 Future trains"
+                ],
+
+                skills: [
+                    "⚙️ Engineering",
+                    "🌱 Sustainability",
+                    "🧠 Problem solving",
+                    "💡 Creativity",
+                    "📐 Maths"
+                ],
+
+                question:
+                    "Can you imagine a better way for people to travel?"
+            },
+
+
+            {
+                icon: "🔬",
+                name: "Technology Researcher",
+
+                short:
+                    "Explores new technology and future ideas.",
+
+                do:
+                    "Technology researchers investigate new ideas and discover how technology might solve future problems.",
+
+                create: [
+                    "🔬 New technologies",
+                    "💡 Experiments",
+                    "🤖 Prototypes",
+                    "🧪 New materials",
+                    "🚀 Future solutions"
+                ],
+
+                skills: [
+                    "🔍 Curiosity",
+                    "🔬 Science",
+                    "🧠 Thinking",
+                    "💡 Creativity",
+                    "🧪 Experimenting"
+                ],
+
+                question:
+                    "Do you enjoy asking, “What if we tried something completely new?”"
+            }
+
+        ]
+    },
+
+
+/* =========================================================
+   PLANET PROTECTOR
+========================================================= */
+
+    planet: {
+
+        name: "PLANET PROTECTOR",
+
+        icon: "🌱",
+
+        tagline:
+            "You care. You protect. You renew.",
+
+        intro:
+            "You think about nature, resources and how we can create a healthier future for Earth.",
+
+        careers: [
+
+            {
+                icon: "🌳",
+                name: "Environmental Scientist",
+
+                short:
+                    "Studies nature and helps protect the environment.",
+
+                do:
+                    "Environmental scientists study air, water, land, plants and animals to understand and protect our environment.",
+
+                create: [
+                    "🌳 Conservation plans",
+                    "💧 Water studies",
+                    "🌎 Environmental solutions",
+                    "🔬 Research",
+                    "🌱 Restoration projects"
+                ],
+
+                skills: [
+                    "🔬 Science",
+                    "🌱 Nature",
+                    "🔍 Observation",
+                    "🧠 Problem solving",
+                    "📊 Data"
+                ],
+
+                question:
+                    "Would you enjoy exploring how to keep nature healthy?"
+            },
+
+
+            {
+                icon: "☀️",
+                name: "Renewable Energy Engineer",
+
+                short:
+                    "Works with clean sources of energy.",
+
+                do:
+                    "Renewable energy engineers design systems that use sources such as sunlight and wind to produce useful energy.",
+
+                create: [
+                    "☀️ Solar systems",
+                    "💨 Wind systems",
+                    "🔋 Energy storage",
+                    "⚡ Clean energy systems",
+                    "🌱 Green technology"
+                ],
+
+                skills: [
+                    "🔬 Science",
+                    "📐 Maths",
+                    "⚙️ Engineering",
+                    "🌱 Sustainability",
+                    "🧩 Problem solving"
+                ],
+
+                question:
+                    "Would you like to help create cleaner ways to make energy?"
+            },
+
+
+            {
+                icon: "🏙️",
+                name: "Sustainable Architect",
+
+                short:
+                    "Designs buildings that are better for people and Earth.",
+
+                do:
+                    "Sustainable architects design buildings that use energy, water and materials wisely while creating comfortable spaces.",
+
+                create: [
+                    "🏠 Green homes",
+                    "🏫 Eco schools",
+                    "🌿 Green buildings",
+                    "☀️ Solar designs",
+                    "🌳 Living spaces"
+                ],
+
+                skills: [
+                    "🎨 Design",
+                    "🌱 Nature",
+                    "📐 Maths",
+                    "🧠 Planning",
+                    "💡 Creativity"
+                ],
+
+                question:
+                    "Would you enjoy designing a building that helps both people and nature?"
+            },
+
+
+            {
+                icon: "💧",
+                name: "Water Resource Specialist",
+
+                short:
+                    "Helps protect and manage water.",
+
+                do:
+                    "Water specialists study how water is used and find ways to protect and manage this important resource.",
+
+                create: [
+                    "💧 Water systems",
+                    "🌧️ Rainwater plans",
+                    "🚰 Water-saving ideas",
+                    "🌊 Water projects",
+                    "🔬 Water studies"
+                ],
+
+                skills: [
+                    "🔬 Science",
+                    "💧 Observation",
+                    "🧠 Problem solving",
+                    "📊 Analysis",
+                    "🌱 Care for nature"
+                ],
+
+                question:
+                    "What ideas could help people use less water?"
+            },
+
+
+            {
+                icon: "🌱",
+                name: "Conservation Scientist",
+
+                short:
+                    "Protects plants, animals and natural habitats.",
+
+                do:
+                    "Conservation scientists study ecosystems and help protect plants, animals and the places where they live.",
+
+                create: [
+                    "🌳 Forest plans",
+                    "🦁 Wildlife projects",
+                    "🌿 Protected areas",
+                    "🐾 Conservation plans",
+                    "🔬 Research"
+                ],
+
+                skills: [
+                    "🌱 Nature",
+                    "🔬 Science",
+                    "👀 Observation",
+                    "❤️ Care",
+                    "🧠 Problem solving"
+                ],
+
+                question:
+                    "Would you enjoy helping animals and plants survive in the future?"
+            },
+
+
+            {
+                icon: "♻️",
+                name: "Waste Management Designer",
+
+                short:
+                    "Finds better ways to reduce and manage waste.",
+
+                do:
+                    "Waste management designers think about how products and waste can be reduced, reused, recycled or handled better.",
+
+                create: [
+                    "♻️ Recycling systems",
+                    "🗑️ Smart bins",
+                    "📦 Reusable products",
+                    "🏭 Waste systems",
+                    "🌱 Zero-waste ideas"
+                ],
+
+                skills: [
+                    "🧩 Problem solving",
+                    "💡 Creativity",
+                    "🌱 Sustainability",
+                    "🔍 Observation",
+                    "🛠️ Design"
+                ],
+
+                question:
+                    "Can you imagine a way to create less waste?"
+            },
+
+
+            {
+                icon: "🌾",
+                name: "Sustainable Agriculture Specialist",
+
+                short:
+                    "Finds better ways to grow food while caring for Earth.",
+
+                do:
+                    "Sustainable agriculture specialists explore ways to grow healthy food while using land, water and other resources carefully.",
+
+                create: [
+                    "🌾 Better farms",
+                    "💧 Water-saving systems",
+                    "🌱 Eco-friendly farming",
+                    "🤖 Smart farming",
+                    "🥕 Food-growing systems"
+                ],
+
+                skills: [
+                    "🌱 Nature",
+                    "🔬 Science",
+                    "💧 Resource care",
+                    "🧠 Problem solving",
+                    "💡 Innovation"
+                ],
+
+                question:
+                    "How could we grow more food while taking good care of Earth?"
+            },
+
+
+            {
+                icon: "🌍",
+                name: "Climate Scientist",
+
+                short:
+                    "Studies Earth's climate and how it changes.",
+
+                do:
+                    "Climate scientists study weather, oceans, atmosphere and other parts of Earth's climate system.",
+
+                create: [
+                    "🌍 Climate research",
+                    "📊 Climate models",
+                    "🌦️ Weather studies",
+                    "🔬 Experiments",
+                    "🌱 Future solutions"
+                ],
+
+                skills: [
+                    "🔬 Science",
+                    "📊 Data",
+                    "🧠 Analysis",
+                    "🌍 Curiosity",
+                    "📐 Maths"
+                ],
+
+                question:
+                    "Would you enjoy discovering how Earth's climate works?"
+            }
+
+        ]
+    },
+
+
+/* =========================================================
+   CHANGE MAKER
+========================================================= */
+
+    changemaker: {
+
+        name: "CHANGE MAKER",
+
+        icon: "❤️",
+
+        tagline:
+            "You care. You connect. You lead.",
+
+        intro:
+            "You notice what people need and think about ways to make life better for others.",
+
+        careers: [
+
+            {
+                icon: "👩‍🏫",
+                name: "Teacher",
+
+                short:
+                    "Helps people learn, grow and discover their abilities.",
+
+                do:
+                    "Teachers help children and adults understand new ideas, develop skills and become confident learners.",
+
+                create: [
+                    "📚 Learning experiences",
+                    "🧩 Activities",
+                    "💡 Ideas",
+                    "👩‍🏫 Lessons",
+                    "🌟 Opportunities"
+                ],
+
+                skills: [
+                    "❤️ Empathy",
+                    "🗣️ Communication",
+                    "🧠 Thinking",
+                    "📚 Knowledge",
+                    "🤝 Teamwork"
+                ],
+
+                question:
+                    "Do you enjoy helping someone understand something new?"
+            },
+
+
+            {
+                icon: "👩‍⚕️",
+                name: "Healthcare Professional",
+
+                short:
+                    "Helps people stay healthy and cared for.",
+
+                do:
+                    "Healthcare professionals help people prevent illness, understand their health and receive appropriate care.",
+
+                create: [
+                    "❤️ Care plans",
+                    "🏥 Health services",
+                    "🩺 Health solutions",
+                    "📋 Patient support",
+                    "🌱 Wellness ideas"
+                ],
+
+                skills: [
+                    "❤️ Empathy",
+                    "🔬 Science",
+                    "🧠 Problem solving",
+                    "🗣️ Communication",
+                    "🤝 Teamwork"
+                ],
+
+                question:
+                    "Would you enjoy helping people feel healthier and better?"
+            },
+
+
+            {
+                icon: "🧑‍🤝‍🧑",
+                name: "Social Worker",
+
+                short:
+                    "Helps people, families and communities.",
+
+                do:
+                    "Social workers support people who are facing difficult situations and help connect them with useful services.",
+
+                create: [
+                    "❤️ Support plans",
+                    "🤝 Community programs",
+                    "🏠 Support services",
+                    "📚 Opportunities",
+                    "🌟 Community solutions"
+                ],
+
+                skills: [
+                    "❤️ Empathy",
+                    "👂 Listening",
+                    "🗣️ Communication",
+                    "🤝 Teamwork",
+                    "🧠 Problem solving"
+                ],
+
+                question:
+                    "Do you enjoy listening to people and helping them solve problems?"
+            },
+
+
+            {
+                icon: "🏙️",
+                name: "Urban Planner",
+
+                short:
+                    "Helps design better places for people to live.",
+
+                do:
+                    "Urban planners think about how roads, homes, parks, transport and public spaces can work together.",
+
+                create: [
+                    "🏙️ Cities",
+                    "🌳 Parks",
+                    "🚲 Cycle paths",
+                    "🚌 Transport plans",
+                    "🏠 Communities"
+                ],
+
+                skills: [
+                    "🧠 Planning",
+                    "🌱 Sustainability",
+                    "🗺️ Geography",
+                    "🤝 Communication",
+                    "🧩 Problem solving"
+                ],
+
+                question:
+                    "Would you enjoy helping design a better city for everyone?"
+            },
+
+
+            {
+                icon: "💡",
+                name: "Social Innovator",
+
+                short:
+                    "Creates new solutions to problems faced by people.",
+
+                do:
+                    "Social innovators look at problems in communities and create new ideas that can improve people's lives.",
+
+                create: [
+                    "💡 New ideas",
+                    "🤝 Community projects",
+                    "📱 Helpful services",
+                    "🌍 Social solutions",
+                    "❤️ Support systems"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "❤️ Empathy",
+                    "🧠 Problem solving",
+                    "🤝 Teamwork",
+                    "🔍 Observation"
+                ],
+
+                question:
+                    "Do you enjoy finding new ways to help people?"
+            },
+
+
+            {
+                icon: "👩‍💼",
+                name: "Entrepreneur",
+
+                short:
+                    "Turns ideas into projects, organisations or businesses.",
+
+                do:
+                    "Entrepreneurs notice opportunities, develop ideas and bring people and resources together to create something useful.",
+
+                create: [
+                    "💡 Ideas",
+                    "🏢 Businesses",
+                    "📱 Products",
+                    "🤝 Teams",
+                    "🌟 Solutions"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "🗣️ Communication",
+                    "🧠 Problem solving",
+                    "🤝 Leadership",
+                    "🎯 Planning"
+                ],
+
+                question:
+                    "Do you enjoy turning an idea into something real?"
+            },
+
+
+            {
+                icon: "⚖️",
+                name: "Lawyer",
+
+                short:
+                    "Helps people understand and protect their rights.",
+
+                do:
+                    "Lawyers use knowledge of laws to advise and represent people and organisations.",
+
+                create: [
+                    "⚖️ Legal solutions",
+                    "📚 Advice",
+                    "📝 Legal documents",
+                    "🤝 Agreements",
+                    "🛡️ Protection"
+                ],
+
+                skills: [
+                    "🗣️ Communication",
+                    "🧠 Reasoning",
+                    "📚 Knowledge",
+                    "👂 Listening",
+                    "⚖️ Fair thinking"
+                ],
+
+                question:
+                    "Do you enjoy listening carefully and thinking about what is fair?"
+            },
+
+
+            {
+                icon: "🧠",
+                name: "Psychologist / Counsellor",
+
+                short:
+                    "Helps people understand their thoughts and feelings.",
+
+                do:
+                    "Psychologists and counsellors help people understand challenges, feelings and behaviours and work toward positive change.",
+
+                create: [
+                    "❤️ Support",
+                    "🧠 Guidance",
+                    "💬 Conversations",
+                    "🌱 Growth plans",
+                    "🤝 Helping strategies"
+                ],
+
+                skills: [
+                    "👂 Listening",
+                    "❤️ Empathy",
+                    "🗣️ Communication",
+                    "🧠 Thinking",
+                    "🤝 Patience"
+                ],
+
+                question:
+                    "Are you someone people feel comfortable talking to?"
+            }
+
+        ]
+    },
+
+
+/* =========================================================
+   FUTURE SHAPER
+========================================================= */
+
+    futureshaper: {
+
+        name: "FUTURE SHAPER",
+
+        icon: "⭐",
+
+        tagline:
+            "You connect ideas. You see possibilities.",
+
+        intro:
+            "You bring different strengths together — ideas, technology, people and care for our planet.",
+
+        careers: [
+
+            {
+                icon: "🏙️",
+                name: "Smart City Designer",
+
+                short:
+                    "Combines technology, design and sustainability to improve cities.",
+
+                do:
+                    "Smart city designers think about how technology, buildings, transport, nature and people can work together.",
+
+                create: [
+                    "🏙️ Smart cities",
+                    "🚦 Smart transport",
+                    "🌳 Green spaces",
+                    "💡 Digital systems",
+                    "🏠 Better communities"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "🤖 Technology",
+                    "🌱 Sustainability",
+                    "🤝 Teamwork",
+                    "🧠 Problem solving"
+                ],
+
+                question:
+                    "Would you enjoy designing a city where technology and nature work together?"
+            },
+
+
+            {
+                icon: "🏠",
+                name: "Future Architect",
+
+                short:
+                    "Designs future homes and buildings for people and the planet.",
+
+                do:
+                    "Future architects imagine how buildings could become smarter, healthier and more sustainable.",
+
+                create: [
+                    "🏠 Future homes",
+                    "🏫 Smart schools",
+                    "🌱 Green buildings",
+                    "☀️ Energy systems",
+                    "🌳 Living spaces"
+                ],
+
+                skills: [
+                    "🎨 Design",
+                    "💡 Imagination",
+                    "🤖 Technology",
+                    "🌱 Sustainability",
+                    "📐 Planning"
+                ],
+
+                question:
+                    "Would you enjoy imagining what homes and schools could look like in the future?"
+            },
+
+
+            {
+                icon: "🤖",
+                name: "Robotics Designer",
+
+                short:
+                    "Combines creativity and technology to design useful robots.",
+
+                do:
+                    "Robotics designers think about what robots should look like, how they should work and how they could help people.",
+
+                create: [
+                    "🤖 Helpful robots",
+                    "🦾 Robot designs",
+                    "🏠 Home robots",
+                    "🚀 Exploration robots",
+                    "❤️ Care robots"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "🤖 Technology",
+                    "🎨 Design",
+                    "🧩 Problem solving",
+                    "❤️ Understanding people"
+                ],
+
+                question:
+                    "Can you imagine a robot that solves a problem people have?"
+            },
+
+
+            {
+                icon: "🌱",
+                name: "Sustainability Innovator",
+
+                short:
+                    "Creates new ideas that help people while protecting Earth.",
+
+                do:
+                    "Sustainability innovators find creative ways to meet people's needs while using Earth's resources wisely.",
+
+                create: [
+                    "🌱 Green solutions",
+                    "♻️ New systems",
+                    "☀️ Clean technology",
+                    "💧 Resource-saving ideas",
+                    "🌍 Sustainable products"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "🌱 Environmental thinking",
+                    "🧠 Problem solving",
+                    "🤖 Technology",
+                    "🤝 Collaboration"
+                ],
+
+                question:
+                    "Would you enjoy creating something that helps people and Earth at the same time?"
+            },
+
+
+            {
+                icon: "🚀",
+                name: "Space Innovation Specialist",
+
+                short:
+                    "Combines science, technology and creativity for space challenges.",
+
+                do:
+                    "Space innovation specialists explore new ideas for living, travelling and working beyond Earth.",
+
+                create: [
+                    "🚀 Space systems",
+                    "🪐 Space habitats",
+                    "🤖 Space robots",
+                    "🌱 Space gardens",
+                    "🛰️ New technology"
+                ],
+
+                skills: [
+                    "🔬 Science",
+                    "🤖 Technology",
+                    "💡 Creativity",
+                    "🧠 Problem solving",
+                    "🚀 Curiosity"
+                ],
+
+                question:
+                    "Would you enjoy imagining how people could live and work in space?"
+            },
+
+
+            {
+                icon: "💡",
+                name: "Innovation Entrepreneur",
+
+                short:
+                    "Turns creative ideas into useful solutions.",
+
+                do:
+                    "Innovation entrepreneurs bring together ideas, people and technology to create new products, services or organisations.",
+
+                create: [
+                    "💡 New products",
+                    "📱 Digital services",
+                    "🤝 Teams",
+                    "🏢 Organisations",
+                    "🌍 Solutions"
+                ],
+
+                skills: [
+                    "💡 Creativity",
+                    "🤝 Leadership",
+                    "🤖 Technology",
+                    "🧠 Problem solving",
+                    "🗣️ Communication"
+                ],
+
+                question:
+                    "Would you enjoy taking a new idea and turning it into something real?"
+            },
+
+
+            {
+                icon: "🌍",
+                name: "Future Sustainability Planner",
+
+                short:
+                    "Helps communities prepare for a better future.",
+
+                do:
+                    "Future sustainability planners think about how communities can use resources wisely and prepare for future challenges.",
+
+                create: [
+                    "🏙️ Future plans",
+                    "🌱 Green communities",
+                    "💧 Resource systems",
+                    "🚲 Sustainable transport",
+                    "🌍 Long-term plans"
+                ],
+
+                skills: [
+                    "🧠 Planning",
+                    "🌱 Sustainability",
+                    "📊 Analysis",
+                    "🤝 Teamwork",
+                    "💡 Creativity"
+                ],
+
+                question:
+                    "Would you enjoy thinking about what a community will need many years from now?"
+            },
+
+
+            {
+                icon: "🔮",
+                name: "Future Studies Specialist",
+
+                short:
+                    "Explores possible futures and helps people prepare for change.",
+
+                do:
+                    "Future studies specialists explore different possibilities and think about how technology, society and the environment might change.",
+
+                create: [
+                    "🔮 Future scenarios",
+                    "📊 Possibility maps",
+                    "💡 Ideas",
+                    "🌍 Future plans",
+                    "🚀 New possibilities"
+                ],
+
+                skills: [
+                    "🧠 Critical thinking",
+                    "💡 Imagination",
+                    "🔍 Research",
+                    "📊 Analysis",
+                    "🌍 Curiosity"
+                ],
+
+                question:
+                    "Do you enjoy asking, “What might the world be like in the future?”"
+            }
+
+        ]
+    }
+
+};
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let currentStrength = "creator";
+
+let currentCareerIndex = 0;
+
+let exploredCareers = [];
+
+
+/* =========================================================
+   READ QR PARAMETER
+========================================================= */
+
+function getStrengthFromURL() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    let strength =
+        params.get("strength");
+
+    if (
+        !strength ||
+        !careerData[strength]
+    ) {
+
+        strength = "creator";
+
+    }
+
+    return strength;
+}
+
+
+/* =========================================================
+   LOAD STRENGTH
+========================================================= */
+
+function loadStrength() {
+
+    currentStrength =
+        getStrengthFromURL();
+
+    const data =
+        careerData[currentStrength];
+
+
+    /* Remove previous theme */
+
+    document.body.className = "";
+
+
+    /* Apply theme */
+
+    document.body.classList.add(
+        currentStrength
+    );
+
+
+    /* Hero */
+
+    document.getElementById(
+        "strengthIcon"
+    ).textContent =
+        data.icon;
+
+
+    document.getElementById(
+        "strengthName"
+    ).textContent =
+        data.name;
+
+
+    document.getElementById(
+        "strengthTagline"
+    ).textContent =
+        data.tagline;
+
+
+    document.getElementById(
+        "careerIntro"
+    ).textContent =
+        data.intro;
+
+
+    renderCareers();
+
+}
+
+
+/* =========================================================
+   RENDER CAREERS
+========================================================= */
+
+function renderCareers() {
+
+    const grid =
+        document.getElementById(
+            "careerGrid"
+        );
+
+    grid.innerHTML = "";
+
+
+    const data =
+        careerData[currentStrength];
+
+
+    data.careers.forEach(
+        (career, index) => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "career-card";
+
+
+            if (
+                exploredCareers.includes(
+                    career.name
+                )
+            ) {
+
+                card.classList.add(
+                    "explored"
+                );
+
+            }
+
+
+            card.innerHTML = `
+
+                <div class="career-icon">
+                    ${career.icon}
+                </div>
+
+                <div class="career-name">
+                    ${career.name}
+                </div>
+
+                <div class="career-short">
+                    ${career.short}
+                </div>
+
+            `;
+
+
+            card.addEventListener(
+                "click",
+                function() {
+
+                    openCareer(index);
+
+                }
+            );
+
+
+            grid.appendChild(card);
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   OPEN CAREER
+========================================================= */
+
+function openCareer(index) {
+
+    currentCareerIndex =
+        index;
+
+
+    const career =
+        careerData[
+            currentStrength
+        ].careers[index];
+
+
+    document.getElementById(
+        "modalIcon"
+    ).textContent =
+        career.icon;
+
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        career.name;
+
+
+    document.getElementById(
+        "modalIntro"
+    ).textContent =
+        career.short;
+
+
+    document.getElementById(
+        "modalDo"
+    ).textContent =
+        career.do;
+
+
+    /* What they create */
+
+    const create =
+        document.getElementById(
+            "modalCreate"
+        );
+
+    create.innerHTML = "";
+
+
+    career.create.forEach(
+        item => {
+
+            const span =
+                document.createElement(
+                    "span"
+                );
+
+            span.className =
+                "create-item";
+
+            span.textContent =
+                item;
+
+            create.appendChild(
+                span
+            );
+
+        }
+    );
+
+
+    /* Skills */
+
+    const skills =
+        document.getElementById(
+            "modalSkills"
+        );
+
+    skills.innerHTML = "";
+
+
+    career.skills.forEach(
+        item => {
+
+            const span =
+                document.createElement(
+                    "span"
+                );
+
+            span.className =
+                "skill";
+
+            span.textContent =
+                item;
+
+            skills.appendChild(
+                span
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "modalQuestion"
+    ).textContent =
+        career.question;
+
+
+    document.getElementById(
+        "modalOverlay"
+    ).classList.add(
+        "show"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
+function closeModal() {
+
+    document.getElementById(
+        "modalOverlay"
+    ).classList.remove(
+        "show"
+    );
+
+
+    document.body.style.overflow =
+        "";
+}
+
+
+function closeModalOutside(event) {
+
+    if (
+        event.target ===
+        document.getElementById(
+            "modalOverlay"
+        )
+    ) {
+
+        closeModal();
+
+    }
+
+}
+
+
+/* =========================================================
+   EXPLORE CAREER
+========================================================= */
+
+function exploreCareer() {
+
+    const career =
+        careerData[
+            currentStrength
+        ].careers[
+            currentCareerIndex
+        ];
+
+
+    if (
+        !exploredCareers.includes(
+            career.name
+        )
+    ) {
+
+        exploredCareers.push(
+            career.name
+        );
+
+    }
+
+
+    updateFutureMix();
+
+    renderCareers();
+
+
+    closeModal();
+
+}
+
+
+/* =========================================================
+   SHOW ANOTHER CAREER
+========================================================= */
+
+function showAnotherCareer() {
+
+    const careers =
+        careerData[
+            currentStrength
+        ].careers;
+
+
+    let nextIndex =
+        currentCareerIndex + 1;
+
+
+    if (
+        nextIndex >=
+        careers.length
+    ) {
+
+        nextIndex = 0;
+
+    }
+
+
+    openCareer(
+        nextIndex
+    );
+
+}
+
+
+/* =========================================================
+   FUTURE MIX
+========================================================= */
+
+function updateFutureMix() {
+
+    const list =
+        document.getElementById(
+            "exploredList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    if (
+        exploredCareers.length === 0
+    ) {
+
+        list.innerHTML = `
+
+            <span class="no-careers">
+
+                Your explored careers
+                will appear here.
+
+            </span>
+
+        `;
+
+        document.getElementById(
+            "mixMessage"
+        ).style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    exploredCareers.forEach(
+        careerName => {
+
+            const pill =
+                document.createElement(
+                    "span"
+                );
+
+            pill.className =
+                "explored-pill";
+
+            pill.textContent =
+                careerName;
+
+            list.appendChild(
+                pill
+            );
+
+        }
+    );
+
+
+    const message =
+        document.getElementById(
+            "mixMessage"
+        );
+
+
+    if (
+        exploredCareers.length === 1
+    ) {
+
+        message.innerHTML =
+
+            "🌟 You found a career that interests you! " +
+            "Keep exploring — you may discover another path that surprises you.";
+
+    }
+
+    else if (
+        exploredCareers.length < 3
+    ) {
+
+        message.innerHTML =
+
+            "🔮 You are discovering different possibilities. " +
+            "Notice what these careers have in common.";
+
+    }
+
+    else {
+
+        message.innerHTML =
+
+            "✨ You explored several possibilities! " +
+            "Your future does not have to follow just one path. " +
+            "Different interests and skills can come together in unexpected ways.";
+
+    }
+
+
+    message.style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   SCROLL
+========================================================= */
+
+function scrollToCareers() {
+
+    document.getElementById(
+        "careerSection"
+    ).scrollIntoView({
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+/* =========================================================
+   ESCAPE KEY
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+loadStrength();
+
+updateFutureMix();
+
+</script>
+
+</body>
+</html>
