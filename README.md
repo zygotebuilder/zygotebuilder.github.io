@@ -22,8 +22,9 @@ That’s the idea behind Astronomy × Biology.
 But Zygote isn’t restricted to those two subjects. Some experiments are scientific. Some are educational. Some are simulations. Some are games. Some are simply strange ideas that I wanted to see come alive.
 
 The common thread is curiosity.
+—————
 
-🛠️ Built With
+Built With
 
 Zygote Builder is primarily built for the web.
 
@@ -44,7 +45,7 @@ The objective is to build the experience first and use the appropriate technolog
 
 ⸻
 
-🏗️ How Zygote is Built
+How Zygote is Built
 
 Zygote is intentionally experimental.
 
@@ -65,9 +66,9 @@ The project is continuously evolving, so the architecture and individual experim
 
 ⸻
 
-🚀 Running Zygote Locally
+Running Zygote Locally
 
-Most experiments are browser-based and can be run as static web pages.
+Almost all experiments are browser-based and can be run as static web pages.
 
 1. Open the project
 
@@ -89,7 +90,7 @@ Open the lab. Pick an experiment. Tinker!
 
 ⸻
 
-🗺️ Project Status
+Project Status
 
 Status: 🟢 Active / Continuously evolving
 
@@ -109,7 +110,7 @@ The laboratory is supposed to show the process of experimentation, not pretend e
 Creator
 
 Pradhyumna Nittala
-pradhyumna.nittala@gmail.com
+Contact - pradhyumna.nittala@gmail.com
 
 Zygote Builder is an independent project.
 
