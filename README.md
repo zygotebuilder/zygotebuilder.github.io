@@ -5,15 +5,7 @@ A collection of thought experiments disguised as simulations.
 
 Astronomy × Biology
 
-zygotebuilder.github.io
-
-⸻
-
-🔬 What is Zygote?
-
-Hello World!
-
-Yeah, let’s begin with this.
+Hello World! Yeah, let’s begin with this.
 
 Zygote Builder is an experimental lab where ideas, questions and random pieces of imagination are turned into interactive simulations, games and digital experiments.
 
@@ -31,36 +23,9 @@ But Zygote isn’t restricted to those two subjects. Some experiments are scient
 
 The common thread is curiosity.
 
-⸻
-
-🧪 The Idea
-
-Every experiment starts with a question.
-
-Sometimes it’s a scientific question.
-
-Sometimes it’s a question about people.
-
-Sometimes it’s just:
-
-“What if I built this?”
-
-The goal isn’t always to produce something useful in the traditional sense.
-
-Every project has a story to tell, an emotion to awaken, or an idea to make you interact with rather than simply read about.
-
-The aim is simple:
-
-Bring your inner child out.
-
-And occasionally make your brain work a little harder while doing it.
-
-⸻
-
-
 🛠️ Built With
 
-Zygote is primarily built for the web.
+Zygote Builder is primarily built for the web.
 
 The experiments use technologies such as:
 
@@ -94,7 +59,7 @@ That means an experiment can have its own:
 * storytelling
 * interface
 
-while still belonging to the larger Zygote universe.
+while still belonging to the larger Zygote Builder universe.
 
 The project is continuously evolving, so the architecture and individual experiments may change over time.
 
@@ -141,70 +106,10 @@ That’s okay.
 The laboratory is supposed to show the process of experimentation, not pretend everything emerged perfectly formed.
 
 ⸻
-
-🤝 Contributing
-
-Zygote is primarily a personal experimental project, but contributions, ideas and thoughtful feedback are welcome.
-
-If you want to contribute:
-
-1. Check the existing issues before starting.
-2. Open an issue for a larger change or new idea.
-3. Fork the repository.
-4. Create a branch for your change.
-5. Make the change and test it.
-6. Open a pull request explaining what you changed and why.
-
-Good contributions don’t have to be huge.
-
-They can be:
-
-* fixing a bug
-* improving accessibility
-* improving documentation
-* fixing a confusing interaction
-* improving performance
-* refining an experiment
-* adding a useful feature
-* suggesting a better way to simulate something
-
-If you’re contributing code, please keep the existing experimental nature of the project in mind.
-
-Not everything needs to become a framework.
-
-⸻
-
-🐛 Issues & Ideas
-
-Found something broken?
-
-Have an idea?
-
-Think an experiment makes absolutely no sense?
-
-Excellent.
-
-Open an issue and explain what you found.
-
-For feature ideas, explaining why the idea would make the experiment better is more useful than simply saying what should be added.
-
-⸻
-
-📸 Screenshots & Experiments
-
-Zygote is a visual project.
-
-If you’re exploring the repository, the best place to experience the experiments is the live site:
-
-https://zygotebuilder.github.io/
-
-The repository contains the implementation; the website contains the experience.
-
-⸻
-
-👨‍🔬 Creator
+Creator
 
 Pradhyumna Nittala
+pradhyumna.nittala@gmail.com
 
 Zygote Builder is an independent project.
 
