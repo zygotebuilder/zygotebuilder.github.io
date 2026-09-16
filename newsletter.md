@@ -1,4 +1,12 @@
 **Newsletter** |
+
+September 16, 2026
+
+Substantial changes made to **Intergalactic Cartography**! It's a great experience for astronomy enthusiasts and I promise it'd be worth it!
+
+
+------------------------------
+
 September 12, 2026
 
 **Hello Dear Visitors!**
