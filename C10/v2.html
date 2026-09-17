@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CHANDRAYAAN 10 — Universal & Solar System Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#020408;
+    --panel:#060a12;
+    --panel-edge: rgba(79,216,255,0.22);
+    --orange:#ff7a1a;
+    --cyan:#4fd8ff;
+    --green:#4be08a;
+    --red:#ff4d4d;
+    --purple:#b066ff;
+    --text:#dce8f0;
+    --dim:#7590a3;
+    --mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:var(--mono);color:var(--text);}
+  #c{position:fixed;inset:0;display:block;outline:none;}
+
+  .hud{position:fixed;pointer-events:none;z-index:10;}
+  .panel{
+    background:linear-gradient(180deg, rgba(8,14,24,0.9), rgba(3,6,12,0.9));
+    border:1px solid var(--panel-edge);
+    border-radius:3px;
+    box-shadow:0 0 20px rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+  }
+  .corner-tl{position:absolute;top:-1px;left:-1px;width:8px;height:8px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+  .corner-br{position:absolute;bottom:-1px;right:-1px;width:8px;height:8px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+  .bracket{position:relative;}
+
+  button.btn{
+    pointer-events:auto;
+    font-family:var(--mono);
+    background:rgba(10,18,28,0.85);
+    color:var(--cyan);
+    border:1px solid rgba(79,216,255,0.45);
+    padding:8px 16px;
+    font-size:12px;
+    letter-spacing:0.06em;
+    cursor:pointer;
+    border-radius:2px;
+    transition:background 0.15s, color 0.15s, border-color .15s, transform .08s;
+    text-transform:uppercase;
+  }
+  button.btn:hover{background:rgba(79,216,255,0.18);border-color:var(--cyan);}
+  button.btn:active{transform:scale(0.97);}
+  button.btn.primary{color:var(--orange);border-color:rgba(255,122,26,0.55);}
+  button.btn.primary:hover{background:rgba(255,122,26,0.2);border-color:var(--orange);}
+  button.btn.purple{color:var(--purple);border-color:rgba(176,102,255,0.55);}
+  button.btn.purple:hover{background:rgba(176,102,255,0.2);border-color:var(--purple);}
+
+  #boot{
+    position:fixed;inset:0;background:#000;z-index:1000;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    transition:opacity 0.8s ease;
+  }
+  #boot .logo{font-size:14px;letter-spacing:0.4em;color:var(--dim);}
+  #boot .title{font-size:clamp(26px,5vw,52px);font-weight:800;letter-spacing:0.05em;color:var(--text);text-shadow:0 0 30px rgba(79,216,255,0.35);}
+  #boot .title span{color:var(--orange);}
+  #boot .sub{font-size:11px;color:var(--dim);letter-spacing:0.15em;}
+  #boot .bar{width:260px;height:2px;background:rgba(255,255,255,0.08);position:relative;overflow:hidden;}
+  #boot .bar i{position:absolute;left:0;top:0;bottom:0;width:0%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+
+  #telemetry{position:fixed;top:20px;left:20px;z-index:11;padding:12px 16px;min-width:230px;}
+  #telemetry .row{display:flex;justify-content:space-between;gap:16px;font-size:11.5px;margin:3px 0;}
+  #telemetry .row .k{color:var(--dim);letter-spacing:0.08em;}
+  #telemetry .row .v{color:var(--cyan);font-weight:700;}
+  #telemetry .stage-name{font-size:10.5px;color:var(--orange);letter-spacing:0.12em;margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.08);}
+
+  #nav-hud{position:fixed;top:20px;right:20px;z-index:11;padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+  #nav-hud .title{font-size:10px;color:var(--dim);letter-spacing:0.2em;margin-bottom:2px;}
+
+  #action-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:11;display:flex;gap:10px;pointer-events:none;flex-wrap:wrap;justify-content:center;}
+  #action-bar button{pointer-events:auto;}
+
+  #event-banner{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:12;
+    padding:8px 20px;font-size:12px;letter-spacing:0.12em;color:var(--orange);background:rgba(6,10,18,0.9);
+    border:1px solid rgba(255,122,26,0.3);border-radius:2px;
+    opacity:0;transition:opacity .4s, transform .4s;pointer-events:none;white-space:nowrap;}
+  #event-banner.show{opacity:1;}
+
+  #entropy-meter{position:fixed;bottom:24px;left:20px;z-index:11;padding:10px 14px;min-width:180px;}
+  #entropy-meter .k{font-size:10px;color:var(--dim);letter-spacing:0.15em;}
+  #entropy-meter .v{font-size:13px;color:var(--purple);font-weight:700;margin-top:2px;}
+
+  .fade-black{position:fixed;inset:0;background:#000;z-index:100;pointer-events:none;opacity:0;transition:opacity 0.8s ease;}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div id="boot">
+  <div class="logo">ISRO · ZYGOTE ASTROPHYSICS LAB</div>
+  <div class="title">CHANDRAYAN <span>10</span></div>
+  <div class="sub">UNIVERSAL & SOLAR SYSTEM SIMULATOR</div>
+  <div class="bar"><i id="boot-bar"></i></div>
+  <button class="btn primary big" id="boot-start" style="display:none;">Initialize Universe</button>
+</div>
+
+<div id="telemetry" class="panel bracket" style="display:none;">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <div class="row"><span class="k">SECTOR</span><span class="v" id="tm-sector">SOLAR SYSTEM</span></div>
+  <div class="row"><span class="k">VELOCITY</span><span class="v" id="tm-vel">0.00 km/s</span></div>
+  <div class="row"><span class="k">COSMIC TIME</span><span class="v" id="tm-time">T+00:00:00</span></div>
+  <div class="row"><span class="k">SIM SPEED</span><span class="v" id="tm-warp">1x (Realtime)</span></div>
+  <div class="stage-name" id="tm-status">STATUS: ORBITAL MECHANICS STABLE</div>
+</div>
+
+<div id="nav-hud" class="panel bracket" style="display:none;">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <div class="title">COSMIC JUMP NAVIGATION</div>
+  <button class="btn" id="jump-solar">Solar System & Planets</button>
+  <button class="btn" id="jump-satellites">Earth Satellite Grid</button>
+  <button class="btn" id="jump-earthsky">Earth Night Sky View</button>
+  <button class="btn purple" id="jump-nebula">Deep Space Nebulae</button>
+  <button class="btn primary" id="jump-blackhole">Supermassive Black Hole</button>
+</div>
+
+<div id="entropy-meter" class="panel bracket" style="display:none;">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <div class="k">SYSTEM ENTROPY</div>
+  <div class="v" id="en-val">1.248 × 10²³ J/K</div>
+</div>
+
+<div id="event-banner"></div>
+
+<div id="action-bar">
+  <button class="btn" id="warp-btn" style="display:none;">⏩ Increase Timewarp (10x)</button>
+  <button class="btn" id="cam-toggle-btn" style="display:none;">Switch View Mode</button>
+</div>
+
+<div class="fade-black" id="fade"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x020408, 0.00015);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 150000);
+
+window.addEventListener('resize', ()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+const clock = new THREE.Clock();
+
+function showBanner(text, ms){
+  const b = document.getElementById('event-banner');
+  b.textContent = text;
+  b.classList.add('show');
+  clearTimeout(showBanner._t);
+  showBanner._t = setTimeout(()=>b.classList.remove('show'), ms||3200);
+}
+
+function fadeTransition(cb){
+  const el = document.getElementById('fade');
+  el.style.opacity = '1';
+  setTimeout(()=>{ if(cb) cb(); }, 400);
+  setTimeout(()=>{ el.style.opacity = '0'; }, 800);
+}
+
+/* =========================================================================
+   UNIVERSAL ASSETS & STELLAR SYSTEMS
+   ========================================================================= */
+
+// Background Deep Starfield & Dust
+function createUniverseBackground(){
+  const count = 8000;
+  const g = new THREE.BufferGeometry();
+  const pos = new Float32Array(count*3);
+  const cols = new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const r = 30000 + Math.random()*60000;
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos((Math.random()*2)-1);
+    pos[i*3] = r*Math.sin(phi)*Math.cos(theta);
+    pos[i*3+1] = r*Math.cos(phi);
+    pos[i*3+2] = r*Math.sin(phi)*Math.sin(theta);
+    const brightness = 0.5 + Math.random()*0.5;
+    cols[i*3] = brightness; cols[i*3+1] = brightness*0.95; cols[i*3+2] = brightness*1.1;
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+  const mat = new THREE.PointsMaterial({size:2.2, vertexColors:true, transparent:true, opacity:0.9});
+  scene.add(new THREE.Points(g, mat));
+}
+createUniverseBackground();
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0x111928, 0.8);
+scene.add(ambientLight);
+
+const sunLight = new THREE.PointLight(0xfffaed, 2.5, 80000, 0.5);
+sunLight.castShadow = true;
+scene.add(sunLight);
+
+/* ---- 1. SOL & SOLAR SYSTEM PLANETS ---- */
+const solarSystemGroup = new THREE.Group();
+scene.add(solarSystemGroup);
+
+const sunMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(180, 64, 64),
+  new THREE.MeshBasicMaterial({color:0xffaa22})
+);
+solarSystemGroup.add(sunMesh);
+const sunGlow = new THREE.Mesh(
+  new THREE.SphereGeometry(210, 32, 32),
+  new THREE.MeshBasicMaterial({color:0xff5500, transparent:true, opacity:0.25, side:THREE.BackSide})
+);
+solarSystemGroup.add(sunGlow);
+
+const planetsData = [
+  {name:'Mercury', r:6, dist:350, speed:0.04, color:0x888888},
+  {name:'Venus', r:12, dist:520, speed:0.03, color:0xd4af37},
+  {name:'Earth', r:14, dist:750, speed:0.025, color:0x1b73e8, hasMoons:true},
+  {name:'Mars', r:9, dist:1000, speed:0.02, color:0xc1440e},
+  {name:'Jupiter', r:38, dist:1500, speed:0.012, color:0xb8860b},
+  {name:'Saturn', r:32, dist:2100, speed:0.009, color:0xdaa520, hasRings:true},
+  {name:'Uranus', r:20, dist:2700, speed:0.006, color:0x4fd8ff},
+  {name:'Neptune', r:19, dist:3300, speed:0.004, color:0x27408b}
+];
+
+const animatedPlanets = [];
+planetsData.forEach(p => {
+  const pGroup = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({color:p.color, roughness:0.8});
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(p.r, 32, 32), mat);
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  pGroup.add(mesh);
+
+  if(p.hasRings){
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(p.r*1.4, p.r*2.3, 32),
+      new THREE.MeshStandardMaterial({color:0xc2b280, side:THREE.DoubleSide, transparent:true, opacity:0.8})
+    );
+    ring.rotation.x = Math.PI/2;
+    pGroup.add(ring);
+  }
+
+  if(p.hasMoons){
+    const moon = new THREE.Mesh(
+      new THREE.SphereGeometry(3.5, 16, 16),
+      new THREE.MeshStandardMaterial({color:0xaaaaaa, roughness:0.9})
+    );
+    moon.position.x = 35;
+    pGroup.add(moon);
+    pGroup.userData.moon = moon;
+  }
+
+  // Orbit line
+  const orbitLine = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(
+      Array.from({length:128}, (_,i)=>{
+        const theta = (i/127)*Math.PI*2;
+        return new THREE.Vector3(Math.cos(theta)*p.dist, 0, Math.sin(theta)*p.dist);
+      })
+    ),
+    new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opacity:0.08})
+  );
+  solarSystemGroup.add(orbitLine);
+
+  solarSystemGroup.add(pGroup);
+  animatedPlanets.push({group:pGroup, dist:p.dist, speed:p.speed, angle:Math.random()*Math.PI*2, moon:pGroup.userData.moon});
+});
+
+
+/* ---- 2. EARTH SATELLITE CONSTELLATION ---- */
+const earthSatGroup = new THREE.Group();
+earthSatGroup.position.set(750, 0, 0); // Earth's position in solar system
+solarSystemGroup.add(earthSatGroup);
+
+const earthMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(14, 48, 48),
+  new THREE.MeshStandardMaterial({color:0x1b73e8, roughness:0.6, metalness:0.2})
+);
+earthSatGroup.add(earthMesh);
+
+const satellites = [];
+const satTypes = [
+  {name:'Chandrayaan-10 Orbiter', color:0xff7a1a, r:22, speed:1.2},
+  {name:'International Space Station (ISS)', color:0xffffff, r:18, speed:1.8},
+  {name:'Hubble Space Telescope', color:0x4fd8ff, r:28, speed:0.9},
+  {name:'NavIC / GPS Constellation', color:0x4be08a, r:45, speed:0.5},
+  {name:'Starlink Comms Array', color:0xb066ff, r:34, speed:1.1}
+];
+
+satTypes.forEach((s, idx)=>{
+  const sMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(1.2, 0.6, 0.6),
+    new THREE.MeshStandardMaterial({color:s.color, metalness:0.8, roughness:0.2})
+  );
+  earthSatGroup.add(sMesh);
+  satellites.push({mesh:sMesh, r:s.r, speed:s.speed, angle:idx*(Math.PI*2/satTypes.length), incline:(idx-2)*0.3});
+});
+
+
+/* ---- 3. EARTH NIGHT SKY VIEW (SURFACE MODE) ---- */
+const earthSurfaceGroup = new THREE.Group();
+earthSurfaceGroup.position.set(20000, 0, 0); // Isolated sector
+scene.add(earthSurfaceGroup);
+
+const groundMat = new THREE.MeshStandardMaterial({color:0x111a12, roughness:0.9});
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000, 64, 64), groundMat);
+ground.rotation.x = -Math.PI/2;
+earthSurfaceGroup.add(ground);
+
+// Night sky dome with stars and constellations
+const nightDome = new THREE.Mesh(
+  new THREE.SphereGeometry(1400, 32, 32),
+  new THREE.MeshBasicMaterial({color:0x010308, side:THREE.BackSide})
+);
+earthSurfaceGroup.add(nightDome);
+earthSurfaceGroup.add(makeStarfieldCluster(1500, 1300));
+
+
+/* ---- 4. DEEP SPACE NEBULAE & STAR CLUSTERS ---- */
+const deepSpaceGroup = new THREE.Group();
+deepSpaceGroup.position.set(-25000, 5000, -15000);
+scene.add(deepSpaceGroup);
+
+function makeStarfieldCluster(count, radius){
+  const g = new THREE.BufferGeometry();
+  const pos = new Float32Array(count*3);
+  const cols = new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const r = radius*(0.2+Math.random()*0.8);
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos((Math.random()*2)-1);
+    pos[i*3] = r*Math.sin(phi)*Math.cos(theta);
+    pos[i*3+1] = r*Math.cos(phi);
+    pos[i*3+2] = r*Math.sin(phi)*Math.sin(theta);
+    cols[i*3] = 0.7+Math.random()*0.3; cols[i*3+1] = 0.8+Math.random()*0.2; cols[i*3+2] = 1.0;
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color', new THREE.BufferAttribute(cols,3));
+  return new THREE.Points(g, new THREE.PointsMaterial({size:1.8, vertexColors:true, transparent:true, opacity:0.9}));
+}
+deepSpaceGroup.add(makeStarfieldCluster(3000, 6000));
+
+// Nebula gas clouds
+const nebulaCloudGeo = new THREE.SphereGeometry(2500, 32, 32);
+const nebulaMat = new THREE.MeshBasicMaterial({color:0xb066ff, transparent:true, opacity:0.12, blending:THREE.AdditiveBlending, side:THREE.BackSide});
+const nebulaMesh = new THREE.Mesh(nebulaCloudGeo, nebulaMat);
+deepSpaceGroup.add(nebulaMesh);
+
+const nebulaMesh2 = new THREE.Mesh(new THREE.SphereGeometry(1800, 32, 32), new THREE.MeshBasicMaterial({color:0xff7a1a, transparent:true, opacity:0.09, blending:THREE.AdditiveBlending, side:THREE.BackSide}));
+nebulaMesh2.position.set(1200, -800, 1000);
+deepSpaceGroup.add(nebulaMesh2);
+
+
+/* ---- 5. SUPERMASSIVE BLACK HOLE ---- */
+const blackHoleGroup = new THREE.Group();
+blackHoleGroup.position.set(0, 0, -35000);
+scene.add(blackHoleGroup);
+
+const eventHorizon = new THREE.Mesh(
+  new THREE.SphereGeometry(120, 32, 32),
+  new THREE.MeshBasicMaterial({color:0x000000})
+);
+blackHoleGroup.add(eventHorizon);
+
+// Accretion disk
+const diskGeo = new THREE.RingGeometry(160, 500, 64);
+const diskMat = new THREE.MeshBasicMaterial({color:0xff7a1a, side:THREE.DoubleSide, transparent:true, opacity:0.85, blending:THREE.AdditiveBlending});
+const accretionDisk = new THREE.Mesh(diskGeo, diskMat);
+accretionDisk.rotation.x = Math.PI/2.2;
+blackHoleGroup.add(accretionDisk);
+
+const bhLight = new THREE.PointLight(0xff7a1a, 4.0, 5000);
+blackHoleGroup.add(bhLight);
+
+
+/* =========================================================================
+   APPLICATION MODES & NAVIGATION
+   ========================================================================= */
+let currentSector = 'SOLAR';
+let cameraMode = 'orbit'; // 'orbit' or 'free'
+let timewarp = 1;
+let missionTime = 0;
+let entropy = 1.248;
+
+const sectors = {
+  SOLAR: { pos: new THREE.Vector3(0, 400, 1200), target: new THREE.Vector3(0,0,0), name:'SOLAR SYSTEM & PLANETS' },
+  SATELLITES: { pos: new THREE.Vector3(750, 100, 120), target: new THREE.Vector3(750,0,0), name:'EARTH SATELLITE GRID' },
+  EARTHSKY: { pos: new THREE.Vector3(20000, 4, 0), target: new THREE.Vector3(20000, 200, 500), name:'EARTH NIGHT SKY' },
+  NEBULA: { pos: new THREE.Vector3(-25000, 5000, -10000), target: new THREE.Vector3(-25000,5000,-15000), name:'DEEP SPACE NEBULA' },
+  BLACKHOLE: { pos: new THREE.Vector3(0, 300, -34200), target: new THREE.Vector3(0,0,-35000), name:'SUPERMASSIVE BLACK HOLE' }
+};
+
+function jumpToSector(key){
+  const s = sectors[key];
+  if(!s) return;
+  currentSector = key;
+  fadeTransition(()=>{
+    camera.position.copy(s.pos);
+    camera.lookAt(s.target);
+    document.getElementById('tm-sector').textContent = s.name;
+    showBanner('WARP ENGAGED — ARRIVED AT ' + s.name, 3000);
+  });
+}
+
+document.getElementById('jump-solar').addEventListener('click', ()=>jumpToSector('SOLAR'));
+document.getElementById('jump-satellites').addEventListener('click', ()=>jumpToSector('SATELLITES'));
+document.getElementById('jump-earthsky').addEventListener('click', ()=>jumpToSector('EARTHSKY'));
+document.getElementById('jump-nebula').addEventListener('click', ()=>jumpToSector('NEBULA'));
+document.getElementById('jump-blackhole').addEventListener('click', ()=>jumpToSector('BLACKHOLE'));
+
+document.getElementById('warp-btn').addEventListener('click', ()=>{
+  timewarp = timewarp === 1 ? 10 : (timewarp === 10 ? 100 : 1);
+  document.getElementById('tm-warp').textContent = timewarp + 'x (' + (timewarp===1?'Realtime':'Accelerated') + ')';
+  document.getElementById('warp-btn').textContent = '⏩ Timewarp (' + (timewarp===1?'10x':(timewarp===10?'100x':'1x')) + ')';
+});
+
+// Boot sequence
+setTimeout(()=>{
+  document.getElementById('boot-bar').style.width = '100%';
+  setTimeout(()=>{
+    document.getElementById('boot').style.opacity = '0';
+    setTimeout(()=>{
+      document.getElementById('boot').style.display = 'none';
+      document.getElementById('telemetry').style.display = 'block';
+      document.getElementById('nav-hud').style.display = 'flex';
+      document.getElementById('entropy-meter').style.display = 'block';
+      document.getElementById('warp-btn').style.display = 'inline-block';
+      showBanner('CHANDRAYAAN-10 ONLINE — EXPLORE THE UNIVERSE', 4000);
+    }, 800);
+  }, 900);
+}, 500);
+
+/* =========================================================================
+   ANIMATION & PHYSICS LOOP
+   ========================================================================= */
+let mouseX = 0, mouseY = 0, isMouseDown = false;
+window.addEventListener('pointerdown', e=>{ isMouseDown = true; mouseX = e.clientX; mouseY = e.clientY; });
+window.addEventListener('pointerup', ()=> isMouseDown = false);
+window.addEventListener('pointermove', e=>{
+  if(!isMouseDown) return;
+  const dx = e.clientX - mouseX; const dy = e.clientY - mouseY;
+  mouseX = e.clientX; mouseY = e.clientY;
+  camera.rotation.y -= dx * 0.003;
+  camera.rotation.x -= dy * 0.003;
+});
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta() * timewarp;
+  missionTime += dt;
+  entropy += dt * 0.000001;
+
+  // Update Solar System orbits
+  animatedPlanets.forEach(p=>{
+    p.angle += p.speed * dt * 0.2;
+    p.group.position.set(Math.cos(p.angle)*p.dist, 0, Math.sin(p.angle)*p.dist);
+    p.group.rotation.y += dt * 0.5;
+    if(p.moon){
+      const ma = missionTime * 1.5;
+      p.moon.position.set(Math.cos(ma)*35, 0, Math.sin(ma)*35);
+    }
+  });
+
+  // Update Earth Satellites
+  satellites.forEach(s=>{
+    s.angle += s.speed * dt * 0.5;
+    s.mesh.position.set(Math.cos(s.angle)*s.r, Math.sin(s.angle*2)*s.incline*10, Math.sin(s.angle)*s.r);
+    s.mesh.rotation.y += dt;
+  });
+
+  // Rotate black hole accretion disk
+  accretionDisk.rotation.z += dt * 0.8;
+
+  // Update telemetry display
+  const hours = Math.floor(missionTime / 3600).toString().padStart(2,'0');
+  const mins = Math.floor((missionTime % 3600) / 60).toString().padStart(2,'0');
+  const secs = Math.floor(missionTime % 60).toString().padStart(2,'0');
+  document.getElementById('tm-time').textContent = `T+${hours}:${mins}:${secs}`;
+  document.getElementById('en-val').textContent = entropy.toFixed(3) + ' × 10²³ J/K';
+
+  renderer.render(scene, camera);
+}
+animate();
+
+})();
+</script>
+</body>
+</html>
