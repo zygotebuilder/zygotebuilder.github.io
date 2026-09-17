@@ -4,72 +4,82 @@
 
   <url>
        <loc>https://zygotebuilder.github.io/</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>1.0000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/futurecareers.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
-       <loc>https://zygotebuilder.github.io/wellness.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <loc>https://zygotebuilder.github.io/healthbot/wellness.html</loc>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://zygotebuilder.github.io/dreamscape.html</loc>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/loom.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
-       <loc>https://zygotebuilder.github.io/chandrayaan10.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <loc>https://zygotebuilder.github.io/C10/chandrayaan10.html</loc>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/pal.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/Astronomy.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/ZygoteBlocks.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/Trajectory%20Lab.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
-       <loc>https://zygotebuilder.github.io/Clean%20Park%20Game.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <loc>https://zygotebuilder.github.io/civica.html</loc>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/Comparison%20Matrix.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/Mirror%20Simulator.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/newnews.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
   </url>
   <url>
        <loc>https://zygotebuilder.github.io/Success%20Probability.html</loc>
-       <lastmod>2026-09-11T12:15:00+00:00</lastmod>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
        <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://zygotebuilder.github.io/newsletter.html</loc>
+       <lastmod>2026-09-17T18:01:38+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
 </urlset>
