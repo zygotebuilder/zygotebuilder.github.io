@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CHANDRAYAAN 10 — NGLV Lunar Mission</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#03050a;
+    --panel:#070c14;
+    --panel-edge: rgba(120,180,220,0.18);
+    --orange:#ff7a1a;
+    --orange-dim:#a3521a;
+    --cyan:#4fd8ff;
+    --green:#4be08a;
+    --red:#ff4d4d;
+    --text:#dce8f0;
+    --dim:#7590a3;
+    --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:var(--mono);color:var(--text);}
+  #c{position:fixed;inset:0;display:block;outline:none;}
+
+  /* ---------- generic HUD chrome ---------- */
+  .hud{position:fixed;pointer-events:none;z-index:10;}
+  .panel{
+    background:linear-gradient(180deg, rgba(9,16,26,0.86), rgba(4,8,14,0.86));
+    border:1px solid var(--panel-edge);
+    border-radius:2px;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 8px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(3px);
+  }
+  .corner-tl{position:absolute;top:-1px;left:-1px;width:10px;height:10px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+  .corner-tr{position:absolute;top:-1px;right:-1px;width:10px;height:10px;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+  .corner-bl{position:absolute;bottom:-1px;left:-1px;width:10px;height:10px;border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+  .corner-br{position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+  .bracket{position:relative;}
+
+  button.btn{
+    pointer-events:auto;
+    font-family:var(--mono);
+    background:rgba(10,18,28,0.85);
+    color:var(--cyan);
+    border:1px solid rgba(79,216,255,0.45);
+    padding:10px 18px;
+    font-size:12.5px;
+    letter-spacing:0.06em;
+    cursor:pointer;
+    border-radius:2px;
+    transition:background 0.15s, color 0.15s, border-color .15s, transform .08s;
+    text-transform:uppercase;
+  }
+  button.btn:hover{background:rgba(79,216,255,0.14);border-color:var(--cyan);}
+  button.btn:active{transform:scale(0.97);}
+  button.btn.primary{color:var(--orange);border-color:rgba(255,122,26,0.55);}
+  button.btn.primary:hover{background:rgba(255,122,26,0.14);border-color:var(--orange);}
+  button.btn.big{padding:16px 34px;font-size:15px;}
+  button.btn:disabled{opacity:0.3;cursor:not-allowed;}
+  button.btn.ghost{color:var(--dim);border-color:rgba(117,144,163,0.3);}
+
+  #boot{
+    position:fixed;inset:0;background:#000;z-index:1000;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    transition:opacity .8s ease;
+  }
+  #boot .logo{font-size:15px;letter-spacing:0.4em;color:var(--dim);}
+  #boot .title{font-size:clamp(28px,6vw,58px);font-weight:800;letter-spacing:0.05em;color:var(--text);text-shadow:0 0 30px rgba(79,216,255,0.35);}
+  #boot .title span{color:var(--orange);}
+  #boot .sub{font-size:12px;color:var(--dim);letter-spacing:0.15em;}
+  #boot .bar{width:280px;height:2px;background:rgba(255,255,255,0.08);position:relative;overflow:hidden;}
+  #boot .bar i{position:absolute;left:0;top:0;bottom:0;width:0%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+  #boot button{margin-top:10px;}
+
+  /* ---------- prelaunch ---------- */
+  #prelaunch-ui{position:fixed;inset:0;z-index:5;pointer-events:none;}
+  .mission-tag{position:absolute;top:22px;left:26px;pointer-events:none;}
+  .mission-tag .mline1{font-size:11px;color:var(--dim);letter-spacing:0.28em;}
+  .mission-tag .mline2{font-size:22px;font-weight:800;color:var(--text);letter-spacing:0.04em;}
+  .mission-tag .mline2 em{color:var(--orange);font-style:normal;}
+
+  #prelaunch-panel{
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+    padding:16px 22px;min-width:340px;text-align:center;
+  }
+  #prelaunch-panel .info{font-size:11.5px;color:var(--dim);line-height:1.7;margin-bottom:12px;}
+  #prelaunch-panel .info b{color:var(--cyan);}
+
+  /* ---------- countdown ---------- */
+  #countdown-screen{
+    position:fixed;inset:0;z-index:30;display:none;
+    align-items:center;justify-content:center;flex-direction:column;pointer-events:none;
+    background:radial-gradient(ellipse at center, rgba(255,120,20,0.06), rgba(0,0,0,0) 60%);
+  }
+  #countdown-num{font-size:min(28vw,240px);font-weight:800;color:var(--orange);text-shadow:0 0 60px rgba(255,122,26,0.55);line-height:1;}
+  #countdown-label{font-size:13px;letter-spacing:0.35em;color:var(--dim);margin-top:6px;}
+
+  /* ---------- cockpit / flight HUD ---------- */
+  #cockpit-frame{position:fixed;inset:0;z-index:8;pointer-events:none;display:none;}
+  .cockpit-vignette{position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,0) 46%, rgba(0,0,0,0.55) 100%);
+    box-shadow:inset 0 0 140px 40px rgba(0,0,0,0.75);
+  }
+  .cockpit-frame-bar{position:absolute;background:linear-gradient(180deg,#0b0e13,#04060a);box-shadow:0 0 20px rgba(0,0,0,0.6);}
+  .cf-top{top:0;left:0;right:0;height:8vh;border-bottom:2px solid rgba(79,216,255,0.25);}
+  .cf-bottom{bottom:0;left:0;right:0;height:11vh;border-top:2px solid rgba(79,216,255,0.25);}
+  .cf-left{top:0;bottom:0;left:0;width:4vw;}
+  .cf-right{top:0;bottom:0;right:0;width:4vw;}
+  .cf-pillar{position:absolute;top:8vh;bottom:11vh;width:14px;background:linear-gradient(180deg,#0b0e13,#04060a);box-shadow:0 0 12px rgba(0,0,0,0.6);}
+
+  #telemetry{position:fixed;top:22px;left:26px;z-index:11;padding:12px 16px;min-width:200px;display:none;}
+  #telemetry .row{display:flex;justify-content:space-between;gap:18px;font-size:12px;margin:3px 0;}
+  #telemetry .row .k{color:var(--dim);letter-spacing:0.08em;}
+  #telemetry .row .v{color:var(--cyan);font-weight:700;}
+  #telemetry .stage-name{font-size:11px;color:var(--orange);letter-spacing:0.15em;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);}
+
+  #mission-clock{position:fixed;top:22px;right:26px;z-index:11;padding:10px 18px;display:none;text-align:right;}
+  #mission-clock .t{font-size:20px;font-weight:800;color:var(--text);letter-spacing:0.05em;}
+  #mission-clock .lbl{font-size:10px;color:var(--dim);letter-spacing:0.25em;}
+
+  #event-banner{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:12;
+    padding:8px 22px;font-size:12.5px;letter-spacing:0.14em;color:var(--orange);
+    opacity:0;transition:opacity .4s, transform .4s;pointer-events:none;white-space:nowrap;}
+  #event-banner.show{opacity:1;}
+
+  #flight-controls{position:fixed;bottom:22px;left:0;right:0;z-index:11;display:none;
+    align-items:center;justify-content:center;gap:14px;pointer-events:none;flex-wrap:wrap;padding:0 20px;}
+  #flight-controls button{pointer-events:auto;}
+
+  #timewarp-btn{position:fixed;bottom:24px;right:26px;z-index:13;display:none;}
+
+  #trajectory-panel{position:fixed;bottom:100px;right:26px;z-index:14;display:none;padding:10px;}
+  #trajectory-panel canvas{display:block;background:radial-gradient(circle at 50% 50%, #030507, #000103);}
+  #trajectory-panel .tlabel{font-size:10px;color:var(--dim);letter-spacing:0.2em;text-align:center;margin-top:6px;}
+
+  /* ---------- timewarp overlay ---------- */
+  #timewarp-overlay{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000;}
+  #timewarp-overlay canvas{position:absolute;inset:0;}
+  #timewarp-overlay .tw-text{position:relative;font-size:22px;letter-spacing:0.3em;color:var(--cyan);text-shadow:0 0 20px var(--cyan);z-index:2;}
+  #timewarp-overlay .tw-sub{position:relative;font-size:11px;letter-spacing:0.2em;color:var(--dim);margin-top:10px;z-index:2;}
+
+  /* ---------- cabin sequence (after landing) ---------- */
+  #cabin-panel{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:20;display:none;
+    padding:16px 24px;text-align:center;min-width:360px;}
+  #cabin-panel .step-text{font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.6;}
+  #cabin-panel .step-text b{color:var(--green);}
+
+  /* ---------- EVA (surface) ---------- */
+  #eva-hud{position:fixed;inset:0;z-index:9;pointer-events:none;display:none;}
+  #eva-topbar{position:absolute;top:22px;left:50%;transform:translateX(-50%);padding:8px 20px;text-align:center;}
+  #eva-topbar .l1{font-size:11px;color:var(--dim);letter-spacing:0.2em;}
+  #eva-topbar .l2{font-size:14px;color:var(--green);letter-spacing:0.1em;font-weight:700;}
+  #eva-controls-hint{position:absolute;bottom:22px;left:26px;padding:10px 16px;font-size:10.5px;color:var(--dim);line-height:1.8;}
+  #eva-controls-hint b{color:var(--cyan);}
+  #eva-actions{position:absolute;bottom:22px;right:26px;display:flex;flex-direction:column;gap:10px;pointer-events:auto;}
+  #eva-gravity-readout{position:absolute;top:22px;right:26px;padding:8px 16px;text-align:right;font-size:11px;}
+  #eva-gravity-readout .k{color:var(--dim);}
+  #eva-gravity-readout .v{color:var(--orange);font-weight:700;}
+
+  /* ---------- generic bottom-center action bar ---------- */
+  #action-bar{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:15;display:flex;gap:12px;pointer-events:none;}
+  #action-bar button{pointer-events:auto;}
+
+  /* ---------- end screen ---------- */
+  #end-screen{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(2,4,8,0.86);backdrop-filter:blur(6px);}
+  #end-screen .card{width:min(560px,90vw);padding:36px 40px;text-align:center;}
+  #end-screen h1{font-size:26px;margin:0 0 6px;color:var(--text);letter-spacing:0.03em;}
+  #end-screen h1 span{color:var(--green);}
+  #end-screen p.sub{color:var(--dim);font-size:12.5px;margin:0 0 22px;letter-spacing:0.06em;}
+  #end-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-bottom:26px;text-align:left;}
+  #end-stats .stat .k{font-size:10px;color:var(--dim);letter-spacing:0.15em;}
+  #end-stats .stat .v{font-size:16px;color:var(--cyan);font-weight:700;}
+
+  /* ---------- reentry heat readout ---------- */
+  #reentry-hud{position:fixed;top:22px;left:26px;z-index:14;display:none;padding:12px 16px;min-width:190px;}
+  #reentry-hud .row{display:flex;justify-content:space-between;font-size:12px;margin:3px 0;}
+  #reentry-hud .k{color:var(--dim);}
+  #reentry-hud .v{color:var(--red);font-weight:700;}
+
+  .fade-black{position:fixed;inset:0;background:#000;z-index:60;pointer-events:none;opacity:0;transition:opacity 1s ease;}
+
+  ::selection{background:rgba(79,216,255,0.3);}
+  @media (max-width:700px){
+    #telemetry{font-size:11px;min-width:150px;}
+    #boot .title{font-size:9vw;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<!-- ============ BOOT / TITLE ============ -->
+<div id="boot">
+  <div class="logo">ISRO · NGLV MISSIONS PRESENTS</div>
+  <div class="title">CHANDRAYAAN <span>10</span></div>
+  <div class="sub">A TRIP TO THE MOON (NGLV CONFIG)</div>
+  <div class="bar"><i id="boot-bar"></i></div>
+  <button class="btn primary big" id="boot-start" style="display:none;">Begin Mission</button>
+</div>
+
+<!-- ============ PRE-LAUNCH ============ -->
+<div id="prelaunch-ui">
+  <div class="mission-tag panel bracket" style="padding:10px 16px;">
+    <div class="corner-tl"></div><div class="corner-br"></div>
+    <div class="mline1">LAUNCH VEHICLE</div>
+    <div class="mline2">ISRO NGLV <em>· Soorya Heavy-Lift</em></div>
+  </div>
+  <div id="prelaunch-panel" class="panel bracket">
+    <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+    <div class="info">Drag to look around · Scroll to zoom<br>Launchpad <b>SDSC-SHAR, Sriharikota</b> · All systems <b>NOMINAL</b></div>
+    <button class="btn primary big" id="launch-btn">Launch NGLV</button>
+  </div>
+</div>
+
+<!-- ============ COUNTDOWN ============ -->
+<div id="countdown-screen">
+  <div id="countdown-num">10</div>
+  <div id="countdown-label">IGNITION SEQUENCE</div>
+</div>
+
+<!-- ============ COCKPIT FRAME ============ -->
+<div id="cockpit-frame">
+  <div class="cockpit-vignette"></div>
+  <div class="cockpit-frame-bar cf-top"></div>
+  <div class="cockpit-frame-bar cf-bottom"></div>
+  <div class="cockpit-frame-bar cf-left"></div>
+  <div class="cockpit-frame-bar cf-right"></div>
+  <div class="cf-pillar" style="left:30%;"></div>
+  <div class="cf-pillar" style="right:30%;"></div>
+</div>
+
+<!-- ============ TELEMETRY ============ -->
+<div id="telemetry" class="panel bracket">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <div class="row"><span class="k">ALTITUDE</span><span class="v" id="tm-alt">0 km</span></div>
+  <div class="row"><span class="k">VELOCITY</span><span class="v" id="tm-vel">0.00 km/s</span></div>
+  <div class="row"><span class="k">DOWNRANGE</span><span class="v" id="tm-range">0 km</span></div>
+  <div class="row"><span class="k">FUEL</span><span class="v" id="tm-fuel">100%</span></div>
+  <div class="stage-name" id="tm-stage">STAGE: NGLV SEMI-CRYOGENIC CORE + BOOSTERS</div>
+</div>
+
+<div id="mission-clock" class="panel">
+  <div class="t" id="mc-time">T+00:00:00</div>
+  <div class="lbl" id="mc-phase">ASCENT</div>
+</div>
+
+<div id="event-banner" class="panel"></div>
+
+<div id="flight-controls">
+  <button class="btn" id="view-toggle-btn">View from Outside</button>
+  <button class="btn" id="trajectory-btn">Trajectory</button>
+</div>
+
+<button class="btn primary big" id="timewarp-btn">⏩ Timewarp to Moon</button>
+
+<div id="trajectory-panel" class="panel bracket">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <canvas id="traj-canvas" width="220" height="220"></canvas>
+  <div class="tlabel" id="traj-label">EARTH → MOON TRANSFER</div>
+</div>
+
+<!-- ============ TIMEWARP OVERLAY ============ -->
+<div id="timewarp-overlay">
+  <canvas id="tw-canvas"></canvas>
+  <div class="tw-text">TIME WARP ENGAGED</div>
+  <div class="tw-sub" id="tw-sub">Fast-forwarding trans-lunar coast…</div>
+</div>
+
+<!-- ============ CABIN SEQUENCE ============ -->
+<div id="cabin-panel" class="panel bracket">
+  <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+  <div class="step-text" id="cabin-step-text">Touchdown confirmed. <b>Lunar Module — SHAKTI</b> is stable and level.</div>
+  <button class="btn primary big" id="cabin-action-btn">Approach Spacesuit</button>
+</div>
+
+<!-- ============ EVA HUD ============ -->
+<div id="eva-hud">
+  <div id="eva-topbar" class="panel bracket">
+    <div class="corner-tl"></div><div class="corner-br"></div>
+    <div class="l1">EXTRAVEHICULAR ACTIVITY (3-CREW OPERATION)</div>
+    <div class="l2" id="eva-status">SURFACE OPERATIONS NOMINAL</div>
+  </div>
+  <div id="eva-gravity-readout" class="panel">
+    <div><span class="k">SURFACE GRAVITY </span><span class="v">1.62 m/s²</span></div>
+    <div><span class="k">EARTH-EQUIV </span><span class="v">16.6%</span></div>
+  </div>
+  <div id="eva-controls-hint" class="panel">
+    <b>W A S D</b> — walk &nbsp;·&nbsp; <b>SPACE</b> — low-g jump<br><b>DRAG</b> — look around
+  </div>
+  <div id="eva-actions">
+    <button class="btn primary" id="flag-btn" style="display:none;">Install Flag of India</button>
+    <button class="btn" id="experiment-btn" style="display:none;">Deploy Seismometer / Regolith Experiment</button>
+    <button class="btn" id="return-btn" style="display:none;">Liftoff to Command Module</button>
+  </div>
+</div>
+
+<div id="reentry-hud" class="panel bracket">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <div class="row"><span class="k">HEAT SHIELD TEMP</span><span class="v" id="re-temp">120°C</span></div>
+  <div class="row"><span class="k">G-FORCE</span><span class="v" id="re-g">1.0 G</span></div>
+  <div class="row"><span class="k">ALTITUDE</span><span class="v" id="re-alt">120 km</span></div>
+</div>
+
+<!-- ============ END SCREEN ============ -->
+<div id="end-screen">
+  <div class="card panel bracket">
+    <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+    <h1>Splashdown <span>Confirmed</span></h1>
+    <p class="sub">Chandrayaan-10 crew module recovered · Bay of Bengal</p>
+    <div id="end-stats">
+      <div class="stat"><div class="k">MISSION DURATION</div><div class="v" id="end-time">--</div></div>
+      <div class="stat"><div class="k">MAX ALTITUDE</div><div class="v">384,400 km</div></div>
+      <div class="stat"><div class="k">FLAG PLANTED</div><div class="v" id="end-flag">No</div></div>
+      <div class="stat"><div class="k">EXPERIMENTS DEPLOYED</div><div class="v" id="end-exp">No</div></div>
+      <div class="stat"><div class="k">TOUCHDOWN SITE</div><div class="v">Shiv Shakti Point</div></div>
+    </div>
+    <button class="btn primary big" id="restart-btn">Fly Again</button>
+  </div>
+</div>
+
+<div class="fade-black" id="fade"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.05, 200000);
+
+window.addEventListener('resize', ()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+const clock = new THREE.Clock();
+
+function lerp(a,b,t){return a+(b-a)*t;}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function easeInOutQuad(t){return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;}
+function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+function easeInCubic(t){return t*t*t;}
+function easeOutQuad(t){return 1-(1-t)*(1-t);}
+function vec2FromPolar(r, theta){ return new THREE.Vector2(r*Math.sin(theta), r*Math.cos(theta)); }
+
+function makeStarfield(count, radius){
+  const g = new THREE.BufferGeometry();
+  const positions = new Float32Array(count*3);
+  const colors = new Float32Array(count*3);
+  const sizes = new Float32Array(count);
+  for(let i=0;i<count;i++){
+    const r = radius*(0.7+Math.random()*0.3);
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos((Math.random()*2)-1);
+    positions[i*3]   = r*Math.sin(phi)*Math.cos(theta);
+    positions[i*3+1] = r*Math.cos(phi);
+    positions[i*3+2] = r*Math.sin(phi)*Math.sin(theta);
+    const c = 0.7+Math.random()*0.3;
+    const tint = Math.random();
+    colors[i*3] = c*(tint>0.85?1:0.85);
+    colors[i*3+1] = c*(tint>0.85?0.9:0.92);
+    colors[i*3+2] = c*(tint<0.15?0.8:1);
+    sizes[i] = Math.random()*2+0.4;
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  g.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  g.setAttribute('size', new THREE.BufferAttribute(sizes,1));
+  const m = new THREE.PointsMaterial({size:1.6, vertexColors:true, transparent:true, opacity:0.95, depthWrite:false, sizeAttenuation:true});
+  const pts = new THREE.Points(g,m);
+  pts.renderOrder = -10;
+  return pts;
+}
+
+function makeFlagTexture(){
+  const cv = document.createElement('canvas'); cv.width=300; cv.height=200;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#FF9933'; ctx.fillRect(0,0,300,67);
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,67,300,66);
+  ctx.fillStyle = '#138808'; ctx.fillRect(0,133,300,67);
+  const cx=150, cy=100, R=22;
+  ctx.strokeStyle = '#000080'; ctx.lineWidth = 2.4;
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+  for(let i=0;i<24;i++){
+    const a = (i/24)*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(a)*R, cy+Math.sin(a)*R);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#000080'; ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();
+  const tex = new THREE.CanvasTexture(cv);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function showBanner(text, ms){
+  const b = document.getElementById('event-banner');
+  b.textContent = text;
+  b.classList.add('show');
+  clearTimeout(showBanner._t);
+  showBanner._t = setTimeout(()=>b.classList.remove('show'), ms||3200);
+}
+
+function el(id){ return document.getElementById(id); }
+function fmt(n, d){ return Number(n).toFixed(d===undefined?1:d); }
+
+const EARTH_R = 620;
+const MOON_R  = 168;
+const MOON_DIST = 9200;
+const G_MOON_VIS = 2.1;
+
+const ambientLight = new THREE.AmbientLight(0x2a3550, 0.55);
+scene.add(ambientLight);
+const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+sunLight.position.set(500, 300, 200);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(2048,2048);
+sunLight.shadow.camera.near = 1;
+sunLight.shadow.camera.far = 3000;
+sunLight.shadow.camera.left = -400; sunLight.shadow.camera.right = 400;
+sunLight.shadow.camera.top = 400; sunLight.shadow.camera.bottom = -400;
+scene.add(sunLight);
+
+const padGroup = new THREE.Group();
+const rocketGroup = new THREE.Group();
+const stageParts = {}; 
+let flameLight, flameMesh, boosterFlames = [];
+let floodLights = [];
+
+function buildLaunchPad(){
+  const groundMat = new THREE.MeshStandardMaterial({color:0x0c1016, roughness:0.95, metalness:0.05});
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(1400, 64), groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  padGroup.add(ground);
+
+  const apron = new THREE.Mesh(new THREE.CircleGeometry(70,48), new THREE.MeshStandardMaterial({color:0x1b2027, roughness:0.9}));
+  apron.rotation.x = -Math.PI/2; apron.position.y = 0.05;
+  padGroup.add(apron);
+
+  const mount = new THREE.Mesh(new THREE.CylinderGeometry(14,16,4,24), new THREE.MeshStandardMaterial({color:0x2a2f36, roughness:0.7, metalness:0.4}));
+  mount.position.y = 2; mount.castShadow = true; mount.receiveShadow = true;
+  padGroup.add(mount);
+
+  const towerMat = new THREE.MeshStandardMaterial({color:0x445062, roughness:0.6, metalness:0.5});
+  const tower = new THREE.Group();
+  const towerHeight = 95;
+  for(let i=0;i<4;i++){
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(1.4,towerHeight,1.4), towerMat);
+    const a = (i/4)*Math.PI*2;
+    leg.position.set(Math.cos(a)*13+34, towerHeight/2, Math.sin(a)*13);
+    leg.castShadow = true;
+    tower.add(leg);
+  }
+  for(let h=6; h<towerHeight; h+=10){
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(13.3*1.02,0.35,6,4), towerMat);
+    ring.rotation.x = Math.PI/2;
+    ring.position.set(34, h, 0);
+    tower.add(ring);
+  }
+  padGroup.add(tower);
+
+  const floodPositions = [
+    [34,70,13],[34,70,-13],[20,20,20],[20,20,-20],[-15,15,25],[-15,15,-25]
+  ];
+  floodPositions.forEach(p=>{
+    const spot = new THREE.SpotLight(0xfff3d6, 6, 260, Math.PI/6, 0.5, 1.2);
+    spot.position.set(p[0],p[1],p[2]);
+    spot.target.position.set(0,10,0);
+    padGroup.add(spot); padGroup.add(spot.target);
+    floodLights.push(spot);
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.6,8,8), new THREE.MeshBasicMaterial({color:0xfff6dd}));
+    bulb.position.copy(spot.position);
+    padGroup.add(bulb);
+  });
+
+  scene.add(padGroup);
+}
+
+// Build ISRO NGLV (Next Generation Launch Vehicle) Design
+function buildRocket(){
+  const g = new THREE.Group();
+
+  const orangeMat = new THREE.MeshStandardMaterial({color:0xd96b27, roughness:0.5, metalness:0.4}); // NGLV semi-cryo core color
+  const whiteMat = new THREE.MeshStandardMaterial({color:0xededed, roughness:0.35, metalness:0.4});
+  const darkMat = new THREE.MeshStandardMaterial({color:0x1e2229, roughness:0.5, metalness:0.6});
+
+  // NGLV Core Stage
+  const core = new THREE.Group();
+  const coreBody = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 38, 24), orangeMat);
+  coreBody.position.y = 19; coreBody.castShadow = true;
+  const upperStage = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 18, 24), whiteMat);
+  upperStage.position.y = 38 + 9; upperStage.castShadow = true;
+  core.add(coreBody, upperStage);
+  stageParts.core = core;
+
+  // Payload Fairing & Command Module
+  const fairing = new THREE.Group();
+  const fairingCone = new THREE.Mesh(new THREE.ConeGeometry(4.2, 16, 24), whiteMat);
+  fairingCone.position.y = 38 + 18 + 8; fairingCone.castShadow = true;
+  fairing.add(fairingCone);
+  stageParts.fairing = fairing;
+
+  const capsule = new THREE.Group();
+  capsule.position.y = 38 + 18 + 8;
+  const capsuleBody = new THREE.Mesh(new THREE.ConeGeometry(2.8, 6.5, 16), new THREE.MeshStandardMaterial({color:0xd7dde3, roughness:0.4, metalness:0.5}));
+  capsuleBody.rotation.x = Math.PI;
+  capsule.add(capsuleBody);
+  capsule.visible = false;
+  stageParts.capsule = capsule;
+  g.add(capsule);
+
+  // Reusable Liquid Boosters (x2 NGLV side boosters)
+  const boosterGeo = new THREE.CylinderGeometry(2.3, 2.3, 32, 18);
+  const boosterL = new THREE.Mesh(boosterGeo, whiteMat);
+  boosterL.position.set(-7.2, 16, 0); boosterL.castShadow = true;
+  const noseL = new THREE.Mesh(new THREE.ConeGeometry(2.3, 6, 16), whiteMat);
+  noseL.position.set(0, 19, 0); boosterL.add(noseL);
+
+  const boosterR = boosterL.clone(); boosterR.position.x = 7.2;
+  stageParts.boosterL = boosterL; stageParts.boosterR = boosterR;
+
+  // Booster independent flame attachments so they can be turned off upon separation
+  const bFlameGeo = new THREE.ConeGeometry(1.2, 7, 10);
+  const bFlameMat = new THREE.MeshBasicMaterial({color:0xff9d3d, transparent:true, opacity:0.9});
+  const bFlameL = new THREE.Mesh(bFlameGeo, bFlameMat); bFlameL.position.set(0, -18, 0); bFlameL.rotation.x = Math.PI;
+  const bFlameR = bFlameL.clone();
+  boosterL.add(bFlameL); boosterR.add(bFlameR);
+  boosterFlames.push(bFlameL, bFlameR);
+
+  // Engine Nozzles
+  function addNozzle(parent, x, y, z, s){
+    const n = new THREE.Mesh(new THREE.ConeGeometry(1.4*s, 2.6*s, 12), darkMat);
+    n.position.set(x, y, z); n.rotation.x = Math.PI;
+    parent.add(n);
+  }
+  addNozzle(core, 0, -1.2, 0, 1.8);
+  addNozzle(boosterL, 0, -1.6, 0, 1.2);
+  addNozzle(boosterR, 0, -1.6, 0, 1.2);
+
+  g.add(core, fairing, boosterL, boosterR);
+
+  // Core Flame group
+  const flameGeo = new THREE.ConeGeometry(1.8, 9, 12);
+  const flameMat = new THREE.MeshBasicMaterial({color:0xffb347, transparent:true, opacity:0.9});
+  flameMesh = new THREE.Group();
+  const f1 = new THREE.Mesh(flameGeo, flameMat); f1.position.set(0, -4.5, 0); f1.rotation.x = Math.PI;
+  flameMesh.add(f1);
+  flameMesh.visible = false;
+  g.add(flameMesh);
+
+  flameLight = new THREE.PointLight(0xff9d3d, 0, 150);
+  flameLight.position.set(0, -3, 0);
+  g.add(flameLight);
+
+  g.position.y = 2;
+  rocketGroup.add(g);
+  rocketGroup.userData.body = g;
+  scene.add(rocketGroup);
+}
+
+let nightSky, moonInSky, starsNear;
+function buildNightSky(){
+  const skyGeo = new THREE.SphereGeometry(3000, 32, 32);
+  const skyMat = new THREE.MeshBasicMaterial({color:0x02040a, side:THREE.BackSide, fog:false});
+  nightSky = new THREE.Mesh(skyGeo, skyMat);
+  scene.add(nightSky);
+
+  starsNear = makeStarfield(3200, 2800);
+  scene.add(starsNear);
+
+  moonInSky = new THREE.Mesh(new THREE.SphereGeometry(28,20,20), new THREE.MeshStandardMaterial({color:0xd8d8d0, emissive:0x333330, roughness:1}));
+  moonInSky.position.set(600, 380, -900);
+  scene.add(moonInSky);
+
+  ambientLight.color.set(0x223050); ambientLight.intensity = 0.35;
+  sunLight.intensity = 0.15;
+  sunLight.position.set(600,380,-900);
+}
+
+let earthBig, earthAtmo;
+function buildBigEarth(){
+  const mat = new THREE.MeshStandardMaterial({color:0x14406b, emissive:0x03142a, emissiveIntensity:0.6, roughness:0.85, metalness:0.1});
+  earthBig = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R, 64, 64), mat);
+  earthBig.position.set(0,0,0);
+  scene.add(earthBig);
+
+  const geo = earthBig.geometry;
+  const pos = geo.attributes.position;
+  const colors = new Float32Array(pos.count*3);
+  for(let i=0;i<pos.count;i++){
+    const x=pos.getX(i), y=pos.getY(i), z=pos.getZ(i);
+    const n = Math.sin(x*0.05)*Math.cos(y*0.06)+Math.sin(z*0.04+y*0.03);
+    const land = n>0.15;
+    const c = land ? new THREE.Color(0x1c5c3a) : new THREE.Color(0x0c3866);
+    colors[i*3]=c.r; colors[i*3+1]=c.g; colors[i*3+2]=c.b;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  mat.vertexColors = true;
+
+  const atmoMat = new THREE.MeshBasicMaterial({color:0x4fd8ff, transparent:true, opacity:0.13, side:THREE.BackSide});
+  earthAtmo = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R*1.04, 48,48), atmoMat);
+  scene.add(earthAtmo);
+
+  earthBig.visible = false; earthAtmo.visible = false;
+}
+
+let moonBig;
+function buildBigMoon(){
+  const mat = new THREE.MeshStandardMaterial({color:0xaaa79f, roughness:1, metalness:0});
+  moonBig = new THREE.Mesh(new THREE.SphereGeometry(MOON_R, 48,48), mat);
+  const geo = moonBig.geometry, pos = geo.attributes.position;
+  const colors = new Float32Array(pos.count*3);
+  for(let i=0;i<pos.count;i++){
+    const shade = 0.75+Math.random()*0.25;
+    colors[i*3]=shade*0.68; colors[i*3+1]=shade*0.66; colors[i*3+2]=shade*0.63;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  mat.vertexColors = true;
+  moonBig.position.set(MOON_DIST, 0, 0);
+  moonBig.visible = false;
+  scene.add(moonBig);
+}
+
+let lunarSurfaceGroup;
+function buildLunarSurface(){
+  lunarSurfaceGroup = new THREE.Group();
+  lunarSurfaceGroup.visible = false;
+
+  const skyGeo = new THREE.SphereGeometry(4000,32,32);
+  const skyMat = new THREE.MeshBasicMaterial({color:0x000000, side:THREE.BackSide});
+  const sky = new THREE.Mesh(skyGeo, skyMat);
+  lunarSurfaceGroup.add(sky);
+  lunarSurfaceGroup.add(makeStarfield(4000, 3500));
+
+  const earthInSky = new THREE.Mesh(new THREE.SphereGeometry(46,32,32), new THREE.MeshStandardMaterial({color:0x2a6fb0, emissive:0x0c2c4d, emissiveIntensity:0.9, roughness:0.6}));
+  earthInSky.position.set(-260, 220, -700);
+  lunarSurfaceGroup.add(earthInSky);
+
+  const groundGeo = new THREE.PlaneGeometry(1400,1400,90,90);
+  const gp = groundGeo.attributes.position;
+  for(let i=0;i<gp.count;i++){
+    const x = gp.getX(i), y = gp.getY(i);
+    let h = (Math.sin(x*0.05)*Math.cos(y*0.04))*0.6;
+    for(let c=0;c<10;c++){
+      const cx = (c*137 % 700)-350, cy=(c*271 % 700)-350, cr= 20+ (c*53%40);
+      const d = Math.hypot(x-cx,y-cy);
+      if(d<cr){ h -= (1-d/cr)*3.2; }
+    }
+    gp.setZ(i,h);
+  }
+  groundGeo.computeVertexNormals();
+  const groundMat = new THREE.MeshStandardMaterial({color:0x8c8478, roughness:1, metalness:0});
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  lunarSurfaceGroup.add(ground);
+
+  const sun = new THREE.DirectionalLight(0xfff4e0, 1.4);
+  sun.position.set(300,220,120);
+  sun.castShadow = true;
+  lunarSurfaceGroup.add(sun);
+  const fill = new THREE.AmbientLight(0x223244, 0.35);
+  lunarSurfaceGroup.add(fill);
+
+  scene.add(lunarSurfaceGroup);
+}
+
+// Lander & Command Module structure
+let landerGroup, landerAscentStage, landerDescentStage, commandModuleInOrbit;
+let experimentsDeployed = false;
+
+function buildLander(){
+  landerGroup = new THREE.Group();
+  landerDescentStage = new THREE.Group();
+  const legMat = new THREE.MeshStandardMaterial({color:0xc7ccd1, metalness:0.6, roughness:0.5});
+  for(let i=0;i<4;i++){
+    const a = (i/4)*Math.PI*2 + Math.PI/4;
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,4.6,8), legMat);
+    leg.position.set(Math.cos(a)*3.2, 2.1, Math.sin(a)*3.2);
+    const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.15,10), legMat);
+    pad.position.set(Math.cos(a)*4.1, 0.05, Math.sin(a)*4.1);
+    landerDescentStage.add(leg,pad);
+  }
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,2.2,8), new THREE.MeshStandardMaterial({color:0xf2e9c9, metalness:0.4, roughness:0.6}));
+  base.position.y = 3.3;
+  landerDescentStage.add(base);
+
+  landerAscentStage = new THREE.Group();
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.6,2.4,2.6), new THREE.MeshStandardMaterial({color:0xe7e2d3, metalness:0.3,roughness:0.6}));
+  cabin.position.y = 5.6;
+  landerAscentStage.add(cabin);
+
+  landerGroup.add(landerDescentStage, landerAscentStage);
+  landerGroup.visible = false;
+  scene.add(landerGroup);
+}
+
+// 3 Characters (Crew representation inside command & lander modules)
+let astronaut, astronautVel = {y:0}, astronautGrounded = true;
+function buildAstronaut(){
+  astronaut = new THREE.Group();
+  const suitMat = new THREE.MeshStandardMaterial({color:0xf3f0e8, roughness:0.75});
+  const visorMat = new THREE.MeshStandardMaterial({color:0x1b2430, metalness:0.7, roughness:0.2, emissive:0x0a2a3a, emissiveIntensity:0.3});
+  function limb(radius,length){
+    const grp = new THREE.Group();
+    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,length,8), suitMat);
+    const capTop = new THREE.Mesh(new THREE.SphereGeometry(radius,8,8), suitMat); capTop.position.y = length/2;
+    const capBot = new THREE.Mesh(new THREE.SphereGeometry(radius,8,8), suitMat); capBot.position.y = -length/2;
+    grp.add(cyl, capTop, capBot);
+    return grp;
+  }
+  const torso = limb(0.4, 0.9); torso.position.y = 1.05;
+  const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.55,0.75,0.32), new THREE.MeshStandardMaterial({color:0xd9d4c6, roughness:0.8}));
+  backpack.position.set(0,1.05,-0.42);
+  const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.32,16,16), suitMat);
+  helmet.position.y = 1.68;
+  const visor = new THREE.Mesh(new THREE.SphereGeometry(0.24,16,16,0,Math.PI*2,0,Math.PI/1.6), visorMat);
+  visor.position.set(0,1.66,0.12); visor.rotation.x = -0.2;
+  const legL = limb(0.16,0.55); legL.position.set(-0.18,0.35,0);
+  const legR = limb(0.16,0.55); legR.position.set(0.18,0.35,0);
+  const armL = limb(0.13,0.55); armL.position.set(-0.52,1.05,0); armL.rotation.z = 0.25;
+  const armR = limb(0.13,0.55); armR.position.set(0.52,1.05,0); armR.rotation.z = -0.25;
+  astronaut.add(torso, backpack, helmet, visor, legL, legR, armL, armR);
+  astronaut.position.set(0,0,10);
+  astronaut.visible = false;
+  scene.add(astronaut);
+}
+
+let flagGroup, flagInstalled = false;
+function buildFlagAsset(){
+  flagGroup = new THREE.Group();
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,3.2,8), new THREE.MeshStandardMaterial({color:0xcccccc, metalness:0.7,roughness:0.3}));
+  pole.position.y = 1.6;
+  const clothTex = makeFlagTexture();
+  const cloth = new THREE.Mesh(new THREE.PlaneGeometry(1.3,0.87,8,6), new THREE.MeshStandardMaterial({map:clothTex, side:THREE.DoubleSide, roughness:0.8}));
+  cloth.position.set(0.68,2.75,0);
+  flagGroup.add(pole, cloth);
+  flagGroup.visible = false;
+  flagGroup.scale.set(0.001,0.001,0.001);
+  scene.add(flagGroup);
+}
+
+let ocean, heatGlowMesh, chuteGroup, reentryParticles, reentryParticleData;
+function buildReentryAssets(){
+  ocean = new THREE.Mesh(new THREE.CircleGeometry(2200,64), new THREE.MeshStandardMaterial({color:0x03263f, roughness:0.35, metalness:0.4}));
+  ocean.rotation.x = -Math.PI/2;
+  ocean.position.set(0,-0.3,900);
+  ocean.visible = false;
+  scene.add(ocean);
+
+  heatGlowMesh = new THREE.Mesh(new THREE.SphereGeometry(3.4,16,16), new THREE.MeshBasicMaterial({color:0xff6a2a, transparent:true, opacity:0}));
+  scene.add(heatGlowMesh);
+
+  chuteGroup = new THREE.Group();
+  for(let i=0;i<3;i++){
+    const cGeo = new THREE.ConeGeometry(6,7,16,1,true);
+    const cMat = new THREE.MeshStandardMaterial({color: i===1?0xff7a1a:0xf2f2f2, side:THREE.DoubleSide, roughness:0.9});
+    const cm = new THREE.Mesh(cGeo, cMat);
+    cm.position.set((i-1)*8, 14, (i-1)*3);
+    chuteGroup.add(cm);
+  }
+  chuteGroup.visible = false;
+  scene.add(chuteGroup);
+
+  const pGeo = new THREE.BufferGeometry();
+  const N = 400;
+  const pos = new Float32Array(N*3);
+  reentryParticleData = [];
+  for(let i=0;i<N;i++){ pos[i*3]=0;pos[i*3+1]=0;pos[i*3+2]=0; reentryParticleData.push({life:0}); }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const pMat = new THREE.PointsMaterial({color:0xffaa55, size:1.4, transparent:true, opacity:0.85, depthWrite:false});
+  reentryParticles = new THREE.Points(pGeo, pMat);
+  reentryParticles.visible = false;
+  scene.add(reentryParticles);
+}
+
+buildLaunchPad();
+buildRocket();
+buildNightSky();
+buildBigEarth();
+buildBigMoon();
+buildLunarSurface();
+buildLander();
+buildAstronaut();
+buildFlagAsset();
+buildReentryAssets();
+
+const orbitState = { theta:0.5, phi:1.15, radius:60, target:new THREE.Vector3(0,10,0), dragging:false, lastX:0,lastY:0 };
+function updateOrbitFromDrag(dx,dy){
+  orbitState.theta -= dx*0.0055;
+  orbitState.phi = clamp(orbitState.phi - dy*0.0045, 0.25, Math.PI-0.2);
+}
+function orbitCameraPosition(target, radius, theta, phi){
+  const x = target.x + radius*Math.sin(phi)*Math.sin(theta);
+  const y = target.y + radius*Math.cos(phi);
+  const z = target.z + radius*Math.sin(phi)*Math.cos(theta);
+  return new THREE.Vector3(x,y,z);
+}
+canvas.addEventListener('pointerdown', e=>{ orbitState.dragging = true; orbitState.lastX=e.clientX; orbitState.lastY=e.clientY; });
+window.addEventListener('pointerup', ()=> orbitState.dragging=false);
+window.addEventListener('pointermove', e=>{
+  if(!orbitState.dragging) return;
+  const dx = e.clientX-orbitState.lastX, dy = e.clientY-orbitState.lastY;
+  orbitState.lastX=e.clientX; orbitState.lastY=e.clientY;
+  updateOrbitFromDrag(dx,dy);
+});
+canvas.addEventListener('wheel', e=>{
+  orbitState.radius = clamp(orbitState.radius + e.deltaY*0.05, 8, 400);
+}, {passive:true});
+
+const STATE = {
+  PRELAUNCH:'PRELAUNCH', COUNTDOWN:'COUNTDOWN', ASCENT:'ASCENT', COAST_OUT:'COAST_OUT',
+  LUNAR_DESCENT:'LUNAR_DESCENT', CABIN_OUT:'CABIN_OUT', EVA:'EVA', LUNAR_ASCENT:'LUNAR_ASCENT',
+  COAST_BACK:'COAST_BACK', REENTRY:'REENTRY', SPLASHDOWN:'SPLASHDOWN', END:'END'
+};
+let state = STATE.PRELAUNCH;
+let cameraMode = 'external';
+let missionStartTime = null;
+let missionElapsed = 0;
+
+const flight = {
+  ascentT:0, ascentDur: 62,
+  boosterSepT: 13, stage1SepT: 28, fairingSepT: 34,
+  leoAltKm: 200, leoVelKms: 7.8,
+  coastProg: 0, coastDur: 240,
+  descentT: 0, descentDur: 20, descentStartAltKm: 15,
+  ascentMoonT: 0, ascentMoonDur: 26,
+  coastBackProg: 0, coastBackDur: 240,
+  reentryT: 0, reentryDur: 26,
+};
+
+function setUIForState(){
+  const hide = ids => ids.forEach(id=>el(id).style.display='none');
+  const show = (id, disp) => el(id).style.display = disp||'flex';
+
+  hide(['prelaunch-ui','countdown-screen','cockpit-frame','telemetry','mission-clock','flight-controls',
+        'timewarp-btn','trajectory-panel','timewarp-overlay','cabin-panel','eva-hud','reentry-hud','end-screen']);
+
+  if(state===STATE.PRELAUNCH){ el('prelaunch-ui').style.display='block'; }
+  if(state===STATE.COUNTDOWN){ el('countdown-screen').style.display='flex'; }
+  if([STATE.ASCENT,STATE.COAST_OUT,STATE.LUNAR_DESCENT,STATE.LUNAR_ASCENT,STATE.COAST_BACK].includes(state)){
+    show('telemetry','block'); show('mission-clock','block'); show('flight-controls','flex');
+    if(cameraMode==='cockpit') el('cockpit-frame').style.display='block';
+  }
+  if(state===STATE.COAST_OUT){ el('timewarp-btn').style.display='block'; }
+  if(state===STATE.CABIN_OUT){ show('cabin-panel','block'); }
+  if(state===STATE.EVA){ show('eva-hud','block'); }
+  if(state===STATE.REENTRY){ show('reentry-hud','block'); }
+  if(state===STATE.END){ show('end-screen','flex'); }
+}
+
+orbitState.target.set(0,20,0); orbitState.radius=70; orbitState.theta=0.6; orbitState.phi=1.25;
+
+el('launch-btn').addEventListener('click', ()=>{
+  state = STATE.COUNTDOWN;
+  setUIForState();
+  let n = 10;
+  el('countdown-num').textContent = n;
+  const iv = setInterval(()=>{
+    n--;
+    if(n>0){ el('countdown-num').textContent = n; }
+    else if(n===0){ el('countdown-num').textContent = 'LIFTOFF'; }
+    else { clearInterval(iv); beginAscent(); }
+  },1000);
+});
+
+function beginAscent(){
+  state = STATE.ASCENT;
+  cameraMode = 'cockpit';
+  missionStartTime = performance.now();
+  flight.ascentT = 0;
+  flameMesh.visible = true;
+  flameLight.intensity = 3.5;
+  boosterFlames.forEach(b => b.visible = true);
+  floodLights.forEach(f=>f.intensity=6);
+  earthBig.visible = false; earthAtmo.visible = false;
+  setUIForState();
+  showBanner('LIFTOFF — NGLV CLEARS THE LAUNCHPAD', 3000);
+}
+
+function updateAscent(dt){
+  flight.ascentT += dt;
+  const t = flight.ascentT;
+  const f = clamp(t/flight.ascentDur, 0, 1);
+
+  const altKm = flight.leoAltKm * easeOutCubic(f);
+  const velKms = flight.leoVelKms * easeInOutQuad(f);
+  const thetaDeg = 42 * easeInOutQuad(f);
+  const theta = thetaDeg*Math.PI/180;
+  const downrangeKm = 60 * f*f;
+  const visualAlt = altKm*0.62;
+
+  // Staged separation with fixed booster bug (extinguishing booster flames instantly)
+  if(!flight._boosterSep && t>flight.boosterSepT){
+    flight._boosterSep = true;
+    boosterFlames.forEach(b => b.visible = false); // Bug fix: Drop thrust visualization immediately
+    detachAndTumble(stageParts.boosterL, new THREE.Vector3(-1,-0.2,0));
+    detachAndTumble(stageParts.boosterR, new THREE.Vector3(1,-0.2,0));
+    showBanner('NGLV REUSABLE BOOSTER SEPARATION', 2600);
+    el('tm-stage').textContent = 'STAGE: SEMI-CRYOGENIC CORE';
+  }
+  if(!flight._stage1Sep && t>flight.stage1SepT){
+    flight._stage1Sep = true;
+    detachAndTumble(stageParts.core, new THREE.Vector3(0,-1,0.15));
+    showBanner('CORE STAGE SEPARATION', 2600);
+    el('tm-stage').textContent = 'STAGE: C32 UPPER STAGE + COMMAND MODULE';
+    flameLight.intensity = 2.4;
+  }
+  if(!flight._fairingSep && t>flight.fairingSepT){
+    flight._fairingSep = true;
+    detachAndTumble(stageParts.fairing, new THREE.Vector3(0.3,-0.4,0.9));
+    stageParts.capsule.visible = true;
+    showBanner('PAYLOAD FAIRING JETTISONED', 2600);
+  }
+  if(f>=1 && !flight._leo){
+    flight._leo = true;
+    flameMesh.visible = false; flameLight.intensity=0;
+    showBanner('ORBIT INSERTION — LOW EARTH ORBIT ACHIEVED', 3400);
+    setTimeout(()=>beginTransLunarCoast(), 1600);
+  }
+
+  const blend = clamp((altKm-2)/40, 0, 1);
+  const localPos = new THREE.Vector3(0, 2+visualAlt, 0);
+  const bigPos = vec2FromPolar(EARTH_R + visualAlt, theta);
+  const worldPos = new THREE.Vector3(
+    lerp(localPos.x, bigPos.x, blend),
+    lerp(localPos.y, bigPos.y - EARTH_R + 2, blend),
+    0
+  );
+  rocketGroup.position.copy(worldPos);
+
+  earthBig.visible = blend>0.02; earthAtmo.visible = blend>0.02;
+  padGroup.visible = blend<0.98;
+
+  if(cameraMode==='cockpit'){
+    const nose = new THREE.Vector3(0, 40, 0);
+    const noseWorld = nose.clone().applyMatrix4(rocketGroup.userData.body.matrixWorld);
+    camera.position.copy(noseWorld);
+    camera.lookAt(noseWorld.clone().add(new THREE.Vector3(0,1,0)));
+  } else {
+    orbitState.target.copy(rocketGroup.position);
+    if(orbitState.radius<20) orbitState.radius = 46;
+    camera.position.copy(orbitCameraPosition(orbitState.target, orbitState.radius, orbitState.theta, orbitState.phi));
+    camera.lookAt(orbitState.target);
+  }
+
+  updateTelemetry(altKm, velKms, downrangeKm, clamp(100*(1-f), 2, 100).toFixed(0));
+  updateMissionClock(t*7);
+  updateTrajectoryCanvas();
+}
+
+function detachAndTumble(mesh, dir){
+  if(!mesh || mesh.userData.detached) return;
+  mesh.userData.detached = true;
+  const worldPos = new THREE.Vector3(); mesh.getWorldPosition(worldPos);
+  const worldQuat = new THREE.Quaternion(); mesh.getWorldQuaternion(worldQuat);
+  scene.add(mesh);
+  mesh.position.copy(worldPos); mesh.quaternion.copy(worldQuat);
+  mesh.userData.tumbleVel = dir.clone().multiplyScalar(3+Math.random()*2);
+  mesh.userData.tumbleSpin = new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2);
+  mesh.userData.tumbleLife = 0;
+  tumblingParts.push(mesh);
+}
+const tumblingParts = [];
+function updateTumblingParts(dt){
+  for(let i=tumblingParts.length-1;i>=0;i--){
+    const m = tumblingParts[i];
+    m.userData.tumbleLife += dt;
+    m.position.addScaledVector(m.userData.tumbleVel, dt);
+    m.userData.tumbleVel.y -= 1.2*dt;
+    m.rotation.x += m.userData.tumbleSpin.x*dt;
+    m.rotation.y += m.userData.tumbleSpin.y*dt;
+    if(m.userData.tumbleLife>9){
+      scene.remove(m);
+      tumblingParts.splice(i,1);
+    }
+  }
+}
+
+function beginTransLunarCoast(){
+  state = STATE.COAST_OUT;
+  flight.coastProg = 0;
+  moonBig.visible = true;
+  setUIForState();
+  showBanner('TRANS-LUNAR INJECTION BURN COMPLETE', 3200);
+}
+
+el('timewarp-btn').addEventListener('click', ()=>{
+  if(state!==STATE.COAST_OUT) return;
+  runTimewarp(()=>{
+    flight.coastProg = 1;
+    beginLunarDescent();
+  }, 'Fast-forwarding trans-lunar coast…');
+});
+
+function runTimewarp(onDone, subtitle){
+  el('timewarp-overlay').style.display='flex';
+  el('tw-sub').textContent = subtitle;
+  const twCanvas = el('tw-canvas');
+  twCanvas.width = window.innerWidth; twCanvas.height = window.innerHeight;
+  const ctx = twCanvas.getContext('2d');
+  const streaks = [];
+  for(let i=0;i<160;i++){
+    streaks.push({x:Math.random()*twCanvas.width, y:Math.random()*twCanvas.height, len:20+Math.random()*80, speed:8+Math.random()*22});
+  }
+  let raf;
+  const start = performance.now();
+  function frame(){
+    const t = (performance.now()-start)/1000;
+    ctx.fillStyle='rgba(0,0,0,0.35)';
+    ctx.fillRect(0,0,twCanvas.width,twCanvas.height);
+    ctx.strokeStyle = 'rgba(140,220,255,0.8)';
+    ctx.lineWidth = 1.4;
+    const cx=twCanvas.width/2, cy=twCanvas.height/2;
+    streaks.forEach(s=>{
+      s.x += 12; s.y += 6;
+      ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(s.x-30,s.y-15); ctx.stroke();
+      if(s.x>twCanvas.width) s.x=0; if(s.y>twCanvas.height) s.y=0;
+    });
+    if(t<10){ raf = requestAnimationFrame(frame); }
+    else {
+      cancelAnimationFrame(raf);
+      el('timewarp-overlay').style.display='none';
+      onDone();
+    }
+  }
+  frame();
+}
+
+el('trajectory-btn').addEventListener('click', ()=>{
+  const p = el('trajectory-panel');
+  p.style.display = (p.style.display==='block') ? 'none' : 'block';
+});
+
+el('view-toggle-btn').addEventListener('click', ()=>{
+  if(cameraMode==='cockpit'){
+    cameraMode='external';
+    el('view-toggle-btn').textContent = 'Enter the Cockpit';
+    el('cockpit-frame').style.display='none';
+    orbitState.radius = 55;
+  } else {
+    cameraMode='cockpit';
+    el('view-toggle-btn').textContent = 'View from Outside';
+    if([STATE.ASCENT,STATE.COAST_OUT,STATE.LUNAR_DESCENT,STATE.LUNAR_ASCENT,STATE.COAST_BACK].includes(state))
+      el('cockpit-frame').style.display='block';
+  }
+});
+
+function updateCoastOut(dt){
+  flight.coastProg = clamp(flight.coastProg + dt/flight.coastDur, 0, 1);
+  const p = easeInOutQuad(flight.coastProg);
+  const p0 = new THREE.Vector3(EARTH_R+130, 60, 0);
+  const p1 = new THREE.Vector3(MOON_DIST*0.45, 900, 300);
+  const p2 = new THREE.Vector3(MOON_DIST - MOON_R - 40, 30, 0);
+  const pos = bezier3(p0,p1,p2,p);
+  rocketGroup.position.copy(pos);
+
+  earthBig.visible = true; earthAtmo.visible = true; moonBig.visible = true; padGroup.visible=false;
+  earthBig.position.set(0,0,0); moonBig.position.set(MOON_DIST,0,0);
+
+  if(cameraMode==='cockpit'){
+    camera.position.copy(pos);
+    camera.lookAt(moonBig.position);
+  } else {
+    orbitState.target.copy(pos);
+    camera.position.copy(orbitCameraPosition(pos, orbitState.radius, orbitState.theta, orbitState.phi));
+    camera.lookAt(pos);
+  }
+
+  updateTelemetry(384400*(1-p), 1.02, 384400*p, 100);
+  el('tm-stage').textContent = 'CONTROL ROOM: COMMAND MODULE IN LMO / LANDER READY';
+  updateMissionClock(missionElapsed + dt*260);
+  updateTrajectoryCanvas();
+
+  if(flight.coastProg>=1){ beginLunarDescent(); }
+}
+
+function bezier3(p0,p1,p2,t){
+  const a = p0.clone().lerp(p1,t);
+  const b = p1.clone().lerp(p2,t);
+  return a.lerp(b,t);
+}
+
+function beginLunarDescent(){
+  state = STATE.LUNAR_DESCENT;
+  cameraMode = 'cockpit';
+  flight.descentT = 0;
+  el('view-toggle-btn').textContent='View from Outside';
+  setUIForState();
+  showBanner('CONTROL ROOM: LANDER MODULE DETACHED FOR LUNAR DESCENT', 3000);
+}
+
+function updateLunarDescent(dt){
+  flight.descentT += dt;
+  const f = clamp(flight.descentT/flight.descentDur,0,1);
+  const altKm = flight.descentStartAltKm * Math.pow(1-f,2);
+
+  const landingSpot = new THREE.Vector3(MOON_DIST, MOON_R, 40);
+  const showDetailed = f>0.55;
+  lunarSurfaceGroup.visible = showDetailed;
+  moonBig.visible = false; earthBig.visible=false; earthAtmo.visible=false;
+
+  if(showDetailed){
+    rocketGroup.position.set(0, altKm*10 + 6, 0);
+  }
+
+  if(cameraMode==='cockpit'){
+    camera.position.copy(rocketGroup.position).add(new THREE.Vector3(0,3,0));
+    camera.lookAt(new THREE.Vector3(0,0,0));
+  } else {
+    orbitState.target.copy(rocketGroup.position);
+    camera.position.copy(orbitCameraPosition(rocketGroup.position, 20, orbitState.theta, orbitState.phi));
+    camera.lookAt(rocketGroup.position);
+  }
+
+  el('tm-stage').textContent = 'PHASE: LANDER POWERED DESCENT';
+  el('tm-alt').textContent = (altKm*1000).toFixed(0)+' m';
+  el('tm-fuel').textContent = Math.round(lerp(40,8,f))+'%';
+  updateMissionClock(missionElapsed+dt*40);
+
+  if(f>=1){ completeLanding(); }
+}
+
+function completeLanding(){
+  state = STATE.CABIN_OUT;
+  rocketGroup.visible = false;
+  landerGroup.visible = true;
+  landerGroup.position.set(0,0,0);
+  lunarSurfaceGroup.visible = true;
+  orbitState.target.set(0,4,6); orbitState.radius=16; orbitState.theta=0.4; orbitState.phi=1.25;
+  cabinStep = 0;
+  advanceCabinStep();
+  setUIForState();
+  showBanner('TOUCHDOWN — SHAKTI LANDER SECURED AT SHIV SHAKTI POINT', 3600);
+}
+
+let cabinStep = 0;
+const cabinSteps = [
+  { text:'Touchdown confirmed. <b>3 Crew Members</b> prepared in Lander Module — SHAKTI.', btn:'Approach Spacesuits' },
+  { text:'Pressure suits donned. All telemetry checks with Command Module in orbit are green.', btn:'Open Airlock Hatch' },
+  { text:'Hatch open. Deploying ladder to the lunar surface.', btn:'Step Onto the Moon' },
+];
+function advanceCabinStep(){
+  const s = cabinSteps[cabinStep];
+  el('cabin-step-text').innerHTML = s.text;
+  el('cabin-action-btn').textContent = s.btn;
+}
+el('cabin-action-btn').addEventListener('click', ()=>{
+  cabinStep++;
+  if(cabinStep < cabinSteps.length){
+    advanceCabinStep();
+  } else {
+    beginEVA();
+  }
+});
+
+const keys = {};
+window.addEventListener('keydown', e=>{ keys[e.code]=true; if(e.code==='Space') e.preventDefault(); });
+window.addEventListener('keyup', e=>{ keys[e.code]=false; });
+
+function beginEVA(){
+  state = STATE.EVA;
+  cameraMode = 'external';
+  astronaut.visible = true;
+  astronaut.position.set(0,0,4);
+  astronautVel.y = 0; astronautGrounded = true;
+  orbitState.target.copy(astronaut.position);
+  orbitState.radius = 12; orbitState.theta = 0.4; orbitState.phi = 1.15;
+  setUIForState();
+  el('flag-btn').style.display='inline-block';
+  el('experiment-btn').style.display='inline-block';
+  el('return-btn').style.display='inline-block';
+  showBanner('EVA COMMENCED — SCIENTIFIC EXPERIMENTS READY', 3400);
+}
+
+function updateEVA(dt){
+  const moveSpeed = 4.2;
+  const jumpSpeed = 5.3;
+  const camForward = new THREE.Vector3(Math.sin(orbitState.theta),0,Math.cos(orbitState.theta));
+  const camRight = new THREE.Vector3(camForward.z,0,-camForward.x);
+  let move = new THREE.Vector3();
+  if(keys['KeyW']||keys['ArrowUp']) move.add(camForward);
+  if(keys['KeyS']||keys['ArrowDown']) move.sub(camForward);
+  if(keys['KeyD']||keys['ArrowRight']) move.add(camRight);
+  if(keys['KeyA']||keys['ArrowLeft']) move.sub(camRight);
+  if(move.lengthSq()>0){
+    move.normalize();
+    astronaut.position.addScaledVector(move, moveSpeed*dt);
+    astronaut.rotation.y = Math.atan2(move.x, move.z);
+  }
+  if((keys['Space']) && astronautGrounded){
+    astronautVel.y = jumpSpeed;
+    astronautGrounded = false;
+  }
+  astronautVel.y -= G_MOON_VIS*dt;
+  astronaut.position.y += astronautVel.y*dt;
+  if(astronaut.position.y<=0){
+    astronaut.position.y = 0; astronautVel.y = 0; astronautGrounded = true;
+  }
+
+  orbitState.target.lerp(astronaut.position.clone().add(new THREE.Vector3(0,1.2,0)), 0.15);
+  camera.position.copy(orbitCameraPosition(orbitState.target, orbitState.radius, orbitState.theta, orbitState.phi));
+  camera.lookAt(orbitState.target);
+}
+
+el('flag-btn').addEventListener('click', ()=>{
+  if(flagInstalled) return;
+  flagInstalled = true;
+  flagGroup.position.copy(astronaut.position).add(new THREE.Vector3(0.9,0,0.4));
+  flagGroup.visible = true;
+  flagGroup.scale.set(1,1,1);
+  showBanner('FLAG OF INDIA INSTALLED', 3000);
+  el('flag-btn').textContent = 'Flag Installed ✓';
+  el('flag-btn').disabled = true;
+});
+
+el('experiment-btn').addEventListener('click', ()=>{
+  experimentsDeployed = true;
+  showBanner('SCIENTIFIC EXPERIMENTS DEPLOYED: Seismometer & Regolith Analyser Active', 3600);
+  el('experiment-btn').textContent = 'Experiments Deployed ✓';
+  el('experiment-btn').disabled = true;
+});
+
+el('return-btn').addEventListener('click', ()=>{
+  beginLunarAscent();
+});
+
+function beginLunarAscent(){
+  state = STATE.LUNAR_ASCENT;
+  cameraMode = 'cockpit';
+  astronaut.visible = false;
+  flight.ascentMoonT = 0;
+  rocketGroup.visible = true;
+  rocketGroup.position.set(0,6,0);
+  landerAscentStage.visible = false;
+  flameMesh.visible = true; flameLight.intensity = 2.2;
+  setUIForState();
+  showBanner('LIFTOFF FROM MOON — RENDEZVOUS WITH COMMAND MODULE IN LMO', 3400);
+}
+
+function updateLunarAscent(dt){
+  flight.ascentMoonT += dt;
+  const f = clamp(flight.ascentMoonT/flight.ascentMoonDur,0,1);
+  const altKm = 12*easeOutCubic(f);
+  rocketGroup.position.set(0, 6 + altKm*40, f*30);
+
+  if(cameraMode==='cockpit'){
+    camera.position.copy(rocketGroup.position).add(new THREE.Vector3(0,2,0));
+    camera.lookAt(rocketGroup.position.clone().add(new THREE.Vector3(0,10,6)));
+  } else {
+    orbitState.target.copy(rocketGroup.position);
+    camera.position.copy(orbitCameraPosition(rocketGroup.position, 18, orbitState.theta, orbitState.phi));
+    camera.lookAt(rocketGroup.position);
+  }
+
+  if(f>=1 && !flight._lmo){
+    flight._lmo = true;
+    flameMesh.visible=false; flameLight.intensity=0;
+    showBanner('SUCCESSFUL DOCKING WITH COMMAND MODULE — TRANS-EARTH INJECTION', 3400);
+    setTimeout(beginCoastBack, 1400);
+  }
+}
+
+function beginCoastBack(){
+  state = STATE.COAST_BACK;
+  lunarSurfaceGroup.visible = false;
+  landerGroup.visible = false;
+  flight.coastBackProg = 0;
+  moonBig.visible = true; earthBig.visible = true; earthAtmo.visible = true;
+  setUIForState();
+}
+
+function updateCoastBack(dt){
+  flight.coastBackProg = clamp(flight.coastBackProg + dt/flight.coastBackDur, 0, 1);
+  const p = easeInOutQuad(flight.coastBackProg);
+  const pos = bezier3(new THREE.Vector3(MOON_DIST-40, 30, 0), new THREE.Vector3(MOON_DIST*0.45, -700, -260), new THREE.Vector3(EARTH_R+90, 40, 0), p);
+  rocketGroup.position.copy(pos);
+
+  if(cameraMode==='cockpit'){ camera.position.copy(pos); }
+  else {
+    orbitState.target.copy(pos);
+    camera.position.copy(orbitCameraPosition(pos, orbitState.radius, orbitState.theta, orbitState.phi));
+    camera.lookAt(pos);
+  }
+
+  if(pos.distanceTo(new THREE.Vector3(0,0,0)) < EARTH_R+130 && state!==STATE.REENTRY){ beginReentry(); }
+}
+
+function beginReentry(){
+  state = STATE.REENTRY;
+  cameraMode = 'external';
+  flight.reentryT = 0;
+  stageParts.capsule.visible = true;
+  setUIForState();
+  showBanner('ATMOSPHERIC ENTRY INTERFACE', 3400);
+}
+
+function updateReentry(dt){
+  flight.reentryT += dt;
+  const f = clamp(flight.reentryT/flight.reentryDur, 0, 1);
+  const pos = new THREE.Vector3(0, lerp(120,4,f), lerp(-260,-40,f));
+  rocketGroup.position.copy(pos);
+
+  heatGlowMesh.visible = f<0.65 && f>0.05;
+  heatGlowMesh.position.copy(pos).add(new THREE.Vector3(0,-2,0));
+  chuteGroup.visible = f>0.62;
+  if(chuteGroup.visible) chuteGroup.position.copy(pos).add(new THREE.Vector3(0,4,0));
+  ocean.visible = f>0.55;
+
+  camera.position.copy(orbitCameraPosition(pos, 30, orbitState.theta, orbitState.phi));
+  camera.lookAt(pos);
+
+  if(f>=1){ beginSplashdown(); }
+}
+
+function beginSplashdown(){
+  state = STATE.SPLASHDOWN;
+  ocean.visible = true;
+  showBanner('SPLASHDOWN — CREW RECOVERED SAFELY', 3200);
+  setTimeout(()=>{
+    state = STATE.END;
+    el('end-time').textContent = formatClock(missionElapsed);
+    el('end-flag').textContent = flagInstalled ? 'Yes' : 'No';
+    el('end-exp').textContent = experimentsDeployed ? 'Yes' : 'No';
+    setUIForState();
+  }, 2600);
+}
+
+el('restart-btn').addEventListener('click', ()=> location.reload());
+
+function updateTelemetry(altKm, velKms, rangeKm, fuelPct){
+  el('tm-alt').textContent = fmt(altKm,0)+' km';
+  el('tm-vel').textContent = fmt(velKms,2)+' km/s';
+  el('tm-range').textContent = fmt(rangeKm,0)+' km';
+  el('tm-fuel').textContent = fuelPct+'%';
+}
+function formatClock(sec){
+  sec = Math.max(0,Math.floor(sec));
+  const h = String(Math.floor(sec/3600)).padStart(2,'0');
+  const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
+  const s = String(Math.floor(sec%60)).padStart(2,'0');
+  return 'T+'+h+':'+m+':'+s;
+}
+function updateMissionClock(sec){
+  missionElapsed = sec;
+  el('mc-time').textContent = formatClock(sec);
+}
+
+const trajCanvas = el('traj-canvas');
+const trajCtx = trajCanvas.getContext('2d');
+function updateTrajectoryCanvas(){
+  const W = trajCanvas.width, H = trajCanvas.height;
+  trajCtx.clearRect(0,0,W,H);
+  trajCtx.fillStyle = 'rgba(3,5,9,1)';
+  trajCtx.fillRect(0,0,W,H);
+  trajCtx.strokeStyle = 'rgba(79,216,255,0.35)';
+  trajCtx.beginPath();
+  trajCtx.moveTo(34,H/2);
+  trajCtx.quadraticCurveTo(W/2, H/2-70, W-34,H/2);
+  trajCtx.stroke();
+  trajCtx.fillStyle = '#2a6fb0'; trajCtx.beginPath(); trajCtx.arc(34,H/2,12,0,Math.PI*2); trajCtx.fill();
+  trajCtx.fillStyle = '#aaa79f'; trajCtx.beginPath(); trajCtx.arc(W-34,H/2,7,0,Math.PI*2); trajCtx.fill();
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  if(state===STATE.PRELAUNCH){
+    orbitState.theta += dt*0.03;
+    camera.position.copy(orbitCameraPosition(orbitState.target, orbitState.radius, orbitState.theta, orbitState.phi));
+    camera.lookAt(orbitState.target);
+  }
+  else if(state===STATE.ASCENT) updateAscent(dt);
+  else if(state===STATE.COAST_OUT) updateCoastOut(dt);
+  else if(state===STATE.LUNAR_DESCENT) updateLunarDescent(dt);
+  else if(state===STATE.EVA) updateEVA(dt);
+  else if(state===STATE.LUNAR_ASCENT) updateLunarAscent(dt);
+  else if(state===STATE.COAST_BACK) updateCoastBack(dt);
+  else if(state===STATE.REENTRY) updateReentry(dt);
+
+  updateTumblingParts(dt);
+
+  if(flameMesh && flameMesh.visible){
+    const s = 1+Math.sin(performance.now()*0.02)*0.08;
+    flameMesh.scale.set(s,1+Math.sin(performance.now()*0.03)*0.15,s);
+  }
+
+  renderer.render(scene, camera);
+}
+
+let bootPct = 0;
+const bootIv = setInterval(()=>{
+  bootPct += 8+Math.random()*14;
+  el('boot-bar').style.width = Math.min(bootPct,100)+'%';
+  if(bootPct>=100){
+    clearInterval(bootIv);
+    el('boot-start').style.display='inline-block';
+  }
+},160);
+
+el('boot-start').addEventListener('click', ()=>{
+  document.getElementById('boot').style.opacity='0';
+  setTimeout(()=>{ document.getElementById('boot').style.display='none'; }, 850);
+  setUIForState();
+});
+
+setUIForState();
+animate();
+
+})();
+</script>
+</body>
+</html>
