@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Dreamscape: Panchabhūta — Zygote Builder v2</title>
+<style>
+:root{
+  --bg:#07142f;--glass:rgba(11,29,63,.88);--glass2:rgba(8,20,46,.76);
+  --line:rgba(160,205,255,.18);--text:#eef7ff;--muted:#9eb5d6;--cyan:#59e7ff;
+  --violet:#a98cff;--green:#74e7a5;--gold:#ffd56b;--pink:#ff91d5;--red:#ff6b6b;
+  --shadow:0 24px 70px rgba(0,0,0,.35)
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+-webkit-tap-highlight-color:transparent}
+button,input,textarea{font:inherit}button{color:inherit}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(160,205,255,.25);border-radius:8px}
+#app{position:relative;width:100%;height:100%;overflow:hidden;background:
+radial-gradient(circle at 50% 30%,rgba(64,139,255,.14),transparent 40%),
+radial-gradient(circle at 82% 12%,rgba(168,120,255,.12),transparent 32%),
+linear-gradient(180deg,#05102a,#0a1c40 55%,#08162c)}
+#sky{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.5))}
+.topbar{position:absolute;z-index:30;left:0;right:0;top:0;min-height:60px;padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,rgba(3,11,28,.94),rgba(3,11,28,.3));border-bottom:1px solid rgba(160,205,255,.08);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:34px;height:34px;border:2px solid #89caff;border-radius:50%;position:relative;box-shadow:0 0 20px rgba(89,231,255,.28);flex:none}
+.logo:before{content:"";position:absolute;left:-6px;right:-6px;top:12px;height:8px;border:2px solid #89caff;border-radius:50%;transform:rotate(-18deg)}
+.logo:after{content:"✦";position:absolute;right:-8px;top:-10px;color:#b4eaff;font-size:11px}
+.brand b{display:block;font-size:15px;letter-spacing:.2px;line-height:1.15}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:1px}
+.resources{display:flex;gap:6px;flex-wrap:wrap}.res{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--line);padding:6px 10px;border-radius:12px;font-size:12px;white-space:nowrap}.res b{font-variant-numeric:tabular-nums}
+.navbtns{display:flex;gap:6px;flex-wrap:wrap}.navbtns button,.bottombar button,.viewtoggle button{
+background:rgba(255,255,255,.05);border:1px solid var(--line);padding:8px 11px;border-radius:11px;cursor:pointer;font-size:12px;transition:.2s}
+.navbtns button:hover,.bottombar button:hover{background:rgba(135,184,255,.14)}.navbtns button.active{background:rgba(135,184,255,.2);border-color:rgba(135,184,255,.4)}
+.panel{position:absolute;z-index:15;background:linear-gradient(145deg,rgba(11,29,63,.88),rgba(8,20,46,.76));border:1px solid var(--line);box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.06);backdrop-filter:blur(18px);border-radius:20px}
+.paneltitle{display:flex;justify-content:space-between;align-items:center;font-weight:750;font-size:13px;padding:12px 14px 0}.paneltitle small{color:var(--muted);font-weight:400}
+.left-dock{left:16px;top:78px;width:255px;max-height:calc(100% - 170px);display:flex;flex-direction:column;overflow:hidden}
+.stats-body{padding:10px 14px 14px;overflow:auto}.statrow{margin-top:10px}.statrow .lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+.bar{height:8px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.06)}.bar>i{display:block;height:100%;border-radius:6px;transition:width .4s ease}
+.bar.atm>i{background:linear-gradient(90deg,#89caff,#59e7ff)}.bar.wat>i{background:linear-gradient(90deg,#3f7ea8,#59c9ff)}
+.bar.bio>i{background:linear-gradient(90deg,#4f9a5f,#74e7a5)}.bar.pol>i{background:linear-gradient(90deg,#a8461f,#ff8b6b)}
+.bar.sus>i{background:linear-gradient(90deg,#a98cff,#ffd56b)}.bar.pop>i{background:linear-gradient(90deg,#ff91d5,#a98cff)}
+.sustained-badge{margin-top:10px;font-size:11px;color:#0a1c0f;background:linear-gradient(100deg,#74e7a5,#ffd56b);padding:6px 10px;border-radius:10px;text-align:center;font-weight:750}
+.right-dock{right:16px;top:78px;width:280px;max-height:calc(100% - 170px);display:flex;flex-direction:column;overflow:hidden}
+.build-body{padding:10px 12px 14px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.bldrow{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045);border-radius:14px;padding:9px 10px;cursor:pointer;transition:.15s}.bldrow:hover{border-color:rgba(117,221,255,.35);background:rgba(74,182,255,.1)}
+.bldrow.locked{opacity:.45;cursor:not-allowed}.bldrow.unaffordable .cost{color:#ff9d9d}.bldrow-top{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700}.bldrow-top .lvl{color:var(--cyan)}
+.bldrow-desc{font-size:10.5px;color:var(--muted);margin:3px 0 6px;line-height:1.4}.cost{font-size:11px;color:#c9e6ff;display:flex;gap:8px;flex-wrap:wrap}
+.bottombar{position:absolute;z-index:20;left:16px;right:16px;bottom:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.bottombar button.primary{background:linear-gradient(100deg,#39cfff,#a87cff);border:0;font-weight:750;box-shadow:0 12px 26px rgba(78,170,255,.28)}
+.viewtoggle{position:absolute;z-index:20;left:50%;top:70px;transform:translateX(-50%);display:flex;gap:4px;background:rgba(8,20,46,.78);border:1px solid var(--line);border-radius:14px;padding:4px;backdrop-filter:blur(10px)}.viewtoggle button{background:transparent;border:0;padding:7px 13px;color:#a9bfdf}.viewtoggle button.active{background:rgba(135,184,255,.22);color:#fff}
+.toast{position:absolute;z-index:100;left:50%;top:66px;transform:translate(-50%,-18px);opacity:0;pointer-events:none;background:rgba(7,20,45,.96);border:1px solid rgba(151,211,255,.25);padding:10px 16px;border-radius:14px;box-shadow:var(--shadow);transition:.35s;font-size:12px;max-width:88vw;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal{position:absolute;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(1,7,20,.66);backdrop-filter:blur(9px);padding:16px}.modal.show{display:flex}
+.modalcard{width:min(700px,100%);max-height:88vh;overflow:auto;padding:22px;border-radius:22px;background:linear-gradient(145deg,#0d244c,#081735);border:1px solid rgba(166,215,255,.2);box-shadow:0 35px 100px rgba(0,0,0,.55)}
+.modalhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}.modalhead h2{margin:0;font-size:20px}.modalhead p{margin:4px 0 0;color:var(--muted);font-size:12.5px}.close{border:0;background:rgba(255,255,255,.06);border-radius:10px;width:32px;height:32px;cursor:pointer}
+.techgrid,.achgrid,.worldgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}@media(max-width:520px){.techgrid,.achgrid,.worldgrid{grid-template-columns:1fr}}
+.techcard,.achcard,.worldcard{padding:13px;border-radius:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}.techcard b,.achcard b,.worldcard b{display:block;margin-bottom:4px;font-size:13px}.techcard small,.achcard small,.worldcard small{color:#91a9c9;line-height:1.5;display:block;font-size:11px}
+.techcard .buy{margin-top:9px;width:100%;padding:8px;border-radius:10px;border:0;background:linear-gradient(100deg,#39cfff,#a87cff);cursor:pointer;font-weight:700;font-size:11.5px}.techcard .buy:disabled{background:rgba(255,255,255,.08);color:#7c93b3;cursor:not-allowed}
+.achcard.locked{opacity:.4}.achcard.unlocked{border-color:rgba(255,213,107,.4);background:rgba(255,213,107,.06)}
+.council-card{padding:6px 0}.council-flavor{font-size:12px;color:#9beaff;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-weight:700}.council-text{color:#cfe0f4;line-height:1.65;font-size:14px;margin-bottom:16px}
+.optionbtn{display:block;width:100%;text-align:left;padding:13px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);cursor:pointer;margin-top:9px}.optionbtn:hover{border-color:rgba(117,221,255,.4);background:rgba(74,182,255,.1)}.optionbtn b{display:block;font-size:13.5px;margin-bottom:3px}.optionbtn span{font-size:11.5px;color:var(--muted)}
+.journalentry{padding:11px 13px;border-left:2px solid #6edcff;background:rgba(255,255,255,.035);margin-top:9px;border-radius:0 12px 12px 0;color:#c7d7eb;font-size:12.5px;line-height:1.5}
+.chronicle-input{display:flex;gap:8px;margin-top:14px}.chronicle-input textarea{flex:1;resize:none;height:44px;background:rgba(2,10,26,.4);border:1px solid rgba(155,202,255,.16);outline:none;border-radius:12px;padding:10px;color:#fff}.chronicle-input button{border:0;background:linear-gradient(100deg,#39cfff,#a87cff);border-radius:12px;padding:0 16px;cursor:pointer;font-weight:700}
+.datamodal textarea{width:100%;height:120px;background:rgba(2,10,26,.4);border:1px solid rgba(155,202,255,.16);border-radius:12px;padding:10px;color:#cfe0f4;font-size:11px;font-family:ui-monospace,monospace;resize:vertical}.dataactions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.dataactions button{border:1px solid var(--line);background:rgba(255,255,255,.06);padding:9px 13px;border-radius:11px;cursor:pointer;font-size:12px}.dataactions button.danger{border-color:rgba(255,107,107,.4);color:#ffb0b0}
+.dharma-meter{margin-top:14px}.dharma-track{height:10px;border-radius:8px;background:linear-gradient(90deg,#ff8b6b,#3f4a6b 50%,#74e7a5);position:relative;border:1px solid rgba(255,255,255,.1)}.dharma-dot{position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #0a1c40;transform:translateX(-50%);box-shadow:0 0 10px rgba(255,255,255,.5)}.dharma-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px}
+.onb-steps{display:flex;flex-direction:column;gap:10px;margin:14px 0}.onb-step{display:flex;gap:11px;align-items:flex-start}.onb-step .n{width:26px;height:26px;border-radius:50%;background:rgba(135,184,255,.18);display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;font-weight:800;color:#bfe1ff}.onb-step p{margin:0;font-size:12.5px;color:#c7d7eb;line-height:1.55}
+.helpbox{padding:13px;border-radius:15px;background:rgba(89,231,255,.06);border:1px solid rgba(89,231,255,.16);color:#cfe0f4;font-size:12px;line-height:1.6}.helpbox b{color:#fff}.hint{color:#8fa7c7;font-size:11px;line-height:1.5}
+.worldcard{cursor:pointer}.worldcard:hover{border-color:rgba(89,231,255,.4)}.worldcard.selected{border-color:rgba(89,231,255,.6);background:rgba(89,231,255,.08)}
+.footer{position:absolute;z-index:15;left:20px;right:20px;bottom:12px;display:flex;justify-content:space-between;color:#6683aa;font-size:9px;pointer-events:none}
+@media(max-width:900px){
+.left-dock,.right-dock{left:auto;right:auto;top:auto;bottom:0;width:100%;max-width:100%;max-height:72vh;border-radius:20px 20px 0 0;transform:translateY(105%);transition:transform .28s ease;box-shadow:0 -20px 60px rgba(0,0,0,.5)}
+.left-dock.open,.right-dock.open{transform:translateY(0)}.footer{display:none}
+.viewtoggle{top:64px}.bottombar{bottom:8px}.bottombar button{padding:10px 12px}
+}
+@media(max-width:560px){.topbar{padding:7px 9px}.brand small{display:none}.brand b{font-size:13px}.resources{gap:4px}.res{padding:5px 7px;font-size:10.5px}.navbtns button span.lbl{display:none}.navbtns button{padding:8px 9px}.viewtoggle{top:61px}.viewtoggle button{padding:7px 9px;font-size:10.5px}.bottombar{left:8px;right:8px}}
+</style>
+</head>
+<body>
+<div id="app">
+<canvas id="sky"></canvas><div class="vignette"></div>
+<header class="topbar">
+<div class="brand"><div class="logo"></div><div><b>Dreamscape: Panchabhūta</b><small>Five worlds. One dharma. — v2</small></div></div>
+<div class="resources" id="resourceBar"></div>
+<div class="navbtns">
+<button data-open="guide">🧭<span class="lbl">Guide</span></button><button data-open="tech">🧠<span class="lbl">Tech</span></button>
+<button data-open="achievements">🏆<span class="lbl">Deeds</span></button><button data-open="chronicle">📜<span class="lbl">Chronicle</span></button>
+<button data-open="data">⚙<span class="lbl">Data</span></button>
+</div></header>
+<div class="viewtoggle"><button id="vSystem" class="active">◐ Star Map</button><button id="vPlanet">🪐 World View</button></div>
+<button class="navbtns" id="leftToggle" style="position:absolute;left:12px;bottom:70px;z-index:20;display:none">📊</button>
+<button class="navbtns" id="rightToggle" style="position:absolute;right:12px;bottom:70px;z-index:20;display:none">⚒</button>
+<section class="panel left-dock" id="leftDock"><div class="paneltitle"><span id="planetTitle">Selected World</span><small id="planetEpithet"></small></div><div class="stats-body" id="statsBody"></div></section>
+<section class="panel right-dock" id="rightDock"><div class="paneltitle"><span>⚒ Build &amp; Govern</span><small id="buildHint">tap to build</small></div><div class="build-body" id="buildBody"></div></section>
+<div class="bottombar"><button id="unlockBtn" style="display:none">🚀 Launch Expedition</button><button class="primary" id="councilBtn">☸ Convene Council</button><button id="helpBtn">🧭 What now?</button></div>
+<div class="footer"><span>Dreamscape: Panchabhūta ✦ Zygote Builder Lab</span><span id="playtimeFooter">Reign begun</span></div><div class="toast" id="toast"></div>
+
+<div class="modal" id="modal"><div class="modalcard"><div class="modalhead"><div><h2 id="modalTitle"></h2><p id="modalSub"></p></div><button class="close" id="closeModal">×</button></div><div id="modalBody"></div></div></div>
+<div class="modal" id="councilModal"><div class="modalcard"><div class="modalhead"><div><h2 id="councilTitle">Council of Ministers</h2><p id="councilSub">Every choice bends the dharma of your reign.</p></div><button class="close" id="closeCouncil">×</button></div><div class="council-card" id="councilBody"></div></div></div>
+<div class="modal" id="onbModal"><div class="modalcard"><div class="modalhead"><div><h2>Welcome, Architect ✦</h2><p>A dying star system. Five elemental worlds. One long game.</p></div></div><div class="onb-steps">
+<div class="onb-step"><div class="n">1</div><p><b>Look around.</b> In Star Map, tap a planet. On phones, use the 📊 and ⚒ buttons to open your world panels.</p></div>
+<div class="onb-step"><div class="n">2</div><p><b>Build.</b> Solar Arrays make Energy; Bioreactors make Biomass. Tap a building card to buy a level. Then use Terraform Stations.</p></div>
+<div class="onb-step"><div class="n">3</div><p><b>Terraform in order.</b> Atmosphere → Oceans → Biosphere. Habitat Domes need breathable air and water. Population creates Data and Influence.</p></div>
+<div class="onb-step"><div class="n">4</div><p><b>Govern.</b> Council dilemmas now respond to the world you are actually governing. Fire, Water, Air, Earth and Ether create different pressures.</p></div>
+<div class="onb-step"><div class="n">5</div><p><b>Think beyond sustainability.</b> A sustained planet is not finished. Special projects, cities, fleets, research and elemental mastery unlock the long game.</p></div>
+<div class="onb-step"><div class="n">6</div><p><b>Return.</b> Your reign saves in this browser and continues while you are away, with offline progress capped at 8 hours.</p></div>
+</div><button class="primary" id="beginBtn" style="border:0;padding:13px 18px;border-radius:14px;width:100%;font-weight:750;cursor:pointer;background:linear-gradient(100deg,#39cfff,#a87cff)">Begin your reign</button></div></div>
+<div class="modal" id="backModal"><div class="modalcard"><div class="modalhead"><div><h2>Welcome back, Architect</h2><p id="backSub"></p></div><button class="close" id="closeBack">×</button></div><div id="backBody"></div><button class="primary" id="backOk" style="border:0;padding:12px 18px;border-radius:14px;width:100%;font-weight:750;cursor:pointer;margin-top:14px;background:linear-gradient(100deg,#39cfff,#a87cff)">Resume reign</button></div></div>
+<div class="modal" id="unlockedModal"><div class="modalcard"><div class="modalhead"><div><h2 id="unlockedTitle"></h2><p id="unlockedSub"></p></div><button class="close" id="closeUnlocked">×</button></div><p style="color:#c7d7eb;font-size:13px;line-height:1.6" id="unlockedBody"></p></div></div>
+</div>
+
+<script>
+(()=>{"use strict";
+const SAVE_KEY="dreamscape_panchabhuta_v2";
+const LEGACY_KEY="dreamscape_panchabhuta_v1";
+const OFFLINE_CAP_SECONDS=8*3600, COUNCIL_INTERVAL=190;
+
+const BUILDINGS={
+solar:{name:"Solar Array",icon:"☀",desc:"Generates Energy from starlight.",baseCost:{energy:18,biomass:8},growth:1.15,baseRate:.55},
+bioreactor:{name:"Bioreactor",icon:"🧫",desc:"Converts organic matter into Biomass.",baseCost:{energy:22,biomass:12},growth:1.15,baseRate:.48},
+terraform:{name:"Terraform Station",icon:"🌍",desc:"Advances atmosphere → oceans → biosphere, in order.",baseCost:{energy:38,biomass:28},growth:1.18,baseRate:.34},
+habitat:{name:"Habitat Dome",icon:"🏠",desc:"Raises population capacity. Needs atmosphere ≥ 40%.",baseCost:{energy:55,biomass:45},growth:1.2,baseRate:18,requires:{atmosphere:40}},
+aiCore:{name:"AI Core",icon:"🧠",desc:"Turns population into Data for the whole empire.",baseCost:{data:14},growth:1.25,baseRate:.11},
+purifier:{name:"Bio-Purifier",icon:"♻",desc:"Reduces pollution building up on this world.",baseCost:{energy:32,biomass:18},growth:1.17,baseRate:.42},
+city:{name:"Elemental City",icon:"🏙",desc:"Permanent settlement infrastructure shaped by this world's element.",baseCost:{energy:160,biomass:130,data:40},growth:1.35,baseRate:0},
+shipyard:{name:"Orbital Shipyard",icon:"🛰",desc:"Builds fleets for exploration, trade and elemental projects.",baseCost:{energy:210,data:75},growth:1.4,baseRate:0},
+research:{name:"Elemental Laboratory",icon:"🔬",desc:"Studies the unique physics and ecology of this world.",baseCost:{energy:180,biomass:150,data:90},growth:1.4,baseRate:0}
+};
+const BUILD_ORDER=["solar","bioreactor","terraform","habitat","aiCore","purifier","city","shipyard","research"];
+
+const PLANETS_CONFIG=[
+{id:"bhumi",name:"Bhūmi Minor",epithet:"Element of Earth",element:"earth",base:"#8a7159",orbit:100,period:30,size:31,unlockCost:null},
+{id:"jala",name:"Jala Prime",epithet:"Element of Water",element:"water",base:"#2d729c",orbit:155,period:46,size:36,unlockCost:{influence:140,data:90}},
+{id:"vayu",name:"Vāyu Reach",epithet:"Element of Air",element:"air",base:"#aebfce",orbit:215,period:70,size:28,unlockCost:{influence:380,data:260}},
+{id:"agni",name:"Agni Belt",epithet:"Element of Fire",element:"fire",base:"#a8461f",orbit:280,period:100,size:34,unlockCost:{influence:820,data:600}},
+{id:"akasha",name:"Ākāśha's Edge",epithet:"Element of Ether",element:"ether",base:"#5b4a8a",orbit:345,period:140,size:30,unlockCost:{influence:1800,data:1400}}
+];
+
+const TECHS={
+fusion:{name:"Fusion Efficiency",icon:"⚡",desc:"Energy generation empire-wide.",baseCost:100,growth:1.6,mult:1.2,suffix:"+20%/tier"},
+genomics:{name:"Genomic Acceleration",icon:"🧬",desc:"Biomass generation empire-wide.",baseCost:100,growth:1.6,mult:1.2,suffix:"+20%/tier"},
+governance:{name:"Neural Governance",icon:"☸",desc:"Influence generated by your people.",baseCost:180,growth:1.65,mult:1.25,suffix:"+25%/tier"},
+orbital:{name:"Orbital Purifiers",icon:"♻",desc:"Pollution build-up, empire-wide.",baseCost:180,growth:1.65,mult:.85,suffix:"−15%/tier"},
+sensors:{name:"Deep Space Sensors",icon:"📡",desc:"Cost of claiming the next world.",baseCost:220,growth:1.7,mult:.88,suffix:"−12%/tier"},
+cities:{name:"Sustainable Cities",icon:"🏙",desc:"Population capacity on every world.",baseCost:250,growth:1.7,mult:1.25,suffix:"+25%/tier"},
+fleet:{name:"Interworld Fleet Doctrine",icon:"🛰",desc:"Fleet efficiency and special projects.",baseCost:420,growth:1.75,mult:1.18,suffix:"+18%/tier"}
+};
+
+const ACHIEVEMENTS=[
+{id:"first_breath",name:"First Breath",desc:"Raise atmosphere to 50% on any world.",check:s=>s.planets.some(p=>p.atmosphere>=50)},
+{id:"blue_marble",name:"Blue Marble",desc:"Raise water coverage to 50% on any world.",check:s=>s.planets.some(p=>p.water>=50)},
+{id:"its_alive",name:"It's Alive",desc:"Raise biosphere to 50% on any world.",check:s=>s.planets.some(p=>p.biosphere>=50)},
+{id:"first_colonists",name:"First Colonists",desc:"Grow a population above zero.",check:s=>s.planets.some(p=>p.population>=1)},
+{id:"sustainable",name:"Sustainable Utopia",desc:"Bring a world to full sustainability.",check:s=>s.planets.some(p=>p.sustained)},
+{id:"five_elements",name:"Panchabhūta",desc:"Unlock all five worlds.",check:s=>s.planets.every(p=>p.unlocked)},
+{id:"architect",name:"Galactic Architect",desc:"Sustain every world in the system.",check:s=>s.planets.every(p=>p.sustained)},
+{id:"sage_ruler",name:"The Sage Ruler",desc:"Reach a Dharma Index of +50.",check:s=>s.dharmaIndex>=50},
+{id:"pragmatist",name:"The Pragmatist",desc:"Reach a Dharma Index of −50.",check:s=>s.dharmaIndex<=-50},
+{id:"centurion",name:"Centurion",desc:"Return to rule on 7 different days.",check:s=>s.streak>=7},
+{id:"five_masteries",name:"Five Masteries",desc:"Complete the elemental project on every world.",check:s=>s.planets.every(p=>p.mastery>=100)},
+{id:"interworld",name:"Interworld Civilization",desc:"Reach a combined population of 500.",check:s=>s.planets.reduce((n,p)=>n+p.population,0)>=500}
+];
+
+const COUNCIL_EVENTS=[
+{flavor:"Taxation",text:"Ministers propose raising levies on newly settled farmers to speed up expansion.",options:[
+["Raise the levy","More Influence now, less Dharma.",s=>{s.influence+=45;s.dharmaIndex-=6}],
+["Keep it light","Less Influence, more public trust.",s=>{s.influence+=12;s.dharmaIndex+=6}]]},
+{flavor:"Justice",text:"A local governor is accused of skimming supplies. The evidence is circumstantial.",options:[
+["Public trial","Transparency earns trust but disrupts administration.",s=>{s.influence+=30;s.data=Math.max(0,s.data-15);s.dharmaIndex+=8}],
+["Quiet reassignment","Order is preserved, but rumours spread.",s=>{s.data+=25;s.dharmaIndex-=6}]]},
+{flavor:"Environment",text:"Industrial run-off is thickening the haze over one of your worlds.",options:[
+["Emergency clean-up","Spend Influence to restore the planet.",s=>{const p=governedPlanet(s);p.pollution=Math.max(0,p.pollution-25);s.influence=Math.max(0,s.influence-10);s.dharmaIndex+=7}],
+["Wait for Purifiers","Save resources and accept the environmental cost.",s=>{s.influence+=15;s.dharmaIndex-=3}]]},
+{flavor:"AI Ethics",text:"Your AI Cores could be granted more autonomy over resource allocation.",options:[
+["Grant autonomy","More Data, less human oversight.",s=>{s.data+=25;s.influence-=12;s.dharmaIndex-=5}],
+["Human oversight","Slower automation, stronger legitimacy.",s=>{s.influence+=20;s.dharmaIndex+=5}]]},
+{flavor:"Succession",text:"Advisors ask whether you should train successors for the distant future.",options:[
+["Begin mentorship","Build institutions that outlive a single ruler.",s=>{s.influence+=20;s.dharmaIndex+=8}],
+["Focus on today","Gain immediate knowledge instead.",s=>{s.data+=30;s.dharmaIndex-=2}]]},
+{flavor:"Trade",text:"A merchant guild proposes an exclusive route between your worlds.",options:[
+["Grant the route","A concentrated economic boost.",s=>{s.influence+=35;s.dharmaIndex-=3}],
+["Keep trade open","Broader goodwill, smaller immediate gain.",s=>{s.influence+=15;s.dharmaIndex+=6}]]}
+];
+
+const ELEMENT_EVENTS={
+earth:[
+["Land Stewardship","Bhūmi's best farmland is limited. Expand farms or protect the soil?","Expand carefully","Protect the soil",s=>{const p=governedPlanet(s);p.biomass+=100;s.dharmaIndex-=2},s=>{const p=governedPlanet(s);p.mastery+=6;s.dharmaIndex+=6}],
+water:[
+["Ocean Settlements","Jala Prime is becoming an ocean world. Ship habitats are crowded; land is scarce.","Build more ships","Reserve the remaining land",s=>{const p=governedPlanet(s);p.population+=5;p.mastery+=4;s.dharmaIndex-=2},s=>{const p=governedPlanet(s);p.mastery+=8;s.dharmaIndex+=5}],
+air:[
+["Thin-World Transit","Vāyu's atmosphere is breathable but turbulent. Cities want stable routes.","Build sky corridors","Limit traffic",s=>{const p=governedPlanet(s);p.data+=40;p.mastery+=5;s.dharmaIndex-=2},s=>{const p=governedPlanet(s);p.pollution=Math.max(0,p.pollution-8);p.mastery+=7;s.dharmaIndex+=5}],
+fire:[
+["The Lava Frontier","Agni's habitable belts sit beside active lava regions. Engineers want geothermal power.","Harness the lava","Create a protected ring",s=>{const p=governedPlanet(s);p.energy+=130;p.pollution+=7;p.mastery+=6;s.dharmaIndex-=3},s=>{const p=governedPlanet(s);p.mastery+=9;s.dharmaIndex+=6}],
+ether:[
+["The Quiet Between","Ākāśha's Edge contains strange low-density zones where conventional infrastructure behaves oddly.","Experiment boldly","Observe first",s=>{const p=governedPlanet(s);p.data+=90;p.mastery+=7;s.dharmaIndex-=1},s=>{const p=governedPlanet(s);p.mastery+=8;s.dharmaIndex+=4}]
+]};
+
+function freshPlanet(i){
+return{unlocked:i===0,sustained:false,mastery:0,atmosphere:i===0?6:0,water:0,biosphere:0,pollution:0,temperature:i===0?290:0,
+population:0,popCap:0,energy:0,biomass:0,data:0,buildings:{solar:0,bioreactor:0,terraform:0,habitat:0,aiCore:0,purifier:0,city:0,shipyard:0,research:0},projects:{}};
+}
+function freshState(){return{version:2,data:20,influence:30,dharmaIndex:0,techTier:{fusion:0,genomics:0,governance:0,orbital:0,sensors:0,cities:0,fleet:0},
+planets:PLANETS_CONFIG.map((_,i)=>freshPlanet(i)),selectedPlanet:0,unlockedAchievements:[],chronicle:[],councilTimer:0,
+onboarded:false,streak:0,lastVisitDay:null,lastSaveTime:Date.now(),createdAt:Date.now(),playSeconds:0,view:"system",councilHistory:[]};}
+
+function migrateLegacy(raw){
+const fresh=freshState(), parsed=raw||{};
+const s=Object.assign(fresh,parsed,{version:2});
+s.planets=fresh.planets.map((fp,i)=>{
+const old=(parsed.planets&&parsed.planets[i])||{}, p=Object.assign(fp,old);
+p.buildings=Object.assign({},fp.buildings,old.buildings||{});
+p.projects=Object.assign({},fp.projects,old.projects||{});
+p.mastery=old.mastery||0;p.temperature=old.temperature||PLANETS_CONFIG[i].baseTemp||290;
+return p;
+});
+s.techTier=Object.assign({},fresh.techTier,parsed.techTier||{});s.councilHistory=parsed.councilHistory||[];return s;
+}
+function loadState(){
+try{
+let raw=localStorage.getItem(SAVE_KEY);
+if(raw)return migrateLegacy(JSON.parse(raw));
+raw=localStorage.getItem(LEGACY_KEY);
+if(raw){const s=migrateLegacy(JSON.parse(raw));s.chronicle.unshift({t:Date.now(),text:"✦ Version 2 awakens. Your existing reign has been preserved and expanded.",manual:false});return s}
+return freshState();
+}catch(e){console.warn(e);return freshState()}
+}
+function saveState(){state.lastSaveTime=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){}}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function fmt(n){n=Math.floor(n*10)/10;if(Math.abs(n)>=1e6)return(n/1e6).toFixed(2)+"M";if(Math.abs(n)>=1e3)return(n/1e3).toFixed(2)+"K";return(Math.round(n*10)/10).toString()}
+function techMult(k){return Math.pow(TECHS[k].mult,state.techTier[k]||0)}
+function techCost(k){return Math.ceil(TECHS[k].baseCost*Math.pow(TECHS[k].growth,state.techTier[k]||0))}
+function energyCap(p){return 220+p.buildings.solar*45}
+function biomassCap(p){return 220+p.buildings.bioreactor*45}
+function sustainability(p){if(!p.unlocked)return 0;return clamp(p.atmosphere*.25+p.water*.25+p.biosphere*.35+(100-p.pollution)*.15,0,100)}
+function buildingCost(p,k){const c=BUILDINGS[k],l=p.buildings[k],o={};for(const r in c.baseCost)o[r]=Math.ceil(c.baseCost[r]*Math.pow(c.growth,l));return o}
+function canAffordLocal(p,c){for(const r in c){const h=(r==="data"||r==="influence")?state[r]:r==="planetData"?p.data:p[r];if(h<c[r])return false}return true}
+function payLocal(p,c){for(const r in c){if(r==="data"||r==="influence")state[r]-=c[r];else if(r==="planetData")p.data-=c[r];else p[r]-=c[r]}}
+function addChronicle(text,manual){state.chronicle.unshift({t:Date.now(),text,manual:!!manual});if(state.chronicle.length>100)state.chronicle.length=100}
+function toast(msg){const e=document.getElementById("toast");e.textContent=msg;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),2800)}
+function governedPlanet(s){return s.planets[s.selectedPlanet]||s.planets.find(p=>p.unlocked)}
+function unlockAchievement(a){state.unlockedAchievements.push(a.id);state.influence+=25;addChronicle("🏆 "+a.name+" — "+a.desc);toast("🏆 Deed unlocked: "+a.name)}
+function checkAchievements(){ACHIEVEMENTS.forEach(a=>{if(!state.unlockedAchievements.includes(a.id)&&a.check(state))unlockAchievement(a)})}
+
+function elementalProfile(p,i){
+const e=PLANETS_CONFIG[i].element;
+if(e==="earth")return{temp:290,waterBias:.65,land:.72,tag:"continental",desc:"Dense continents, deep soil and large terrestrial habitats."};
+if(e==="water")return{temp:286,waterBias:1.9,land:.14,tag:"oceanic",desc:"A water world: floating cities and ship habitats dominate."};
+if(e==="air")return{temp:278,waterBias:.9,land:.48,tag:"aerial",desc:"A cool, turbulent world built around high-altitude infrastructure."};
+if(e==="fire")return{temp:410,waterBias:.35,land:.6,tag:"volcanic",desc:"A hot, habitable volcanic world with lava belts and geothermal power."};
+return{temp:250,waterBias:.75,land:.36,tag:"ethereal",desc:"A cold, strange frontier with low-density atmospheric phenomena."};
+}
+function tickPlanetEconomy(p,dt){
+if(!p.unlocked)return;
+const idx=state.planets.indexOf(p),cfg=PLANETS_CONFIG[idx],e=cfg.element,b=p.buildings,profile=elementalProfile(p,idx);
+p.temperature += (profile.temp-p.temperature)*Math.min(1,dt*.002);
+const energyGen=b.solar*BUILDINGS.solar.baseRate*techMult("fusion");
+const biomassGen=b.bioreactor*BUILDINGS.bioreactor.baseRate*techMult("genomics");
+p.energy=clamp(p.energy+energyGen*dt,0,energyCap(p));p.biomass=clamp(p.biomass+biomassGen*dt,0,biomassCap(p));
+if(b.terraform>0&&(p.atmosphere<100||p.water<100||p.biosphere<100)){
+let pts=Math.min(b.terraform*BUILDINGS.terraform.baseRate*dt,p.energy/.5,p.biomass/.5);if(pts>0){
+p.energy-=pts*.5;p.biomass-=pts*.5;
+if(p.atmosphere<100){let a=Math.min(pts,100-p.atmosphere);p.atmosphere+=a;pts-=a}
+if(pts>0&&p.atmosphere>=100&&p.water<100){let a=Math.min(pts,100-p.water);p.water+=a;pts-=a}
+if(pts>0&&p.water>=100&&p.biosphere<100){let a=Math.min(pts,100-p.biosphere);p.biosphere+=a;pts-=a}
+}}
+p.popCap=Math.round(b.habitat*18*techMult("cities")*(e==="water"?.72:1)*(e==="air"?1.15:1));
+const habitable=p.atmosphere>=40&&p.water>=15;
+if(habitable&&p.population<p.popCap){const growth=Math.max(.15,p.biosphere/100)*p.popCap*.012*dt;p.population=Math.min(p.popCap,p.population+growth)}
+if(p.population>0){const upkeep=p.population*.018*dt;if(p.biomass>=upkeep)p.biomass-=upkeep;else{p.biomass=0;p.population=Math.max(0,p.population-p.population*.01*dt)}}
+p.data=(p.data||0)+b.aiCore*BUILDINGS.aiCore.baseRate*(1+p.population*.02)*dt;
+const pollutionGen=(b.solar+b.bioreactor+b.terraform)*.05*techMult("orbital")+p.population*.012;
+const purifier=b.purifier*.55;p.pollution=clamp(p.pollution+(pollutionGen-purifier)*dt*.12,0,100);
+if(e==="fire"&&b.solar+b.terraform>0)p.temperature=Math.max(p.temperature,profile.temp);
+if(b.city>0)p.mastery=clamp(p.mastery+dt*.002*b.city,0,100);
+if(b.research>0)p.mastery=clamp(p.mastery+dt*.004*b.research,0,100);
+if(!p.sustained&&sustainability(p)>=100){p.sustained=true;toast("✦ "+cfg.name+" has reached full sustainability.");addChronicle("✦ "+cfg.name+" achieves ecological balance — but its elemental journey continues.")}
+}
+function tickGlobal(dt){
+let totalPop=0,sustained=0;
+state.planets.forEach(p=>{if(!p.unlocked)return;totalPop+=p.population;if(p.sustained)sustained++});
+state.data+=(state.planets.reduce((n,p)=>n+(p.data||0),0))*dt*.002;
+state.influence+=(totalPop*.0012+sustained*.05+.015)*techMult("governance")*dt;
+state.dharmaIndex=clamp(state.dharmaIndex,-100,100);
+}
+function tick(dt){state.planets.forEach(p=>tickPlanetEconomy(p,dt));tickGlobal(dt);state.councilTimer+=dt;state.playSeconds+=dt;checkAchievements()}
+function fastForward(sec){let rem=sec;while(rem>0){const d=Math.min(60,rem);tick(d);rem-=d}}
+
+function nextCouncil(){
+const eligible=COUNCIL_EVENTS.map((_,i)=>i).filter(i=>!state.councilHistory.includes("g"+i));
+const element=PLANETS_CONFIG[state.selectedPlanet].element;
+if(Math.random()<.68){
+const e=ELEMENT_EVENTS[element];
+return{type:"element",event:e,planet:state.selectedPlanet};
+}
+if(!eligible.length)state.councilHistory=state.councilHistory.filter(x=>!x.startsWith("g"));
+const i=(state.councilHistory.filter(x=>x.startsWith("g")).length+Math.floor(Math.random()*COUNCIL_EVENTS.length))%COUNCIL_EVENTS.length;
+state.councilHistory.push("g"+i);return{type:"global",event:COUNCIL_EVENTS[i],planet:state.selectedPlanet};
+}
+function openCouncil(){
+const q=nextCouncil(),e=q.event;
+const element=PLANETS_CONFIG[q.planet];
+let title=e[0]||e.flavor, text=e[1]||e.text, options=e.options?e.options:[{label:e[2],note:"A decision shaped by "+element.name,effect:e[4]},{label:e[3],note:"A different path for "+element.name,effect:e[5]}];
+document.getElementById("councilTitle").textContent="Council — "+element.name;
+document.getElementById("councilSub").textContent=q.type==="element"?element.epithet:"An empire-wide question";
+const body=document.getElementById("councilBody");
+body.innerHTML=`<div class="council-flavor">${title}</div><div class="council-text">${text}</div>`+
+options.map((o,i)=>`<button class="optionbtn" data-i="${i}"><b>${o.label}</b><span>${o.note}</span></button>`).join("");
+body.querySelectorAll(".optionbtn").forEach(btn=>btn.onclick=()=>{
+const o=options[+btn.dataset.i];if(o.effect)o.effect(state);addChronicle(`☸ ${element.name} council — ${title}: "${o.label}".`);
+document.getElementById("councilModal").classList.remove("show");state.councilTimer=0;renderAll();saveState();toast("The ruling has been recorded.")});
+document.getElementById("councilModal").classList.add("show");
+}
+
+const canvas=document.getElementById("sky"),ctx=canvas.getContext("2d");let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
+function resize(){W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(DPR,0,0,DPR,0,0)}addEventListener("resize",resize);resize();
+const stars=Array.from({length:190},()=>({x:Math.random(),y:Math.random()*.88,r:Math.random()*1.5+.2,a:Math.random()*.7+.2}));
+let planetScreenPos=[],parallax={x:0,y:0};
+function drawStarfield(t){
+const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#050f26");g.addColorStop(.6,"#0a1d43");g.addColorStop(1,"#08152c");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+stars.forEach(s=>{ctx.globalAlpha=s.a*(.55+.45*Math.sin(t*.0006+s.x*10));ctx.fillStyle="#d8edff";ctx.beginPath();ctx.arc(s.x*W+parallax.x*8,s.y*H+parallax.y*8,s.r,0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1;
+}
+function rgb(h){const n=parseInt(h.slice(1),16);return{r:n>>16&255,g:n>>8&255,b:n&255}}
+function planetVisualColor(p,cfg){
+const base=rgb(cfg.base),water=rgb("#2c78c9"),bio=rgb("#4f9a5f");let r=base.r,g=base.g,b=base.b,w=p.water/100,bb=p.biosphere/100;
+r=r*(1-w)+water.r*w;g=g*(1-w)+water.g*w;b=b*(1-w)+water.b*w;r=r*(1-bb*.6)+bio.r*bb*.6;g=g*(1-bb*.6)+bio.g*bb*.6;b=b*(1-bb*.6)+bio.b*bb*.6;
+return`rgb(${r|0},${g|0},${b|0})`;
+}
+function drawOrbit(cx,cy,rx,ry,active){
+ctx.strokeStyle=active?"rgba(160,205,255,.2)":"rgba(160,205,255,.07)";ctx.lineWidth=active?1.2:1;ctx.setLineDash(active?[]:[4,7]);
+ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+}
+function drawSystemView(t){
+drawStarfield(t);const cx=W*.5+parallax.x*4,cy=H*.56+parallax.y*4;planetScreenPos=[];
+const sunR=Math.max(28,Math.min(38,Math.min(W,H)*.045)),glow=ctx.createRadialGradient(cx,cy,4,cx,cy,sunR*5);
+glow.addColorStop(0,"rgba(255,224,150,.6)");glow.addColorStop(1,"transparent");ctx.fillStyle=glow;ctx.fillRect(cx-sunR*5,cy-sunR*5,sunR*10,sunR*10);
+const sg=ctx.createRadialGradient(cx-8,cy-8,2,cx,cy,sunR);sg.addColorStop(0,"#fff6d8");sg.addColorStop(1,"#ff9d35");ctx.fillStyle=sg;ctx.beginPath();ctx.arc(cx,cy,sunR,0,Math.PI*2);ctx.fill();
+PLANETS_CONFIG.forEach((cfg,i)=>{
+const p=state.planets[i],scale=Math.min(W,H)/820,rx=cfg.orbit*scale+42,ry=rx*.48;drawOrbit(cx,cy,rx,ry,p.unlocked);
+const angle=(t*.00002/(cfg.period/40||1))+i*1.37,px=cx+Math.cos(angle)*rx,py=cy+Math.sin(angle)*ry,size=cfg.size*scale+(p.unlocked?sustainability(p)*.04:0);
+planetScreenPos.push({x:px,y:py,r:Math.max(size,16),idx:i});
+if(p.unlocked){
+const col=planetVisualColor(p,cfg),pg=ctx.createRadialGradient(px-size*.3,py-size*.35,1,px,py,size);pg.addColorStop(0,col);pg.addColorStop(1,"rgba(5,10,25,.7)");
+ctx.fillStyle=pg;ctx.beginPath();ctx.arc(px,py,size,0,Math.PI*2);ctx.fill();
+ctx.save();ctx.beginPath();ctx.arc(px,py,size,0,Math.PI*2);ctx.clip();
+if(cfg.element==="water"){ctx.fillStyle="rgba(60,170,235,.35)";ctx.fillRect(px-size,py-size*.35,size*2,size*.9)}
+if(cfg.element==="fire"){for(let k=0;k<5;k++){ctx.fillStyle="rgba(255,95,35,.55)";ctx.beginPath();ctx.ellipse(px-size*.55+k*size*.27,py+size*.1,size*.13,size*.38,k*.3,0,Math.PI*2);ctx.fill()}}
+if(cfg.element==="earth"){for(let k=0;k<4;k++){ctx.fillStyle="rgba(50,130,65,.5)";ctx.beginPath();ctx.ellipse(px-size*.5+k*size*.3,py+size*.1,size*.16,size*.08,k,0,Math.PI*2);ctx.fill()}}
+if(cfg.element==="air"){ctx.strokeStyle="rgba(255,255,255,.35)";ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,size*.55,0,4.5);ctx.stroke()}
+if(cfg.element==="ether"){ctx.strokeStyle="rgba(190,150,255,.5)";ctx.lineWidth=1;ctx.beginPath();ctx.arc(px,py,size*.55,-1,2);ctx.stroke()}
+ctx.restore();
+if(p.atmosphere>5){ctx.strokeStyle=`rgba(140,210,255,${clamp(p.atmosphere/140,0,.55)})`;ctx.lineWidth=Math.max(1.5,size*.14);ctx.beginPath();ctx.arc(px,py,size+ctx.lineWidth*.6,0,Math.PI*2);ctx.stroke()}
+if(p.sustained){ctx.strokeStyle="rgba(255,213,107,.85)";ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,size+5,0,Math.PI*2);ctx.stroke()}
+if(i===state.selectedPlanet){ctx.strokeStyle="#b9f1ff";ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(px,py,size+9,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
+}else{ctx.fillStyle="rgba(120,140,170,.35)";ctx.beginPath();ctx.arc(px,py,size,0,Math.PI*2);ctx.fill();ctx.fillStyle="#cfe0f4";ctx.font="11px Inter";ctx.textAlign="center";ctx.fillText("🔒",px,py+4)}
+ctx.fillStyle="#dceeff";ctx.font="600 11px Inter";ctx.textAlign="center";ctx.fillText(cfg.name,px,py+size+16);
+});
+}
+function drawPlanetView(t){
+drawStarfield(t);const i=state.selectedPlanet,p=state.planets[i],cfg=PLANETS_CONFIG[i],cx=W*.5+parallax.x*3,cy=H*.55+parallax.y*3,size=Math.min(W,H)*.28;
+if(!p.unlocked){ctx.fillStyle="rgba(120,140,170,.3)";ctx.beginPath();ctx.arc(cx,cy,size,0,Math.PI*2);ctx.fill();ctx.fillStyle="#cfe0f4";ctx.font="16px Inter";ctx.textAlign="center";ctx.fillText("This world has not been claimed yet.",cx,cy+size+40);return}
+const col=planetVisualColor(p,cfg),pg=ctx.createRadialGradient(cx-size*.3,cy-size*.35,size*.1,cx,cy,size);pg.addColorStop(0,col);pg.addColorStop(1,"rgba(4,8,20,.78)");ctx.fillStyle=pg;ctx.beginPath();ctx.arc(cx,cy,size,0,Math.PI*2);ctx.fill();
+ctx.save();ctx.beginPath();ctx.arc(cx,cy,size,0,Math.PI*2);ctx.clip();
+for(let k=0;k<14;k++){const a=k*.9+k*k*.3,r=size*(.2+.7*((k*53)%97)/97),bx=cx+Math.cos(a)*r*.8,by=cy+Math.sin(a)*r*.5;ctx.fillStyle="rgba(0,0,0,.06)";ctx.beginPath();ctx.ellipse(bx,by,size*.16,size*.09,a,0,Math.PI*2);ctx.fill()}
+if(cfg.element==="water"){ctx.fillStyle="rgba(50,150,220,.38)";ctx.fillRect(cx-size,cy-size*.15,size*2,size*.7);for(let k=0;k<8;k++){ctx.strokeStyle="rgba(190,235,255,.28)";ctx.beginPath();ctx.arc(cx-size*.7+k*size*.2,cy+size*.1,size*.35,0,Math.PI*1.2);ctx.stroke()}}
+if(cfg.element==="fire"){for(let k=0;k<18;k++){const a=k*1.7,r=size*(.15+.75*((k*31)%43)/43),bx=cx+Math.cos(a)*r*.85,by=cy+Math.sin(a)*r*.55;ctx.fillStyle="rgba(255,88,35,.55)";ctx.beginPath();ctx.ellipse(bx,by,size*.07,size*.18,a,0,Math.PI*2);ctx.fill()}}
+if(cfg.element==="earth"&&p.biosphere>5){for(let k=0;k<Math.round(p.biosphere/6);k++){const a=k*2.4,r=size*(.15+.7*((k*37)%53)/53),bx=cx+Math.cos(a)*r*.85,by=cy+Math.sin(a)*r*.5;ctx.fillStyle="rgba(90,210,140,.5)";ctx.beginPath();ctx.ellipse(bx,by,size*.09,size*.05,a,0,Math.PI*2);ctx.fill()}}
+if(cfg.element==="air"){ctx.strokeStyle="rgba(235,250,255,.38)";ctx.lineWidth=size*.035;for(let k=0;k<5;k++){ctx.beginPath();ctx.arc(cx+Math.sin(t*.0001+k)*size*.2,cy+Math.cos(t*.00008+k)*size*.2,size*.62,k*.7,k*.7+1.5);ctx.stroke()}}
+if(cfg.element==="ether"){ctx.strokeStyle="rgba(195,155,255,.35)";ctx.lineWidth=2;for(let k=0;k<4;k++){ctx.beginPath();ctx.arc(cx,cy,size*(.25+k*.18),t*.00015+k,t*.00015+k+2.2);ctx.stroke()}}
+if(p.water>10&&cfg.element!=="air"){ctx.strokeStyle=`rgba(255,255,255,${clamp(p.water/220,0,.4)})`;ctx.lineWidth=size*.05;for(let k=0;k<3;k++){ctx.beginPath();ctx.arc(cx,cy,size*.55,k*1.1+t*.0001,k*1.1+t*.0001+1.6);ctx.stroke()}}
+if(p.pollution>5){ctx.fillStyle=`rgba(140,90,50,${clamp(p.pollution/180,0,.5)})`;ctx.beginPath();ctx.arc(cx,cy,size,0,Math.PI*2);ctx.fill()}ctx.restore();
+if(p.atmosphere>3){ctx.strokeStyle=`rgba(140,210,255,${clamp(p.atmosphere/140,0,.6)})`;ctx.lineWidth=size*.06;ctx.beginPath();ctx.arc(cx,cy,size+size*.03,0,Math.PI*2);ctx.stroke()}
+const cityCount=Math.min(45,Math.ceil(p.population/3)+p.buildings.city*2);for(let k=0;k<cityCount;k++){const a=k*2.9+k,r=size*(.2+.75*((k*29)%41)/41),bx=cx+Math.cos(a)*r*.85,by=cy+Math.sin(a)*r*.5;ctx.fillStyle="rgba(255,233,168,.85)";ctx.beginPath();ctx.arc(bx,by,1.3,0,Math.PI*2);ctx.fill()}
+const sats=p.buildings.solar+p.buildings.aiCore+p.buildings.shipyard;for(let k=0;k<Math.min(8,sats);k++){const a=t*.0008+k*Math.PI/4,sx=cx+Math.cos(a)*(size+22),sy=cy+Math.sin(a)*(size+22)*.55;ctx.fillStyle="#bcd6ff";ctx.beginPath();ctx.arc(sx,sy,2.4,0,Math.PI*2);ctx.fill()}
+ctx.fillStyle="#e8f5ff";ctx.font="700 15px Inter";ctx.textAlign="center";ctx.fillText(cfg.name,cx,cy-size-18);ctx.font="11px Inter";ctx.fillStyle="#a9bfdf";ctx.fillText(cfg.epithet+" • "+elementalProfile(p,i).tag,cx,cy-size-2);
+}
+function render(t){if(state){if(state.view==="system")drawSystemView(t);else drawPlanetView(t)}requestAnimationFrame(render)}requestAnimationFrame(render);
+
+canvas.addEventListener("pointermove",e=>{parallax.x=clamp((e.clientX/W-.5)*1.2,-1,1);parallax.y=clamp((e.clientY/H-.5)*1.2,-1,1)});
+canvas.addEventListener("pointerdown",e=>{if(state.view!=="system")return;let best=-1,bd=Infinity;planetScreenPos.forEach(o=>{const d=Math.hypot(e.clientX-o.x,e.clientY-o.y);if(d<o.r+14&&d<bd){bd=d;best=o.idx}});if(best>=0){if(state.planets[best].unlocked){state.selectedPlanet=best;setView("planet");renderAll()}else toast("This world is still beyond your frontier.")}});
+
+function setView(v){state.view=v;document.getElementById("vSystem").classList.toggle("active",v==="system");document.getElementById("vPlanet").classList.toggle("active",v==="planet")}
+document.getElementById("vSystem").onclick=()=>setView("system");document.getElementById("vPlanet").onclick=()=>setView("planet");
+function renderResourceBar(){document.getElementById("resourceBar").innerHTML=`<div class="res">📡 <b>${fmt(state.data)}</b></div><div class="res">☸ <b>${fmt(state.influence)}</b></div><div class="res">⚖ <b>${state.dharmaIndex>0?"+":""}${state.dharmaIndex.toFixed(0)}</b></div>`}
+function renderStatsPanel(){
+const i=state.selectedPlanet,p=state.planets[i],cfg=PLANETS_CONFIG[i],profile=elementalProfile(p,i);document.getElementById("planetTitle").textContent=cfg.name;document.getElementById("planetEpithet").textContent=cfg.epithet;
+const body=document.getElementById("statsBody");if(!p.unlocked){body.innerHTML=`<p class="hint">This world is unclaimed.</p>`;return}
+const sus=sustainability(p),temp=p.temperature?Math.round(p.temperature):0;
+body.innerHTML=`<div class="helpbox"><b>${cfg.element.toUpperCase()}</b> · ${profile.tag}<br>${profile.desc}<br><span class="hint">Elemental Mastery: ${p.mastery.toFixed(1)}%</span></div>
+<div class="statrow"><div class="lbl"><span>⚡ Energy</span><span>${fmt(p.energy)} / ${energyCap(p)}</span></div><div class="bar"><i style="width:${p.energy/energyCap(p)*100}%;background:linear-gradient(90deg,#ffd56b,#ffb24d)"></i></div></div>
+<div class="statrow"><div class="lbl"><span>🧬 Biomass</span><span>${fmt(p.biomass)} / ${biomassCap(p)}</span></div><div class="bar"><i style="width:${p.biomass/biomassCap(p)*100}%;background:linear-gradient(90deg,#74e7a5,#4f9a5f)"></i></div></div>
+<div class="statrow"><div class="lbl"><span>Atmosphere</span><span>${p.atmosphere.toFixed(1)}%</span></div><div class="bar atm"><i style="width:${p.atmosphere}%"></i></div></div>
+<div class="statrow"><div class="lbl"><span>Oceans</span><span>${p.water.toFixed(1)}%</span></div><div class="bar wat"><i style="width:${p.water}%"></i></div></div>
+<div class="statrow"><div class="lbl"><span>Biosphere</span><span>${p.biosphere.toFixed(1)}%</span></div><div class="bar bio"><i style="width:${p.biosphere}%"></i></div></div>
+<div class="statrow"><div class="lbl"><span>Temperature</span><span>${temp} K · ${Math.round(temp-273.15)}°C</span></div></div>
+<div class="statrow"><div class="lbl"><span>Pollution</span><span>${p.pollution.toFixed(1)}%</span></div><div class="bar pol"><i style="width:${p.pollution}%"></i></div></div>
+<div class="statrow"><div class="lbl"><span>Population</span><span>${fmt(p.population)} / ${p.popCap}</span></div><div class="bar pop"><i style="width:${p.popCap?p.population/p.popCap*100:0}%"></i></div></div>
+<div class="statrow"><div class="lbl"><span>Sustainability</span><span>${sus.toFixed(1)}%</span></div><div class="bar sus"><i style="width:${sus}%"></i></div></div>
+${p.sustained?'<div class="sustained-badge">✦ Sustainable — not finished</div>':''}
+<div class="hint" style="margin-top:10px">Planet Data: ${fmt(p.data||0)} · City Lv.${p.buildings.city} · Shipyard Lv.${p.buildings.shipyard} · Lab Lv.${p.buildings.research}</div>`;
+const next=i+1,btn=document.getElementById("unlockBtn");if(next<5&&!state.planets[next].unlocked){btn.style.display="inline-flex";btn.textContent=`🚀 Claim ${PLANETS_CONFIG[next].name}`;btn.onclick=()=>unlockPlanet(next)}else btn.style.display="none";
+}
+function renderBuildPanel(){
+const p=state.planets[state.selectedPlanet],body=document.getElementById("buildBody");if(!p.unlocked){body.innerHTML='<p class="hint">Claim this world to begin building.</p>';return}
+body.innerHTML=BUILD_ORDER.map(k=>{const c=BUILDINGS[k],l=p.buildings[k],cost=buildingCost(p,k),locked=c.requires&&Object.keys(c.requires).some(f=>p[f]<c.requires[f]),aff=!locked&&canAffordLocal(p,cost);
+const cs=Object.entries(cost).map(([r,v])=>`<span>${r==="energy"?"⚡":r==="biomass"?"🧬":r==="data"?"📡":r==="influence"?"☸":"•"} ${fmt(v)}</span>`).join("");
+return`<div class="bldrow ${locked?"locked":""} ${!aff&&!locked?"unaffordable":""}" data-key="${k}"><div class="bldrow-top"><span>${c.icon} ${c.name}</span><span class="lvl">Lv.${l}</span></div><div class="bldrow-desc">${c.desc}${locked?` — requires atmosphere ≥ ${c.requires.atmosphere}%`:""}</div><div class="cost">${cs}</div></div>`}).join("");
+body.querySelectorAll(".bldrow").forEach(row=>row.onclick=()=>{const k=row.dataset.key,c=BUILDINGS[k];if(c.requires&&Object.keys(c.requires).some(f=>p[f]<c.requires[f]))return toast("Not ready yet — check the requirement.");const cost=buildingCost(p,k);if(!canAffordLocal(p,cost))return toast("Not enough resources for this.");payLocal(p,cost);p.buildings[k]++;if(k==="city")p.mastery+=3;if(k==="research")p.mastery+=5;toast(`${c.icon} ${c.name} upgraded to Level ${p.buildings[k]}.`);renderAll();saveState()});
+}
+function renderTechModal(){document.getElementById("modalTitle").textContent="AI & Terraforming Tech";document.getElementById("modalSub").textContent="Empire-wide upgrades.";document.getElementById("modalBody").innerHTML='<div class="techgrid">'+Object.entries(TECHS).map(([k,c])=>{const l=state.techTier[k]||0,cost=techCost(k);return`<div class="techcard"><b>${c.icon} ${c.name} <span style="color:var(--cyan)">Lv.${l}</span></b><small>${c.desc} (${c.suffix})</small><button class="buy" data-key="${k}" ${state.data>=cost?"":"disabled"}>Upgrade — 📡 ${fmt(cost)}</button></div>`}).join("")+'</div>';
+document.querySelectorAll(".buy").forEach(b=>b.onclick=()=>{const k=b.dataset.key,c=techCost(k);if(state.data<c)return;state.data-=c;state.techTier[k]++;addChronicle(`🧠 Research completed: ${TECHS[k].name} Level ${state.techTier[k]}.`);renderTechModal();renderResourceBar();saveState()})}
+function renderAchievementsModal(){document.getElementById("modalTitle").textContent="Deeds of the Reign";document.getElementById("modalSub").textContent=`${state.unlockedAchievements.length} / ${ACHIEVEMENTS.length} unlocked`;document.getElementById("modalBody").innerHTML='<div class="achgrid">'+ACHIEVEMENTS.map(a=>{const u=state.unlockedAchievements.includes(a.id);return`<div class="achcard ${u?"unlocked":"locked"}"><b>${u?"🏆":"🔒"} ${a.name}</b><small>${a.desc}</small></div>`}).join("")+'</div>'}
+function renderChronicleModal(){document.getElementById("modalTitle").textContent="Ruler's Chronicle";document.getElementById("modalSub").textContent="Your choices, worlds and experiments.";const entries=state.chronicle.map(e=>`<div class="journalentry">${e.text}</div>`).join("")||'<p class="hint">Your chronicle is empty.</p>';document.getElementById("modalBody").innerHTML=`<div class="dharma-meter"><div class="dharma-track"><div class="dharma-dot" style="left:${(state.dharmaIndex+100)/2}%"></div></div><div class="dharma-labels"><span>Artha — pragmatic</span><span>Dharma Index</span><span>Compassionate</span></div></div><div class="chronicle-input"><textarea id="chronicleInput" placeholder="Write a note to your future self…"></textarea><button id="chronicleSend">➤</button></div><div>${entries}</div>`;document.getElementById("chronicleSend").onclick=()=>{const ta=document.getElementById("chronicleInput"),v=ta.value.trim();if(v){addChronicle("📖 "+v,true);ta.value="";renderChronicleModal();saveState()}}}
+function renderDataModal(){document.getElementById("modalTitle").textContent="Save Data";document.getElementById("modalSub").textContent="Stored locally. Your old v1 save remains as a migration source.";document.getElementById("modalBody").innerHTML=`<div class="datamodal"><p class="hint">Export a backup before clearing browser data or moving devices.</p><textarea id="exportArea" readonly>${JSON.stringify(state)}</textarea><div class="dataactions"><button id="copyExport">Copy backup</button><button id="showImport">Paste backup</button><button class="danger" id="resetGame">Reset v2 reign</button></div><textarea id="importArea" placeholder="Paste backup JSON…" style="display:none;margin-top:8px"></textarea><div class="dataactions" id="importActions" style="display:none"><button id="doImport">Restore backup</button></div></div>`;
+document.getElementById("copyExport").onclick=()=>{const v=document.getElementById("exportArea").value;navigator.clipboard?.writeText(v);toast("Backup copied.")};document.getElementById("showImport").onclick=()=>{document.getElementById("importArea").style.display="block";document.getElementById("importActions").style.display="flex"};document.getElementById("doImport").onclick=()=>{try{const p=JSON.parse(document.getElementById("importArea").value);localStorage.setItem(SAVE_KEY,JSON.stringify(p));location.reload()}catch(e){toast("Invalid backup.")}};document.getElementById("resetGame").onclick=()=>{if(confirm("Erase the v2 save and restart? Your old v1 save is not touched.")){localStorage.removeItem(SAVE_KEY);location.reload()}}}
+function renderGuide(){document.getElementById("modalTitle").textContent="Game Console — What Do I Do?";document.getElementById("modalSub").textContent="A living assistant for the current state of your reign.";const p=state.planets[state.selectedPlanet],cfg=PLANETS_CONFIG[state.selectedPlanet],next=state.planets[state.selectedPlanet+1];
+let steps=[];if(!p.unlocked)steps.push("Claim this world from the Star Map.");else if(p.atmosphere<40)steps.push("Buy Solar Arrays + Bioreactors, then add Terraform Stations. Your immediate target is breathable atmosphere.");else if(p.water<15)steps.push("Keep your Terraform Station running. Water follows atmosphere.");else if(p.biosphere<50)steps.push("Build biomass capacity and continue terraforming until the biosphere can support larger settlements.");else if(p.buildings.habitat<1)steps.push("Build a Habitat Dome. Population is your gateway to Data and Influence.");else if(p.sustained&&!p.projects.mastery)steps.push("You have sustained this world. Now build an Elemental City, Shipyard or Laboratory and pursue its elemental mastery.");else if(next&&!next.unlocked&&sustainability(p)<60)steps.push("Keep improving this world until sustainability reaches 60%, then claim the next elemental world.");else steps.push("Your world is in the long game. Grow its population, build specialist infrastructure and use the Council for planetary decisions.");
+if(p.sustained)steps.push("Sustainability is no longer the finish line in v2. Elemental Mastery is the new layer of progression.");
+if(cfg.element==="water")steps.push("Water world rule: land is scarce, so population capacity is reduced and shipyards matter more.");
+if(cfg.element==="fire")steps.push("Fire world rule: expect high temperatures, visible lava terrain and a geothermal/geological identity.");
+document.getElementById("modalBody").innerHTML=`<div class="helpbox"><b>Current world:</b> ${cfg.name} · ${cfg.epithet}<br><b>Current objective:</b> ${steps[0]}</div><div style="margin-top:12px">${steps.slice(1).map((x,i)=>`<div class="journalentry">✦ ${x}</div>`).join("")}</div><p class="hint" style="margin-top:12px">Tip: tap a planet in Star Map to select it. On mobile, the two floating panel buttons open stats and building controls. The 🧭 button is always available when you are unsure.</p>`}
+function openModal(n){modalOpenName=n;({guide:renderGuide,tech:renderTechModal,achievements:renderAchievementsModal,chronicle:renderChronicleModal,data:renderDataModal}[n])();document.getElementById("modal").classList.add("show");document.querySelectorAll(".navbtns button[data-open]").forEach(b=>b.classList.toggle("active",b.dataset.open===n))}
+let modalOpenName=null;document.querySelectorAll(".navbtns button[data-open]").forEach(b=>b.onclick=()=>openModal(b.dataset.open));document.getElementById("closeModal").onclick=()=>{document.getElementById("modal").classList.remove("show");modalOpenName=null};document.getElementById("modal").onclick=e=>{if(e.target.id==="modal"){document.getElementById("modal").classList.remove("show");modalOpenName=null}};
+document.getElementById("closeCouncil").onclick=()=>document.getElementById("councilModal").classList.remove("show");
+document.getElementById("councilBtn").onclick=()=>{if(state.playSeconds<15)return toast("Give your ministers a moment to convene.");openCouncil()};
+document.getElementById("helpBtn").onclick=()=>openModal("guide");
+
+function unlockPlanet(i){
+const cfg=PLANETS_CONFIG[i],prev=state.planets[i-1];if(!prev||sustainability(prev)<60)return toast(`${PLANETS_CONFIG[i-1].name} needs 60% sustainability first.`);
+const c={influence:Math.ceil(cfg.unlockCost.influence*techMult("sensors")),data:Math.ceil(cfg.unlockCost.data*techMult("sensors"))};if(state.influence<c.influence||state.data<c.data)return toast("Not enough Influence or Data.");
+state.influence-=c.influence;state.data-=c.data;state.planets[i].unlocked=true;state.planets[i].atmosphere=5;state.planets[i].temperature=elementalProfile(state.planets[i],i).temp;
+addChronicle(`🚀 Expedition launched — ${cfg.name} (${cfg.epithet}) claimed.`);document.getElementById("unlockedTitle").textContent="New World Claimed";document.getElementById("unlockedSub").textContent=`${cfg.name} — ${cfg.epithet}`;document.getElementById("unlockedBody").textContent=`${elementalProfile(state.planets[i],i).desc} This world has its own elemental council dilemmas and visual identity.`;document.getElementById("unlockedModal").classList.add("show");state.selectedPlanet=i;setView("planet");renderAll();saveState()
+}
+document.getElementById("closeUnlocked").onclick=()=>document.getElementById("unlockedModal").classList.remove("show");
+function isMobile(){return innerWidth<=900}function refreshMobileToggles(){document.getElementById("leftToggle").style.display=isMobile()?"flex":"none";document.getElementById("rightToggle").style.display=isMobile()?"flex":"none"}
+document.getElementById("leftToggle").onclick=()=>{document.getElementById("leftDock").classList.toggle("open");document.getElementById("rightDock").classList.remove("open")};document.getElementById("rightToggle").onclick=()=>{document.getElementById("rightDock").classList.toggle("open");document.getElementById("leftDock").classList.remove("open")};addEventListener("resize",refreshMobileToggles);
+function renderAll(){renderResourceBar();renderStatsPanel();renderBuildPanel();if(modalOpenName==="guide")renderGuide();if(modalOpenName==="tech")renderTechModal();if(modalOpenName==="achievements")renderAchievementsModal();if(modalOpenName==="chronicle")renderChronicleModal()}
+
+function formatDuration(sec){sec=Math.floor(sec);const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;if(h)return`${h}h ${m}m`;if(m)return`${m}m ${s}s`;return`${s}s`}
+function todayKey(d){const x=new Date(d);return x.getFullYear()+"-"+x.getMonth()+"-"+x.getDate()}
+function boot(){
+state=loadState();const existed=!!localStorage.getItem(SAVE_KEY)||!!localStorage.getItem(LEGACY_KEY),isNew=!existed;
+const today=todayKey(Date.now());if(state.lastVisitDay!==today){const prev=state.lastVisitDay;if(prev){const a=new Date(prev.replace(/-/g,"/")),b=new Date(today.replace(/-/g,"/")),diff=Math.round((b-a)/86400000);state.streak=diff===1?state.streak+1:1;state.influence+=Math.min(200,15*state.streak);addChronicle(`🌅 Day ${state.streak} of your reign — +${Math.min(200,15*state.streak)} Influence for returning.`)}else state.streak=1;state.lastVisitDay=today}
+if(isNew||!state.onboarded)document.getElementById("onbModal").classList.add("show");else{
+const elapsed=Math.max(0,Math.floor((Date.now()-state.lastSaveTime)/1000)),cap=Math.min(elapsed,OFFLINE_CAP_SECONDS);if(cap>60){const bd={data:state.data,influence:state.influence};fastForward(cap);document.getElementById("backSub").textContent=`Your empire kept running for ${formatDuration(cap)}${elapsed>OFFLINE_CAP_SECONDS?" (capped at 8h)":""}.`;document.getElementById("backBody").innerHTML=`<div class="statrow"><div class="lbl"><span>📡 Data gained</span><span>+${fmt(Math.max(0,state.data-bd.data))}</span></div></div><div class="statrow"><div class="lbl"><span>☸ Influence gained</span><span>+${fmt(Math.max(0,state.influence-bd.influence))}</span></div></div><div class="statrow"><div class="lbl"><span>🔥 Day streak</span><span>${state.streak}</span></div></div>`;document.getElementById("backModal").classList.add("show")}}
+refreshMobileToggles();setView(state.view||"system");renderAll();saveState();
+setInterval(()=>{tick(1);if(state.councilTimer>=COUNCIL_INTERVAL){state.councilTimer=0;openCouncil()}renderAll()},1000);
+setInterval(saveState,15000);addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveState()});addEventListener("beforeunload",saveState);setInterval(()=>document.getElementById("playtimeFooter").textContent="Ruling for "+formatDuration(state.playSeconds),1000)
+}
+document.getElementById("beginBtn").onclick=()=>{state.onboarded=true;document.getElementById("onbModal").classList.remove("show");addChronicle("✦ Your reign over Bhūmi Minor begins.");saveState()};
+document.getElementById("closeBack").onclick=()=>document.getElementById("backModal").classList.remove("show");document.getElementById("backOk").onclick=()=>document.getElementById("backModal").classList.remove("show");
+boot();
+})();
+</script>
+</body>
+</html>
