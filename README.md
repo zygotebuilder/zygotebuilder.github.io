@@ -1,121 +1,115 @@
-🧬
-**Zygote Builder** — Pradhyumna Nittala
+# 🧬 Zygote Builder
 
-A collection of thought experiments disguised as simulations.
+### A collection of thought experiments disguised as simulations.
 
-Astronomy × Biology
+**Astronomy × Biology**
 
 Hello World! Yeah, let’s begin with this.
 
-Zygote Builder is an experimental lab where ideas, questions and random pieces of imagination are turned into interactive simulations, games and digital experiments.
+Zygote Builder is an experimental lab where ideas, questions and random pieces of imagination are turned into **interactive simulations, games and digital experiments.**
 
-The name comes from the idea of bringing two seemingly opposite scales together:
+The name comes from putting two extreme scales together.
 
-Microscopes take us into the extreme depths of the world.
+🔬 **Microscopes** — the smallest worlds.
+🔭 **Telescopes** — the largest worlds.
 
-Telescopes take us into the extreme distances of the universe.
+**What happens when we put them together?**
 
-What if we combine both?
+That is the idea behind **Astronomy × Biology.**
 
-That’s the idea behind Astronomy × Biology.
+But Zygote is not really about staying inside two subjects.
 
-But Zygote isn’t restricted to those two subjects. Some experiments are scientific. Some are educational. Some are simulations. Some are games. Some are simply strange ideas that I wanted to see come alive.
+Some experiments are scientific.
+Some are educational.
+Some are simulations.
+Some are games.
+Some are just weird ideas that I wanted to see come alive.
 
-The common thread is curiosity.
-—————
+There is no grand rule.
 
-Built With
+**The common thread is curiosity.**
 
-Zygote Builder is primarily built for the web.
+---
 
-The experiments use technologies such as:
+## 🧪 How It Works
 
-* HTML
-* CSS
-* JavaScript
-* Three.js
-* Cannon.js
-* Browser APIs and other lightweight web technologies where appropriate
+Zygote is a collection of relatively independent experiments living under the same laboratory.
 
-The technology depends on the experiment.
+An experiment can have its own:
 
-There isn’t a rule saying every experiment has to use the same stack just because a framework happens to be popular.
-
-The objective is to build the experience first and use the appropriate technology to make it work.
-
-⸻
-
-How Zygote is Built
-
-Zygote is intentionally experimental.
-
-Rather than being one large application, it is a collection of relatively independent experiences living under the same laboratory.
-
-That means an experiment can have its own:
-
-* interaction model
-* visual language
-* simulation logic
-* physics
-* storytelling
 * interface
+* visual style
+* physics
+* simulation logic
+* story
+* rules
+* questionable decisions
 
-while still belonging to the larger Zygote Builder universe.
+The technology changes depending on what the experiment needs.
 
-The project is continuously evolving, so the architecture and individual experiments may change over time.
+Currently, that includes things like:
 
-⸻
+`HTML` · `CSS` · `JavaScript` · `Three.js` · `Cannon.js` · `Browser APIs`
 
-Running Zygote Locally
+No framework loyalty.
+No unnecessary complexity.
 
-Almost all experiments are browser-based and can be run as static web pages.
+**Build the idea. Then build what the idea needs.**
 
-1. Open the project
+---
 
-For simple experiments, the HTML files can be opened directly in a browser.
+## ▶️ Run It
 
-For experiments that depend on browser modules, local assets or other server behaviour, use a local development server.
+Most experiments are just browser-based web pages.
 
-For example, with Python:
+For simple ones:
 
+**Open → Explore → Tinker.**
+
+Some experiments need a local server. For those:
+
+```bash
 python -m http.server
+```
 
-Then open the local address shown by the server in your browser.
+Then open the local address in your browser.
 
-2. Explore
+That’s it.
 
-That’s it. There is no giant installation ceremony.
+No giant installation ceremony.
 
-Open the lab. Pick an experiment. Tinker!
+---
 
-⸻
+## 🟢 Status
 
-Project Status
+**Active · Continuously evolving**
 
-Status: 🟢 Active / Continuously evolving
+Zygote Builder is not finished.
 
-Zygote is not intended to be a finished product.
+Probably never will be.
 
-New experiments, redesigns, experiments within experiments, improvements and occasional questionable decisions are part of the project.
+New experiments, redesigns, experiments within experiments, improvements and occasional questionable decisions are part of the process.
 
-*Never Finished, Always Updated.*
+Some experiments are polished.
 
-Some experiments are more polished than others.
+Some are experiments.
 
-That’s okay.
+**That is the point.**
 
-The laboratory is supposed to show the process of experimentation, not pretend everything emerged perfectly formed.
+> **Never Finished, Always Updated.**
 
-⸻
-Creator
+---
 
-Pradhyumna Nittala
-Contact - pradhyumna.nittala@gmail.com
+## 👤 Creator
+
+**Pradhyumna Nittala**
+
+[pradhyumna.nittala@gmail.com](mailto:pradhyumna.nittala@gmail.com)
 
 Zygote Builder is an independent project.
 
-⸻
+---
 
-This is a thought experiment of Humanity!
+### This is a thought experiment of Humanity.
 
-Welcome to the chaos.
+**Welcome to the chaos.**
