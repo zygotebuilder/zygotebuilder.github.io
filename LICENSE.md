@@ -1,4 +1,4 @@
-Zygote Builder License v1.1
+**Zygote Builder License v1.1**
 
 Copyright © 2026 Pradhyumna Nittala. All rights reserved except for the permissions expressly granted by this license.
 
