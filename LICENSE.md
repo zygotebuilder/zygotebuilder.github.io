@@ -6,7 +6,7 @@ This license applies to the original source code and other original material con
 
 1. *Definitions*
 
-**“Zygote Builder”** means the project and repository created and maintained by Pradhyumna Nittala, including its GitHub repository and its publicly accessible website at https://zygotebuilder.github.io/.
+**“Zygote Builder”** means the project and repository created and maintained by Pradhyumna Nittala, including its GitHub repository and its publicly accessible website at **https://zygotebuilder.github.io/**
 
 “Program” means an individual simulation, game, experiment, webpage, application or other software project contained in Zygote Builder. All Programs are part of the Zygote Builder user experience.
 
