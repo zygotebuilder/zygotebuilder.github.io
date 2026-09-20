@@ -13,6 +13,7 @@ jobs:
 
     permissions:
       contents: read
+      issues: write
 
     steps:
       - name: Checkout repository
@@ -35,3 +36,26 @@ jobs:
 
       - name: Run Zybot Tester
         run: python bot/tester/test_projects.py
+
+  report:
+    name: 📋 Zybot Reporter
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: write
+      needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub CLI
+        run: gh --version
+
+      - name: Run Zybot Reporter
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python bot/reporter/report.py
+      
+ 
