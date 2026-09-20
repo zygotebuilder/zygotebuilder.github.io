@@ -1,0 +1,35 @@
+name: Zybot
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    name: 🔬 Inspect Zygote Builder
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show repository structure
+        run: |
+          echo "================================="
+          echo "🧬 ZYGOTE BUILDER — LAB ASSISTANT"
+          echo "================================="
+          echo ""
+          echo "Repository inspection started."
+          echo ""
+
+          echo "Top-level files and folders:"
+          find . -maxdepth 2 -type f \
+            -not -path './.git/*' \
+            | sort
+
+          echo ""
+          echo "Inspection complete."
