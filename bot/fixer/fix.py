@@ -214,7 +214,7 @@ small deterministic repair.
             "--body",
             body,
             "--base",
-            "main",
+            "projects",
             "--head",
             BRANCH_NAME
         ],
