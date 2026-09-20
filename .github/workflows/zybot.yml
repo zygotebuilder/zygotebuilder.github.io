@@ -66,3 +66,32 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python bot/reporter/report.py
+
+
+  # --------------------------------------------------
+  # FIXER
+  # --------------------------------------------------
+  fixer:
+    name: 🔧 Zybot Fixer
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check GitHub CLI
+        run: gh --version
+
+      - name: Run Zybot Fixer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python bot/fixer/fix.py
