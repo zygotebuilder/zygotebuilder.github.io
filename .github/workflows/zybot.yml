@@ -125,3 +125,39 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python bot/fixer/fix.py
+
+      # --------------------------------------------------
+  # ARCHIVIST
+  # --------------------------------------------------
+  archivist:
+    name: 📚 Zybot Archivist
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Zybot Archivist
+        run: python bot/archivist/archive.py
+
+      - name: Save archive
+        run: |
+          git config user.name "Zybot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add bot/archive/zybot-history.json
+
+          if git diff --cached --quiet; then
+            echo "No archive changes."
+            exit 0
+          fi
+
+          git commit -m "🤖 Zybot: update archive"
+          git push
