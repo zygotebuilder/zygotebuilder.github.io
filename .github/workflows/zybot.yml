@@ -2,6 +2,11 @@ name: Zybot
 
 on:
   push:
+    branches:
+      - projects
+    paths-ignore:
+      - "bot/archive/**"
+
   pull_request:
 
   workflow_dispatch:
@@ -15,11 +20,19 @@ on:
   schedule:
     - cron: "30 12 * * *"
 
+
+# Prevent overlapping Zybot runs from fighting over repository commits.
+concurrency:
+  group: zybot-${{ github.ref }}
+  cancel-in-progress: false
+
+
 jobs:
 
-  # --------------------------------------------------
+  # ============================================================
   # OBSERVER
-  # --------------------------------------------------
+  # ============================================================
+
   inspect:
     name: 🔬 Inspect Zygote Builder
     runs-on: ubuntu-latest
@@ -30,14 +43,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Run Zybot Observer
         run: python bot/observer/inspect.py
 
 
-  # --------------------------------------------------
+  # ============================================================
   # TESTER
-  # --------------------------------------------------
+  # ============================================================
+
   test:
     name: 🧪 Test Zygote Builder
     runs-on: ubuntu-latest
@@ -48,14 +64,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Run Zybot Tester
         run: python bot/tester/test_projects.py
 
 
-  # --------------------------------------------------
+  # ============================================================
   # REPORTER
-  # --------------------------------------------------
+  # ============================================================
+
   report:
     name: 📋 Zybot Reporter
     needs: test
@@ -69,6 +88,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Check GitHub CLI
         run: gh --version
@@ -79,9 +100,10 @@ jobs:
         run: python bot/reporter/report.py
 
 
-  # --------------------------------------------------
+  # ============================================================
   # FIXER
-  # --------------------------------------------------
+  # ============================================================
+
   fixer:
     name: 🔧 Zybot Fixer
     needs: test
@@ -89,9 +111,14 @@ jobs:
     if: >
       needs.test.result == 'success' &&
       github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/projects' &&
       (
-        github.ref == 'refs/heads/main' ||
-        github.event_name == 'workflow_dispatch' && inputs.run_fixer == true
+        github.event_name == 'schedule' ||
+        github.event_name == 'push' ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.run_fixer == true
+        )
       )
 
     runs-on: ubuntu-latest
@@ -101,11 +128,11 @@ jobs:
       pull-requests: write
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: projects
 
       - name: Show Fixer context
         run: |
@@ -126,9 +153,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python bot/fixer/fix.py
 
-      # --------------------------------------------------
+
+  # ============================================================
   # ARCHIVIST
-  # --------------------------------------------------
+  # ============================================================
+
   archivist:
     name: 📚 Zybot Archivist
     needs: test
@@ -143,6 +172,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: projects
 
       - name: Run Zybot Archivist
         run: python bot/archivist/archive.py
@@ -160,11 +190,21 @@ jobs:
           fi
 
           git commit -m "🤖 Zybot: update archive"
-          git push
 
-    # --------------------------------------------------
+          echo "🔄 Synchronizing with remote projects branch..."
+
+          git fetch origin projects
+          git rebase origin/projects
+
+          echo "🚀 Pushing archive update..."
+
+          git push origin HEAD:projects
+
+
+  # ============================================================
   # THINKER
-  # --------------------------------------------------
+  # ============================================================
+
   thinker:
     name: 🧠 Zybot Thinker
     needs: archivist
@@ -179,6 +219,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: projects
+
+      - name: Synchronize with latest Archivist commit
+        run: |
+          git fetch origin projects
+          git reset --hard origin/projects
 
       - name: Run Zybot Thinker
         run: python bot/thinker/think.py
@@ -196,4 +242,12 @@ jobs:
           fi
 
           git commit -m "🤖 Zybot: archive thoughts"
-          git push
+
+          echo "🔄 Synchronizing with remote projects branch..."
+
+          git fetch origin projects
+          git rebase origin/projects
+
+          echo "🚀 Pushing Thinker update..."
+
+          git push origin HEAD:projects
