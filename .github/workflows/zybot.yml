@@ -9,6 +9,7 @@ jobs:
   inspect:
     name: 🔬 Inspect Zygote Builder
     runs-on: ubuntu-latest
+    
 
     permissions:
       contents: read
@@ -16,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Run Zybot Observer
+        run: python bot/observer/inspect.py
 
       - name: Show repository structure
         run: |
