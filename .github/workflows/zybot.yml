@@ -19,6 +19,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Run Zybot Observer
         run: python bot/observer/inspect.py
+    test:
+
+         name: 🧪 Test Zygote Builder
+         runs-on: ubuntu-latest
+    permissions:
+        contents: read
+        
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run Zybot Tester
+        run: python bot/tester/test_projects.py     
 
       - name: Show repository structure
         run: |
