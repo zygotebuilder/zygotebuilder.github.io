@@ -3,6 +3,7 @@ name: Zybot
 on:
   push:
   pull_request:
+
   workflow_dispatch:
     inputs:
       run_fixer:
@@ -10,6 +11,9 @@ on:
         required: true
         default: false
         type: boolean
+
+  schedule:
+    - cron: "30 12 * * *"
 
 jobs:
 
