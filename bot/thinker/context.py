@@ -1,6 +1,7 @@
-from pathlib import Path
+fromfrom pathlib import Path
 import json
 import subprocess
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -8,139 +9,58 @@ ARCHIVE_FILE = ROOT / "bot" / "archive" / "zybot-history.json"
 THOUGHTS_FILE = ROOT / "bot" / "archive" / "zybot-thoughts.json"
 
 
-def load_json(path, default):
-    if not path.exists():
-        return default
-
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return default
-
-
 def repository_structure():
-    ignored = {
+    """
+    Describe the current repository structure.
+
+    Excludes Git internals, Python cache files, and the AI model itself
+    so the Thinker receives useful repository information without
+    unnecessarily filling its context window.
+    """
+
+    lines = []
+
+    ignored_directories = {
         ".git",
-        ".github",
+        "__pycache__",
+        ".pytest_cache",
         "node_modules",
-        "__pycache__"
     }
 
-    files = []
+    ignored_files = {
+        ".DS_Store",
+    }
 
-    for path in ROOT.rglob("*"):
-        if not path.is_file():
-            continue
-
-        if any(part in ignored for part in path.parts):
-            continue
-
-        files.append(str(path.relative_to(ROOT)))
-
-    return "\n".join(sorted(files))
-
-
-def recent_history():
-    history = load_json(
-        ARCHIVE_FILE,
-        {"version": 1, "runs": []}
-    )
-
-    runs = history.get("runs", [])
-
-    return json.dumps(
-        runs[-10:],
-        indent=2,
-        ensure_ascii=False
-    )
-
-
-def previous_thoughts():
-    thoughts = load_json(
-        THOUGHTS_FILE,
-        {"version": 1, "thoughts": []}
-    )
-
-    records = thoughts.get("thoughts", [])
-
-    return json.dumps(
-        records[-5:],
-        indent=2,
-        ensure_ascii=False
-    )
-
-
-def git_changes():
     try:
+        for path in sorted(ROOT.rglob("*")):
 
-        result = subprocess.run(
-            [
-                "git",
-                "show",
-                "--stat",
-                "--oneline",
-                "--decorate",
-                "HEAD"
-            ],
-            cwd=ROOT,
-            capture_output=True,
-            text=True
-        )
+            if not path.is_file():
+                continue
 
-        return result.stdout.strip()
+            relative = path.relative_to(ROOT)
 
-    except Exception:
-        return ""
-        
-    def latest_commit():
-    try:
+            if any(
+                part in ignored_directories
+                for part in relative.parts
+            ):
+                continue
 
-        result = subprocess.run(
-            [
-                "git",
-                "log",
-                "-1",
-                "--pretty=format:%H%n%an%n%ad%n%s"
-            ],
-            cwd=ROOT,
-            capture_output=True,
-            text=True
-        )
+            if path.name in ignored_files:
+                continue
 
-        return result.stdout.strip()
+            # Do not include the downloaded AI model in repository structure.
+            if (
+                "bot" in relative.parts
+                and "thinker" in relative.parts
+                and "model" in relative.parts
+            ):
+                continue
 
-    except Exception:
-        return ""
+            lines.append(str(relative))
 
+        if not lines:
+            return "No repository files detected."
 
-def build_context():
+        return "\n".join(lines)
 
-    return f"""
-REPOSITORY STRUCTURE
-====================
-{repository_structure()}
-
-
-RECENT ARCHIVE HISTORY
-======================
-{recent_history()}
-
-
-PREVIOUS ZYBOT THOUGHTS
-=======================
-{previous_thoughts()}
-
-
-LATEST COMMIT
-=============
-{latest_commit()}
-
-
-LATEST GIT CHANGE
-=================
-{git_changes()}
-"""
-
-
-if __name__ == "__main__":
-    print(build_context())
+    except Exception as
