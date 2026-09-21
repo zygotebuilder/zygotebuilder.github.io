@@ -72,13 +72,35 @@ def previous_thoughts():
 
 def git_changes():
     try:
+
         result = subprocess.run(
             [
                 "git",
-                "diff",
-                "HEAD~1",
-                "HEAD",
-                "--stat"
+                "show",
+                "--stat",
+                "--oneline",
+                "--decorate",
+                "HEAD"
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True
+        )
+
+        return result.stdout.strip()
+
+    except Exception:
+        return ""
+        
+    def latest_commit():
+    try:
+
+        result = subprocess.run(
+            [
+                "git",
+                "log",
+                "-1",
+                "--pretty=format:%H%n%an%n%ad%n%s"
             ],
             cwd=ROOT,
             capture_output=True,
@@ -92,6 +114,7 @@ def git_changes():
 
 
 def build_context():
+
     return f"""
 REPOSITORY STRUCTURE
 ====================
@@ -99,17 +122,22 @@ REPOSITORY STRUCTURE
 
 
 RECENT ARCHIVE HISTORY
-=====================
+======================
 {recent_history()}
 
 
 PREVIOUS ZYBOT THOUGHTS
-======================
+=======================
 {previous_thoughts()}
 
 
-MOST RECENT GIT CHANGE
-======================
+LATEST COMMIT
+=============
+{latest_commit()}
+
+
+LATEST GIT CHANGE
+=================
 {git_changes()}
 """
 
