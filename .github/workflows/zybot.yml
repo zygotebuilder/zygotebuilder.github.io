@@ -202,11 +202,11 @@ jobs:
 
 
   # ============================================================
-  # THINKER
+  # AI THINKER
   # ============================================================
 
   thinker:
-    name: 🧠 Zybot Thinker
+    name: 🧠 Zybot AI Thinker
     needs: archivist
 
     runs-on: ubuntu-latest
@@ -215,21 +215,82 @@ jobs:
       contents: write
 
     steps:
+
+      # --------------------------------------------------------
+      # CHECKOUT
+      # --------------------------------------------------------
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: projects
 
+
+      # --------------------------------------------------------
+      # SYNCHRONIZE WITH ARCHIVIST
+      # --------------------------------------------------------
+
       - name: Synchronize with latest Archivist commit
         run: |
           git fetch origin projects
           git reset --hard origin/projects
 
-      - name: Run Zybot Thinker
-        run: python bot/thinker/think.py
 
-      - name: Save thoughts
+      # --------------------------------------------------------
+      # PYTHON
+      # --------------------------------------------------------
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+
+      # --------------------------------------------------------
+      # INSTALL LOCAL AI RUNTIME
+      # --------------------------------------------------------
+
+      - name: Install AI runtime
+        run: |
+          python -m pip install --upgrade pip
+
+          pip install llama-cpp-python \
+            --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+
+
+      # --------------------------------------------------------
+      # DOWNLOAD LOCAL MODEL
+      # --------------------------------------------------------
+
+      - name: Download Zybot AI model
+        run: |
+          mkdir -p bot/thinker/model
+
+          if [ ! -f bot/thinker/model/Qwen3-0.6B-Q4_0.gguf ]; then
+            echo "🧠 Downloading Zybot local AI model..."
+
+            wget -O bot/thinker/model/Qwen3-0.6B-Q4_0.gguf \
+              https://huggingface.co/ggml-org/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_0.gguf
+          else
+            echo "🟢 Model already exists."
+          fi
+
+
+      # --------------------------------------------------------
+      # RUN GENUINE AI THINKER
+      # --------------------------------------------------------
+
+      - name: Run Zybot AI Thinker
+        run: |
+          python bot/thinker/think.py
+
+
+      # --------------------------------------------------------
+      # SAVE AI THOUGHTS
+      # --------------------------------------------------------
+
+      - name: Save AI thoughts
         run: |
           git config user.name "Zybot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -237,17 +298,17 @@ jobs:
           git add bot/archive/zybot-thoughts.json
 
           if git diff --cached --quiet; then
-            echo "No new thoughts."
+            echo "No new AI thoughts."
             exit 0
           fi
 
-          git commit -m "🤖 Zybot: archive thoughts"
+          git commit -m "🤖 Zybot: archive AI thoughts"
 
           echo "🔄 Synchronizing with remote projects branch..."
 
           git fetch origin projects
           git rebase origin/projects
 
-          echo "🚀 Pushing Thinker update..."
+          echo "🚀 Pushing AI Thinker update..."
 
           git push origin HEAD:projects
