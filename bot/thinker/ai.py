@@ -2,6 +2,7 @@ from pathlib import Path
 from llama_cpp import Llama
 import json
 import os
+import re
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -23,7 +24,14 @@ You do not make final decisions.
 You do not modify files.
 You do not merge pull requests.
 
-Analyze the supplied repository context.
+Analyze ONLY the information supplied in the repository context.
+
+IMPORTANT:
+- Do not invent files, commits, changes, statistics, or events.
+- Do not assume that a number of changed lines equals a number of files.
+- If the supplied evidence is insufficient, explicitly say so.
+- Distinguish confirmed observations from hypotheses.
+- Do not claim that something happened unless the context supports it.
 
 Identify:
 
@@ -34,11 +42,14 @@ Identify:
 5. Creative ideas for future experiments
 6. Questions that should be brought to the human maintainer
 
-Do not invent facts that are not present in the supplied context.
+Return ONLY valid JSON.
 
-Separate observations from hypotheses and creative suggestions.
+Do NOT use Markdown.
+Do NOT use ```json.
+Do NOT include <think> tags.
+Do NOT include explanations before or after the JSON.
 
-Return ONLY valid JSON using this structure:
+Use exactly this structure:
 
 {
   "observations": [],
@@ -51,6 +62,7 @@ Return ONLY valid JSON using this structure:
 
 
 def load_model():
+
     if not MODEL_FILE.exists():
         raise FileNotFoundError(
             f"Zybot AI model not found: {MODEL_FILE}"
@@ -61,7 +73,10 @@ def load_model():
     model = Llama(
         model_path=str(MODEL_FILE),
         n_ctx=4096,
-        n_threads=max(1, (os.cpu_count() or 4) - 1),
+        n_threads=max(
+            1,
+            (os.cpu_count() or 4) - 1
+        ),
         verbose=False
     )
 
@@ -70,7 +85,64 @@ def load_model():
     return model
 
 
+def clean_response(text):
+
+    text = text.strip()
+
+    # Remove model reasoning section.
+    text = re.sub(
+        r"<think>.*?</think>",
+        "",
+        text,
+        flags=re.DOTALL | re.IGNORECASE
+    ).strip()
+
+    # Remove Markdown JSON fences.
+    text = re.sub(
+        r"^```json\s*",
+        "",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    text = re.sub(
+        r"\s*```$",
+        "",
+        text
+    )
+
+    return text.strip()
+
+
+def extract_json(text):
+
+    cleaned = clean_response(text)
+
+    try:
+        return json.loads(cleaned)
+
+    except json.JSONDecodeError:
+        pass
+
+    # Try extracting the first complete JSON object.
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+
+    if start != -1 and end != -1 and end > start:
+
+        candidate = cleaned[start:end + 1]
+
+        try:
+            return json.loads(candidate)
+
+        except json.JSONDecodeError:
+            pass
+
+    return None
+
+
 def analyze(context):
+
     model = load_model()
 
     prompt = f"""
@@ -82,6 +154,9 @@ def analyze(context):
 Here is the current Zygote Builder repository context:
 
 {context}
+
+Analyze this evidence carefully.
+Remember: absence of evidence is not evidence of an event.
 <|im_end|>
 
 <|im_start|>assistant
@@ -91,25 +166,32 @@ Here is the current Zygote Builder repository context:
 
     result = model(
         prompt,
-        max_tokens=700,
-        temperature=0.3,
+        max_tokens=900,
+        temperature=0.2,
         stop=["<|im_end|>"]
     )
 
-    text = result["choices"][0]["text"].strip()
+    raw_text = result["choices"][0]["text"].strip()
 
     print("Raw AI response:")
-    print(text)
+    print(raw_text)
 
-    try:
-        return json.loads(text)
+    analysis = extract_json(raw_text)
 
-    except json.JSONDecodeError:
-        print("\n⚠️ AI did not return valid JSON.")
+    if analysis is None:
+
+        print(
+            "\n⚠️ AI response could not be parsed as JSON."
+        )
+
         return {
-            "observations": [text],
+            "observations": [
+                "AI generated an unstructured response."
+            ],
             "potential_problems": [],
             "patterns": [],
             "creative_ideas": [],
             "questions_for_human": []
         }
+
+    return analysis
