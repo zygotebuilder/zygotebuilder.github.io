@@ -4,7 +4,7 @@ import json
 from .model import ZybotRNN
 
 
-# train.py is located at:
+# train.py is inside:
 #
 # repository/
 # └── bot/
@@ -12,25 +12,13 @@ from .model import ZybotRNN
 #         └── brain/
 #             └── train.py
 #
-# Therefore parents[3] is the repository root.
+# Therefore this directory is the brain directory itself.
 
-ROOT = Path(__file__).resolve().parents[3]
+BRAIN_DIR = Path(__file__).resolve().parent
 
-DATA_FILE = (
-    ROOT
-    / "bot"
-    / "thinker"
-    / "brain"
-    / "training_data.json"
-)
+DATA_FILE = BRAIN_DIR / "training_data.json"
 
-MODEL_FILE = (
-    ROOT
-    / "bot"
-    / "thinker"
-    / "brain"
-    / "zybot-brain.json"
-)
+MODEL_FILE = BRAIN_DIR / "zybot-brain.json"
 
 
 def load_training_data():
@@ -65,6 +53,10 @@ def main():
     print("=" * 65)
     print("🧠 ZYBOT BRAIN — TRAINING")
     print("=" * 65)
+
+    print(f"Brain directory: {BRAIN_DIR}")
+    print(f"Training data: {DATA_FILE}")
+    print(f"Model output: {MODEL_FILE}")
 
     records = load_training_data()
 
@@ -101,6 +93,17 @@ def main():
     print()
     print("🟢 Zybot Brain trained.")
     print(f"🧠 Model saved to: {MODEL_FILE}")
+
+    if not MODEL_FILE.exists():
+        raise RuntimeError(
+            "Training finished but the Zybot Brain file "
+            "was not created."
+        )
+
+    print(
+        f"🟢 Verified model file: "
+        f"{MODEL_FILE}"
+    )
 
 
 if __name__ == "__main__":
