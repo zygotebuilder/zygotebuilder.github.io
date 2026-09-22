@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-from model import ZybotRNN
+from .model import ZybotRNN
 
 
 # train.py is located at:
