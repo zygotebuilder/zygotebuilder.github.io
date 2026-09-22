@@ -1,0 +1,325 @@
+name: Zybot
+
+on:
+  push:
+    branches:
+      - projects
+    paths-ignore:
+      - "bot/archive/**"
+
+  pull_request:
+
+  workflow_dispatch:
+    inputs:
+      run_fixer:
+        description: "Run Zybot Fixer?"
+        required: true
+        default: false
+        type: boolean
+
+  schedule:
+    - cron: "30 12 * * *"
+
+
+# Prevent overlapping Zybot runs from fighting over repository commits.
+concurrency:
+  group: zybot-${{ github.ref }}
+  cancel-in-progress: false
+
+
+jobs:
+
+  # ============================================================
+  # OBSERVER
+  # ============================================================
+
+  inspect:
+    name: 🔬 Inspect Zygote Builder
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Run Zybot Observer
+        run: python bot/observer/inspect.py
+
+
+  # ============================================================
+  # TESTER
+  # ============================================================
+
+  test:
+    name: 🧪 Test Zygote Builder
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Run Zybot Tester
+        run: python bot/tester/test_projects.py
+
+
+  # ============================================================
+  # REPORTER
+  # ============================================================
+
+  report:
+    name: 📋 Zybot Reporter
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Check GitHub CLI
+        run: gh --version
+
+      - name: Run Zybot Reporter
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python bot/reporter/report.py
+
+
+  # ============================================================
+  # FIXER
+  # ============================================================
+
+  fixer:
+    name: 🔧 Zybot Fixer
+    needs: test
+
+    if: >
+      needs.test.result == 'success' &&
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/projects' &&
+      (
+        github.event_name == 'schedule' ||
+        github.event_name == 'push' ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.run_fixer == true
+        )
+      )
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: projects
+
+      - name: Show Fixer context
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Run Fixer: ${{ inputs.run_fixer }}"
+
+      - name: Configure Git
+        run: |
+          git config user.name "Zybot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Check GitHub CLI
+        run: gh --version
+
+      - name: Run Zybot Fixer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python bot/fixer/fix.py
+
+
+  # ============================================================
+  # ARCHIVIST
+  # ============================================================
+
+  archivist:
+    name: 📚 Zybot Archivist
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: projects
+
+      - name: Run Zybot Archivist
+        run: python bot/archivist/archive.py
+
+      - name: Save archive
+        run: |
+          git config user.name "Zybot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add bot/archive/zybot-history.json
+
+          if git diff --cached --quiet; then
+            echo "No archive changes."
+            exit 0
+          fi
+
+          git commit -m "🤖 Zybot: update archive"
+
+          echo "🔄 Synchronizing with remote projects branch..."
+
+          git fetch origin projects
+          git rebase origin/projects
+
+          echo "🚀 Pushing archive update..."
+
+          git push origin HEAD:projects
+
+
+  # ============================================================
+  # ZYBOT BRAIN
+  # ============================================================
+
+  thinker:
+    name: 🧠 Zybot AI Thinker
+    needs: archivist
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+
+      # --------------------------------------------------------
+      # CHECKOUT
+      # --------------------------------------------------------
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: projects
+
+
+      # --------------------------------------------------------
+      # SYNCHRONIZE WITH ARCHIVIST
+      # --------------------------------------------------------
+
+      - name: Synchronize with latest Archivist commit
+        run: |
+          git fetch origin projects
+          git reset --hard origin/projects
+
+
+      # --------------------------------------------------------
+      # PYTHON
+      # --------------------------------------------------------
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+
+      # --------------------------------------------------------
+      # TRAIN ZYBOT'S OWN BRAIN
+      # --------------------------------------------------------
+
+      - name: Train Zybot Brain
+        run: |
+          python -m bot.thinker.brain.train
+
+          echo "Checking trained brain..."
+
+          if [ ! -f bot/thinker/brain/zybot-brain.json ]; then
+            echo "❌ Zybot brain file was not created."
+            exit 1
+          fi
+
+          echo "🟢 Zybot brain exists."
+          ls -lh bot/thinker/brain/zybot-brain.json
+
+
+      # --------------------------------------------------------
+      # VERIFY BRAIN BEFORE INFERENCE
+      # --------------------------------------------------------
+
+      - name: Verify Zybot Brain
+        run: |
+          echo "Current directory:"
+          pwd
+
+          echo "Brain directory:"
+          ls -lah bot/thinker/brain
+
+          echo "Checking model file..."
+
+          if [ ! -f bot/thinker/brain/zybot-brain.json ]; then
+            echo "❌ Zybot brain is missing before inference."
+            exit 1
+          fi
+
+          echo "🟢 Zybot brain is ready for inference."
+
+
+      # --------------------------------------------------------
+      # RUN ZYBOT'S OWN AI
+      # --------------------------------------------------------
+
+      - name: Run Zybot AI Thinker
+        run: |
+          python bot/thinker/think.py
+
+
+      # --------------------------------------------------------
+      # SAVE AI THOUGHTS
+      # --------------------------------------------------------
+
+      - name: Save AI thoughts
+        run: |
+          git config user.name "Zybot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add bot/archive/zybot-thoughts.json
+
+          if git diff --cached --quiet; then
+            echo "No new AI thoughts."
+            exit 0
+          fi
+
+          git commit -m "🤖 Zybot: archive AI thoughts"
+
+          echo "🔄 Synchronizing with remote projects branch..."
+
+          git fetch origin projects
+          git rebase origin/projects
+
+          echo "🚀 Pushing AI Thinker update..."
+
+          git push origin HEAD:projects
