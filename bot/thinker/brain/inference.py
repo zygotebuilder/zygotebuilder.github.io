@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from model import ZybotRNN
+from .model import ZybotRNN
 
 
 ROOT = Path(__file__).resolve().parents[2]
