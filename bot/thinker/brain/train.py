@@ -4,7 +4,17 @@ import json
 from model import ZybotRNN
 
 
-ROOT = Path(__file__).resolve().parents[2]
+# train.py is located at:
+#
+# repository/
+# └── bot/
+#     └── thinker/
+#         └── brain/
+#             └── train.py
+#
+# Therefore parents[3] is the repository root.
+
+ROOT = Path(__file__).resolve().parents[3]
 
 DATA_FILE = (
     ROOT
