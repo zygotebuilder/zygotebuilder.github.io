@@ -1,0 +1,66 @@
+[
+  {
+    "input": "The repository contains several interactive HTML projects.",
+    "output": "The repository contains multiple interactive web projects."
+  },
+  {
+    "input": "A new simulation was added to Zygote Builder.",
+    "output": "A new simulation has been added to the repository."
+  },
+  {
+    "input": "The latest commit changes one HTML file.",
+    "output": "The latest commit changes one HTML file."
+  },
+  {
+    "input": "The latest commit adds new functionality to an existing project.",
+    "output": "The latest commit appears to extend an existing project."
+  },
+  {
+    "input": "The evidence does not show which files were duplicated.",
+    "output": "There is insufficient evidence to conclude that files were duplicated."
+  },
+  {
+    "input": "The repository has grown over several historical runs.",
+    "output": "The repository shows a pattern of growth across historical runs."
+  },
+  {
+    "input": "A project has no title element.",
+    "output": "The project may have an HTML metadata problem."
+  },
+  {
+    "input": "A tester reports an HTML failure.",
+    "output": "The repository contains a detected testing failure."
+  },
+  {
+    "input": "Previous Zybot thoughts mention the same issue repeatedly.",
+    "output": "The issue appears repeatedly in Zybot's historical observations."
+  },
+  {
+    "input": "The evidence is insufficient to determine the cause.",
+    "output": "The cause cannot be determined from the supplied evidence."
+  },
+  {
+    "input": "A visitor suggests adding a weather system to a simulation.",
+    "output": "The suggestion proposes adding a weather system to an existing simulation."
+  },
+  {
+    "input": "A visitor proposes a new astronomy simulation.",
+    "output": "The suggestion proposes creating a new astronomy simulation."
+  },
+  {
+    "input": "A suggestion does not clearly identify a project.",
+    "output": "The suggestion requires clarification about its target project."
+  },
+  {
+    "input": "A human maintainer must approve a proposed repository change.",
+    "output": "The proposed change requires human review before implementation."
+  },
+  {
+    "input": "Zybot should not claim that an event occurred without evidence.",
+    "output": "Zybot must distinguish confirmed evidence from speculation."
+  },
+  {
+    "input": "A creative idea could extend an existing simulation.",
+    "output": "A possible improvement is to extend the existing simulation with a new mechanic."
+  }
+]
