@@ -3,30 +3,27 @@ from pathlib import Path
 from .model import ZybotRNN
 
 
-ROOT = Path(__file__).resolve().parents[2]
+# inference.py and zybot-brain.json are in the same directory.
 
-MODEL_FILE = (
-    ROOT
-    / "bot"
-    / "thinker"
-    / "brain"
-    / "zybot-brain.json"
-)
+BRAIN_DIR = Path(__file__).resolve().parent
+
+MODEL_FILE = BRAIN_DIR / "zybot-brain.json"
 
 
 def load_brain():
 
-    if not MODEL_FILE.exists():
+    print(f"🧠 Looking for Zybot Brain at:")
+    print(f"   {MODEL_FILE}")
 
+    if not MODEL_FILE.exists():
         raise FileNotFoundError(
-            "Zybot Brain has not been trained yet."
+            f"Zybot Brain has not been trained yet.\n"
+            f"Expected model file: {MODEL_FILE}"
         )
 
     print("🧠 Loading Zybot Brain...")
 
-    model = ZybotRNN.load(
-        MODEL_FILE
-    )
+    model = ZybotRNN.load(MODEL_FILE)
 
     print("🟢 Zybot Brain loaded.")
 
