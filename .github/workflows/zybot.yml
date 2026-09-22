@@ -253,8 +253,32 @@ jobs:
 
       - name: Train Zybot Brain
         run: |
-          cd bot/thinker/brain
-          python train.py
+          python -m bot.thinker.brain.train
+
+          echo "Checking trained brain..."
+
+          if [ ! -f bot/thinker/brain/zybot-brain.json ]; then
+            echo "❌ Zybot brain file was not created."
+            exit 1
+          fi
+
+          echo "🟢 Zybot brain exists."
+          ls -lh bot/thinker/brain/zybot-brain.json
+
+
+      # --------------------------------------------------------
+      # VERIFY BRAIN BEFORE INFERENCE
+      # --------------------------------------------------------
+
+      - name: Verify Zybot Brain
+        run: |
+          echo "Current directory:"
+          pwd
+
+          echo "Brain directory:"
+          ls -lah bot/thinker/brain
+
+          test -f bot/thinker/brain/zybot-brain.json
 
 
       # --------------------------------------------------------
