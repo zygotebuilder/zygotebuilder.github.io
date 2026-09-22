@@ -202,7 +202,7 @@ jobs:
 
 
   # ============================================================
-  # AI THINKER
+  # ZYBOT BRAIN
   # ============================================================
 
   thinker:
@@ -248,37 +248,17 @@ jobs:
 
 
       # --------------------------------------------------------
-      # INSTALL LOCAL AI RUNTIME
+      # TRAIN ZYBOT'S OWN BRAIN
       # --------------------------------------------------------
 
-      - name: Install AI runtime
+      - name: Train Zybot Brain
         run: |
-          python -m pip install --upgrade pip
-
-          pip install llama-cpp-python \
-            --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+          cd bot/thinker/brain
+          python train.py
 
 
       # --------------------------------------------------------
-      # DOWNLOAD LOCAL MODEL
-      # --------------------------------------------------------
-
-      - name: Download Zybot AI model
-        run: |
-          mkdir -p bot/thinker/model
-
-          if [ ! -f bot/thinker/model/Qwen3-0.6B-Q4_0.gguf ]; then
-            echo "🧠 Downloading Zybot local AI model..."
-
-            wget -O bot/thinker/model/Qwen3-0.6B-Q4_0.gguf \
-              https://huggingface.co/ggml-org/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_0.gguf
-          else
-            echo "🟢 Model already exists."
-          fi
-
-
-      # --------------------------------------------------------
-      # RUN GENUINE AI THINKER
+      # RUN ZYBOT'S OWN AI
       # --------------------------------------------------------
 
       - name: Run Zybot AI Thinker
