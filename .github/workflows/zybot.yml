@@ -278,7 +278,14 @@ jobs:
           echo "Brain directory:"
           ls -lah bot/thinker/brain
 
-          test -f bot/thinker/brain/zybot-brain.json
+          echo "Checking model file..."
+
+          if [ ! -f bot/thinker/brain/zybot-brain.json ]; then
+            echo "❌ Zybot brain is missing before inference."
+            exit 1
+          fi
+
+          echo "🟢 Zybot brain is ready for inference."
 
 
       # --------------------------------------------------------
