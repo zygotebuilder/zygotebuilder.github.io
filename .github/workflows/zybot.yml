@@ -248,21 +248,58 @@ jobs:
 
 
       # --------------------------------------------------------
+      # CHECK BRAIN FILES
+      # --------------------------------------------------------
+
+      - name: Inspect Zybot Brain directory
+        run: |
+          echo "Current directory:"
+          pwd
+
+          echo ""
+          echo "Brain directory:"
+          ls -lah bot/thinker/brain
+
+          echo ""
+          echo "Training data:"
+          ls -lh bot/thinker/brain/training_data.json
+
+
+      # --------------------------------------------------------
       # TRAIN ZYBOT'S OWN BRAIN
       # --------------------------------------------------------
 
       - name: Train Zybot Brain
         run: |
+          echo "🧠 Starting Zybot Brain training..."
+
           python -m bot.thinker.brain.train
 
-          echo "Checking trained brain..."
+          echo ""
+          echo "🧠 Training command completed."
+
+          echo ""
+          echo "Contents of brain directory after training:"
+          ls -lah bot/thinker/brain
+
+          echo ""
+          echo "Checking trained model..."
 
           if [ ! -f bot/thinker/brain/zybot-brain.json ]; then
-            echo "❌ Zybot brain file was not created."
+            echo "❌ Zybot brain file was NOT created."
+            echo ""
+            echo "Expected:"
+            echo "bot/thinker/brain/zybot-brain.json"
+            echo ""
+            echo "Actual brain directory:"
+            ls -lah bot/thinker/brain
             exit 1
           fi
 
-          echo "🟢 Zybot brain exists."
+          echo "🟢 Zybot brain file successfully created."
+
+          echo ""
+          echo "Model information:"
           ls -lh bot/thinker/brain/zybot-brain.json
 
 
@@ -272,20 +309,29 @@ jobs:
 
       - name: Verify Zybot Brain
         run: |
-          echo "Current directory:"
-          pwd
+          echo "🧠 Final pre-inference verification..."
 
-          echo "Brain directory:"
-          ls -lah bot/thinker/brain
+          MODEL="bot/thinker/brain/zybot-brain.json"
 
-          echo "Checking model file..."
-
-          if [ ! -f bot/thinker/brain/zybot-brain.json ]; then
-            echo "❌ Zybot brain is missing before inference."
+          if [ ! -f "$MODEL" ]; then
+            echo "❌ Zybot Brain is missing."
             exit 1
           fi
 
-          echo "🟢 Zybot brain is ready for inference."
+          if [ ! -s "$MODEL" ]; then
+            echo "❌ Zybot Brain exists but is empty."
+            exit 1
+          fi
+
+          echo "🟢 Zybot Brain is present and non-empty."
+
+          echo ""
+          echo "Model size:"
+          wc -c "$MODEL"
+
+          echo ""
+          echo "Model path:"
+          realpath "$MODEL"
 
 
       # --------------------------------------------------------
@@ -294,6 +340,7 @@ jobs:
 
       - name: Run Zybot AI Thinker
         run: |
+          echo "🧠 Starting Zybot AI Thinker..."
           python bot/thinker/think.py
 
 
