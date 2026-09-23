@@ -13,8 +13,8 @@
 <style>
 /* =========================================================
    ZYGOTE BUILDER — COSMOS × BIOLOGY
-   - project catalogue and URLs
-   - category-aware project navigation
+   - all fourteen projects and URLs
+   - numbering N.01–N.14
    - visit counter
    - logo asset
    - copy/descriptions
@@ -1126,426 +1126,6 @@ body.core-active .zg-core-halo{animation:coreBurst .95s ease-out 1;}
   .zg-core-label{display:none;}
 }
 
-/* ---------- project explorer UX ---------- */
-
-.project-explorer{
-  width:min(1000px,92vw);
-  margin:0 auto 26px;
-  position:relative;
-  z-index:5;
-  padding:28px;
-  border:1px solid var(--line);
-  border-radius:28px;
-  background:linear-gradient(135deg,var(--panel),rgba(255,255,255,.018));
-  backdrop-filter:blur(22px);
-  -webkit-backdrop-filter:blur(22px);
-  box-shadow:0 18px 60px var(--shadow);
-}
-
-.explorer-top{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:26px;
-}
-
-.explorer-kicker,
-.category-kicker{
-  display:block;
-  margin-bottom:9px;
-  font-family:var(--mono);
-  font-size:.61rem;
-  letter-spacing:.2em;
-  text-transform:uppercase;
-  color:var(--cyan);
-}
-
-.explorer-top h2{
-  font-size:1.55rem;
-  line-height:1.2;
-  font-weight:600;
-}
-
-.explorer-top p{
-  max-width:690px;
-  margin-top:9px;
-  color:var(--muted);
-  font-size:.9rem;
-  line-height:1.65;
-}
-
-.explorer-total{
-  flex:0 0 auto;
-  padding:10px 13px;
-  border:1px solid rgba(124,255,178,.22);
-  border-radius:999px;
-  color:var(--term-green);
-  background:rgba(5,9,16,.34);
-  font-family:var(--mono);
-  font-size:.61rem;
-  letter-spacing:.12em;
-  white-space:nowrap;
-}
-
-body.light .explorer-total{
-  background:rgba(255,255,255,.5);
-}
-
-.project-tools{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-top:23px;
-}
-
-.project-search{
-  height:49px;
-  min-width:280px;
-  flex:1 1 360px;
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:0 12px 0 15px;
-  border:1px solid var(--line);
-  border-radius:17px;
-  background:rgba(3,7,14,.34);
-  transition:.35s ease;
-}
-
-body.light .project-search{
-  background:rgba(255,255,255,.52);
-}
-
-.project-search:focus-within{
-  border-color:rgba(115,216,255,.44);
-  box-shadow:0 0 28px rgba(115,216,255,.08);
-}
-
-.search-glyph{
-  font-size:1.25rem;
-  line-height:1;
-  color:var(--cyan);
-  transform:translateY(-1px);
-}
-
-.project-search input{
-  width:100%;
-  min-width:0;
-  border:0;
-  outline:0;
-  color:var(--text);
-  background:transparent;
-  font:500 .82rem var(--mono);
-  letter-spacing:.02em;
-}
-
-.project-search input::placeholder{
-  color:var(--muted);
-  opacity:.72;
-}
-
-.project-search button{
-  width:28px;
-  height:28px;
-  border:0;
-  border-radius:50%;
-  color:var(--muted);
-  background:transparent;
-  cursor:pointer;
-  opacity:0;
-  pointer-events:none;
-  transition:.25s ease;
-}
-
-.project-search.has-value button{
-  opacity:1;
-  pointer-events:auto;
-}
-
-.project-search button:hover{
-  color:var(--text);
-  background:rgba(255,255,255,.07);
-}
-
-.project-tabs{
-  display:flex;
-  gap:7px;
-  overflow-x:auto;
-  scrollbar-width:none;
-  flex:0 1 auto;
-  padding-bottom:2px;
-}
-
-.project-tabs::-webkit-scrollbar{display:none;}
-
-.project-tab{
-  flex:0 0 auto;
-  height:41px;
-  padding:0 14px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:rgba(5,9,16,.32);
-  color:var(--muted);
-  cursor:pointer;
-  font:500 .64rem var(--mono);
-  letter-spacing:.06em;
-  transition:.35s ease;
-}
-
-body.light .project-tab{
-  background:rgba(255,255,255,.5);
-}
-
-.project-tab:hover{
-  color:var(--text);
-  border-color:rgba(115,216,255,.3);
-  transform:translateY(-2px);
-}
-
-.project-tab.is-active{
-  color:var(--text);
-  border-color:rgba(115,216,255,.42);
-  background:linear-gradient(135deg,rgba(115,216,255,.12),rgba(159,140,255,.1));
-  box-shadow:0 8px 24px rgba(115,216,255,.07);
-}
-
-.search-status{
-  margin-top:13px;
-  min-height:1em;
-  color:var(--muted);
-  font-family:var(--mono);
-  font-size:.59rem;
-  letter-spacing:.07em;
-  text-transform:uppercase;
-  opacity:.74;
-}
-
-.project-category{
-  width:min(1000px,92vw);
-  margin:0 auto;
-  padding:25px 0 5px;
-  position:relative;
-  z-index:5;
-}
-
-.category-heading{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:20px;
-  margin:0 0 16px 4px;
-}
-
-.category-heading h2{
-  font-size:1.36rem;
-  line-height:1.15;
-  font-weight:600;
-}
-
-.category-heading p{
-  margin-top:7px;
-  color:var(--muted);
-  font-size:.86rem;
-  line-height:1.55;
-  max-width:680px;
-}
-
-.category-count{
-  flex:0 0 auto;
-  min-width:58px;
-  padding:7px 10px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  text-align:center;
-  color:var(--muted);
-  font:500 .59rem var(--mono);
-  letter-spacing:.1em;
-}
-
-.artifact-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:17px;
-}
-
-.project-category .artifact{
-  min-width:0;
-  height:100%;
-  display:grid;
-  grid-template-columns:auto 1fr;
-  align-items:start;
-  gap:15px;
-  padding:21px 20px 21px;
-  border-radius:22px;
-}
-
-.project-category .artifact p{
-  max-width:none;
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:3;
-  overflow:hidden;
-}
-
-.project-category .artifact-index{
-  right:16px;
-  top:13px;
-}
-
-.project-category .arrow{
-  right:17px;
-  top:auto;
-  bottom:17px;
-  transform:translateX(-8px);
-}
-
-.project-category .artifact:hover .arrow{
-  transform:translateX(0);
-}
-
-.more-projects{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:11px;
-  width:100%;
-  height:47px;
-  margin-top:15px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:rgba(5,9,16,.28);
-  color:var(--muted);
-  cursor:pointer;
-  font:500 .62rem var(--mono);
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  transition:.35s ease;
-}
-
-body.light .more-projects{
-  background:rgba(255,255,255,.44);
-}
-
-.more-projects:hover{
-  color:var(--text);
-  border-color:rgba(115,216,255,.36);
-  transform:translateY(-2px);
-  box-shadow:0 14px 35px rgba(0,0,0,.14);
-}
-
-.more-count{
-  opacity:.7;
-}
-
-.more-arrow{
-  color:var(--cyan);
-  transition:transform .35s ease;
-}
-
-.more-projects.is-open .more-arrow{
-  transform:rotate(180deg);
-}
-
-.no-results{
-  width:min(760px,92vw);
-  margin:20px auto 60px;
-  padding:45px 28px;
-  border:1px dashed var(--line);
-  border-radius:28px;
-  text-align:center;
-  background:rgba(5,9,16,.2);
-  position:relative;
-  z-index:5;
-}
-
-body.light .no-results{
-  background:rgba(255,255,255,.35);
-}
-
-.no-results > span{
-  color:var(--pink);
-  font:500 .6rem var(--mono);
-  letter-spacing:.2em;
-}
-
-.no-results h2{
-  margin-top:10px;
-  font-size:1.45rem;
-}
-
-.no-results p{
-  max-width:520px;
-  margin:10px auto 20px;
-  color:var(--muted);
-  line-height:1.6;
-  font-size:.88rem;
-}
-
-.no-results button{
-  padding:10px 15px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  color:var(--text);
-  background:transparent;
-  cursor:pointer;
-  font:500 .61rem var(--mono);
-  letter-spacing:.1em;
-  text-transform:uppercase;
-}
-
-.project-category.is-hidden{display:none;}
-
-.project-category .artifact.is-filter-hidden{display:none;}
-
-.project-category .artifact.is-overflow-hidden{display:none;}
-
-.project-category.searching .more-projects{display:none;}
-
-@media(max-width:900px){
-  .project-tools{
-    flex-direction:column;
-    align-items:stretch;
-  }
-  .project-search{flex-basis:auto;}
-  .project-tabs{width:100%;}
-  .artifact-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-}
-
-@media(max-width:700px){
-  .project-explorer{
-    padding:22px 18px;
-    border-radius:23px;
-  }
-  .explorer-top{
-    align-items:flex-start;
-    flex-direction:column;
-    gap:13px;
-  }
-  .explorer-top h2{font-size:1.25rem;}
-  .explorer-top p{font-size:.82rem;}
-  .explorer-total{padding:8px 11px;}
-  .artifact-grid{
-    grid-template-columns:1fr;
-    gap:13px;
-  }
-  .project-category{
-    padding-top:20px;
-  }
-  .category-heading{
-    align-items:flex-start;
-    margin-left:0;
-  }
-  .category-heading h2{font-size:1.17rem;}
-  .category-heading p{font-size:.8rem;}
-  .category-count{margin-top:2px;}
-  .project-category .artifact{
-    padding:20px 17px;
-  }
-}
-
-
 /* ---------- responsive ---------- */
 
 @media(max-width:700px){
@@ -1754,7 +1334,7 @@ body.light .no-results{
 
   <p class="eyebrow">
     <span class="status-dot"></span>
-    Experimental Lab Version 3.6
+    Experimental Lab V.3.5
   </p>
 
   <!--
@@ -1840,346 +1420,336 @@ body.light .no-results{
 
    
 
-<main id="projects">
-  <div class="project-explorer">
-    <div class="explorer-top">
-      <div>
-        <span class="explorer-kicker">PROJECT EXPLORER</span>
-        <h2>Find your next thought experiment.</h2>
-        <p>Browse by territory or search the catalogue. Every project is a door; this is simply the corridor.</p>
-      </div>
-      <div class="explorer-total" id="explorerTotal">00 PROJECTS</div>
+<main>
+   <a class="artifact" href="./futurecareers.html">
+
+<div class="artifact-icon" style="color:#ff6f91">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+       stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Rocket -->
+    <path d="M14.5 4.5c2.2-2.2 4.7-2.5 5-2.5s0.3 2.8-1.9 5.1c-1.1 1.2-2.5 2.1-4 2.6l-3.3 3.3-3.3-3.3 3.3-3.3c0.5-1.5 1.4-2.9 2.6-4z"></path>
+
+    <!-- Rocket window -->
+    <circle cx="16.5" cy="5.5" r="1"></circle>
+
+    <!-- Rocket fins -->
+    <path d="M10.3 9.7L7 10l-.3 3.3"></path>
+    <path d="M14.3 13.7L14 17l-3.3.3"></path>
+
+    <!-- Exhaust -->
+    <path d="M10 14l-2 2"></path>
+    <path d="M8 18l-2 2"></path>
+    <path d="M6 16l-2 2"></path>
+
+    <!-- Upward career trajectory -->
+    <path d="M3 21c3-3 5-4 7-4"></path>
+  </svg>
+</div>
+
+    <div class="artifact-text">
+      <span>Some out, while some in.</span>
+      <h2>Future Careers</h2>
+      <p>Whatever exists, you shall love it.</p>
     </div>
 
-    <div class="project-tools">
-      <label class="project-search">
-        <span class="search-glyph" aria-hidden="true">⌕</span>
-        <input id="projectSearch" type="search" placeholder="Search projects, ideas, physics, games..." autocomplete="off" spellcheck="false">
-        <button id="clearSearch" type="button" aria-label="Clear project search" title="Clear search">×</button>
-      </label>
+    <span class="artifact-index">N.14</span>
+    <span class="arrow">&rarr;</span>
 
-      <nav class="project-tabs" aria-label="Project categories" role="tablist">
-        <button class="project-tab is-active" type="button" role="tab" aria-selected="true" data-filter="all">All</button>
-        <button class="project-tab" type="button" role="tab" aria-selected="false" data-filter="cosmos">Cosmos &amp; Physics</button>
-        <button class="project-tab" type="button" role="tab" aria-selected="false" data-filter="games">Games &amp; Worlds</button>
-        <button class="project-tab" type="button" role="tab" aria-selected="false" data-filter="mind">Mind &amp; Society</button>
-        <button class="project-tab" type="button" role="tab" aria-selected="false" data-filter="life">AI &amp; Life</button>
-      </nav>
+  </a>
+   
+   <a class="artifact" href="./healthbot/wellness.html">
+
+ <div class="artifact-icon" style="color:#2d8f73">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+    <path d="M12 7v8"></path>
+    <path d="M9 10l3-3 3 3"></path>
+  </svg>
+</div>
+
+    <div class="artifact-text">
+      <span>Healthy Life Scanner</span>
+      <h2>Wellness Bot</h2>
+      <p>Future of Health imagined.</p>
     </div>
 
-    <div class="search-status" id="searchStatus" aria-live="polite">Showing all projects.</div>
-  </div>
+    <span class="artifact-index">N.13</span>
+    <span class="arrow">&rarr;</span>
 
-   <section class="project-category" data-category="life">
-    <div class="category-heading">
-      <div>
-        <span class="category-kicker">CATEGORY / LIFE</span>
-        <h2>AI & Life</h2>
-        <p>Tools and imagined companions that sit at the edge of everyday life.</p>
-      </div>
-      <span class="category-count" aria-hidden="true">0</span>
+  </a>
+
+   <a class="artifact" href="./programs/dreamscape.html">
+
+    <div class="artifact-icon" style="color:#69f0ae">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4.5"></circle>
+        <ellipse cx="12" cy="12" rx="10" ry="3" transform="rotate(-20 12 12)"></ellipse>
+      </svg>
     </div>
-    <div class="artifact-grid">
-    <a class="artifact" href="./futurecareers.html">
-      <div class="artifact-icon" style="color:#ff6f91">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<path d="M14.5 4.5c2.2-2.2 4.7-2.5 5-2.5s0.3 2.8-1.9 5.1c-1.1 1.2-2.5 2.1-4 2.6l-3.3 3.3-3.3-3.3 3.3-3.3c0.5-1.5 1.4-2.9 2.6-4z"></path>
-<circle cx="16.5" cy="5.5" r="1"></circle>
-<path d="M10.3 9.7L7 10l-.3 3.3"></path>
-<path d="M14.3 13.7L14 17l-3.3.3"></path>
-<path d="M10 14l-2 2"></path><path d="M8 18l-2 2"></path><path d="M6 16l-2 2"></path>
-<path d="M3 21c3-3 5-4 7-4"></path>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Some out, while some in.</span>
-        <h2>Future Careers</h2>
-        <p>Whatever exists, you shall love it.</p>
-      </div>
-      <span class="artifact-index">N.14</span>
-      <span class="arrow">&rarr;</span>
-    </a>
 
-    <a class="artifact" href="./healthbot/wellness.html">
-      <div class="artifact-icon" style="color:#2d8f73">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-<path d="M12 7v8"></path><path d="M9 10l3-3 3 3"></path>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Healthy Life Scanner</span>
-        <h2>Wellness Bot</h2>
-        <p>Future of Health imagined.</p>
-      </div>
-      <span class="artifact-index">N.13</span>
-      <span class="arrow">&rarr;</span>
-    </a>
-
-    <a class="artifact" href="./programs/pal.html">
-      <div class="artifact-icon" style="color:#f5a742">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<rect x="9.5" y="6.8" width="11" height="7.4" rx="2.6"></rect>
-<path d="M13 14.2 L11.3 17.6 L15.4 14.2"></path>
-<circle cx="12.3" cy="10.5" r="0.55" fill="currentColor" stroke="none"></circle>
-<circle cx="15" cy="10.5" r="0.55" fill="currentColor" stroke="none"></circle>
-<circle cx="17.7" cy="10.5" r="0.55" fill="currentColor" stroke="none"></circle>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Don't feel lonely, or be dependent.</span>
-        <h2>Pal</h2>
-        <p>Just a machine, talking like us.</p>
-      </div>
-      <span class="artifact-index">N.09</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+    <div class="artifact-text">
+      <span>Cross Planet Empire</span>
+      <h2>Dreamscape - Panchabhootha</h2>
+      <p>Exclusively for Planet Protectors.</p>
     </div>
-    <button class="more-projects" type="button" hidden>
-      <span class="more-label">More projects</span>
-      <span class="more-count"></span>
-      <span class="more-arrow">↓</span>
-    </button>
-  </section>
 
-  <section class="project-category" data-category="cosmos">
-    <div class="category-heading">
-      <div>
-        <span class="category-kicker">CATEGORY / COSMOS</span>
-        <h2>Cosmos & Physics</h2>
-        <p>Worlds, trajectories, astronomy, and the machinery behind them.</p>
-      </div>
-      <span class="category-count" aria-hidden="true">0</span>
+    <span class="artifact-index">N.12</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+   
+   <a class="artifact" href="./programs/loom.html">
+
+ <div class="artifact-icon" style="color:#06b6d4">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+  </svg>
+</div>
+
+    <div class="artifact-text">
+      <span>Nodes, Clusters, Internodes</span>
+      <h2>Loom </h2>
+      <p>Play, think, and... more </p>
     </div>
-    <div class="artifact-grid">
 
+    <span class="artifact-index">N.11</span>
+    <span class="arrow">&rarr;</span>
 
-    <a class="artifact" href="./programs/dreamscape.html">
-      <div class="artifact-icon" style="color:#69f0ae">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<circle cx="12" cy="12" r="4.5"></circle>
-<ellipse cx="12" cy="12" rx="10" ry="3" transform="rotate(-20 12 12)"></ellipse>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Cross Planet Empire</span>
-        <h2>Dreamscape - Panchabhootha</h2>
-        <p>Exclusively for Planet Protectors.</p>
-      </div>
-      <span class="artifact-index">N.12</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+        <a class="artifact" href="./programs/chandrayaan10.html">
 
-    <a class="artifact" href="./programs/chandrayaan10.html">
-      <div class="artifact-icon" style="color:#69f0ae">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<path d="M14.5 4.5c2.2-2.2 4.7-2.5 5-2.5s0.3 2.8-1.9 5.1c-1.1 1.2-2.5 2.1-4 2.6l-3.3 3.3-3.3-3.3 3.3-3.3c0.5-1.5 1.4-2.9 2.6-4z"></path>
-<circle cx="16.5" cy="5.5" r="1"></circle>
-<path d="M10.3 9.7L7 10l-.3 3.3"></path><path d="M14.3 13.7L14 17l-3.3.3"></path>
-<path d="M10 14l-2 2"></path><path d="M8 18l-2 2"></path><path d="M6 16l-2 2"></path>
-<path d="M3 21c3-3 5-4 7-4"></path>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>A trip to the Moon</span>
-        <h2>Chandrayaan 10</h2>
-        <p>An experience that'll be real... in future</p>
-      </div>
-      <span class="artifact-index">N.10</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+<div class="artifact-icon" style="color:#69f0ae">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+       stroke-linecap="round" stroke-linejoin="round">
 
-    <a class="artifact" href="./programs/Astronomy.html">
-      <div class="artifact-icon" style="color:#69f0ae">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<circle cx="12" cy="12" r="4.5"></circle>
-<ellipse cx="12" cy="12" rx="10" ry="3" transform="rotate(-20 12 12)"></ellipse>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Explore Galaxies Online.</span>
-        <h2>Intergalactic Cartography</h2>
-        <p>Imaginary Universe for Astronomy Enthusiasts</p>
-      </div>
-      <span class="artifact-index">N.08</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+    <!-- Rocket -->
+    <path d="M14.5 4.5c2.2-2.2 4.7-2.5 5-2.5s0.3 2.8-1.9 5.1c-1.1 1.2-2.5 2.1-4 2.6l-3.3 3.3-3.3-3.3 3.3-3.3c0.5-1.5 1.4-2.9 2.6-4z"></path>
 
-    <a class="artifact" href="./programs/trajectory.html">
-      <div class="artifact-icon" style="color:#7f7fd5">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<path d="M3 20h18M3 20V4"></path>
-<path d="M4 18c4-2 8-2 10-8s5-6 7-4"></path>
-<circle cx="14" cy="7" r="1.1" fill="currentColor" stroke="none"></circle>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Physics</span>
-        <h2>Trajectory Lab</h2>
-        <p>Simply projectile motion. No doubts left.</p>
-      </div>
-      <span class="artifact-index">N.06</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+    <!-- Rocket window -->
+    <circle cx="16.5" cy="5.5" r="1"></circle>
+
+    <!-- Rocket fins -->
+    <path d="M10.3 9.7L7 10l-.3 3.3"></path>
+    <path d="M14.3 13.7L14 17l-3.3.3"></path>
+
+    <!-- Exhaust -->
+    <path d="M10 14l-2 2"></path>
+    <path d="M8 18l-2 2"></path>
+    <path d="M6 16l-2 2"></path>
+
+    <!-- Upward career trajectory -->
+    <path d="M3 21c3-3 5-4 7-4"></path>
+  </svg>
+</div>
+
+    <div class="artifact-text">
+      <span>A trip to the Moon</span>
+      <h2>Chandrayaan 10</h2>
+      <p>An experience that'll be real... in future</p>
     </div>
-    <button class="more-projects" type="button" hidden>
-      <span class="more-label">More projects</span>
-      <span class="more-count"></span>
-      <span class="more-arrow">↓</span>
-    </button>
-  </section>
 
-  <section class="project-category" data-category="games">
-    <div class="category-heading">
-      <div>
-        <span class="category-kicker">CATEGORY / GAMES</span>
-        <h2>Games & Worlds</h2>
-        <p>Interactive systems built to be explored, played, and questioned.</p>
-      </div>
-      <span class="category-count" aria-hidden="true">0</span>
+    <span class="artifact-index">N.10</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+
+  </a>
+   
+  <a class="artifact" href="./programs/pal.html">
+
+ <div class="artifact-icon" style="color:#f5a742">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9.5" y="6.8" width="11" height="7.4" rx="2.6"></rect>
+    <path d="M13 14.2 L11.3 17.6 L15.4 14.2"></path>
+    <circle cx="12.3" cy="10.5" r="0.55" fill="currentColor" stroke="none"></circle>
+    <circle cx="15" cy="10.5" r="0.55" fill="currentColor" stroke="none"></circle>
+    <circle cx="17.7" cy="10.5" r="0.55" fill="currentColor" stroke="none"></circle>
+  </svg>
+</div>
+
+
+    <div class="artifact-text">
+      <span>Don't feel lonely, or be dependent.</span>
+      <h2>Pal</h2>
+      <p>Just a machine, talking like us.</p>
     </div>
-    <div class="artifact-grid">
-    <a class="artifact" href="./programs/loom.html">
-      <div class="artifact-icon" style="color:#06b6d4">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Nodes, Clusters, Internodes</span>
-        <h2>Loom</h2>
-        <p>Play, think, and... more</p>
-      </div>
-      <span class="artifact-index">N.11</span>
-      <span class="arrow">&rarr;</span>
-    </a>
 
-    <a class="artifact" href="./programs/ZygoteBlocks.html">
-      <div class="artifact-icon" style="color:#6dd5fa">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<rect x="3" y="14" width="7" height="7"></rect>
-<rect x="14" y="14" width="7" height="7"></rect>
-<rect x="8.5" y="4" width="7" height="7"></rect>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Curiousity of Structure</span>
-        <h2>Zygote Blocks</h2>
-        <p>Reliving our childhood - Stack the blocks!</p>
-      </div>
-      <span class="artifact-index">N.07</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+    <span class="artifact-index">N.09</span>
+    <span class="arrow">&rarr;</span>
 
-    <a class="artifact" href="./programs/civica.html">
-      <div class="artifact-icon" style="color:#91eac9">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"></path>
-<path d="M10 11v6M14 11v6"></path>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Behavioral System</span>
-        <h2>Civica - Clean Park Game</h2>
-        <p>Incentives, decay, and the uncomfortable truth that morality behaves differently in crowds.</p>
-      </div>
-      <span class="artifact-index">N.05</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+  </a>
+  
+  <a class="artifact" href="./programs/Astronomy.html">
+
+    <div class="artifact-icon" style="color:#69f0ae">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4.5"></circle>
+        <ellipse cx="12" cy="12" rx="10" ry="3" transform="rotate(-20 12 12)"></ellipse>
+      </svg>
     </div>
-    <button class="more-projects" type="button" hidden>
-      <span class="more-label">More projects</span>
-      <span class="more-count"></span>
-      <span class="more-arrow">↓</span>
-    </button>
-  </section>
 
-  <section class="project-category" data-category="mind">
-    <div class="category-heading">
-      <div>
-        <span class="category-kicker">CATEGORY / MIND</span>
-        <h2>Mind & Society</h2>
-        <p>Experiments about perception, decisions, narratives, and human systems.</p>
-      </div>
-      <span class="category-count" aria-hidden="true">0</span>
+    <div class="artifact-text">
+      <span>Explore Galaxies Online.</span>
+      <h2>Intergalactic Cartography</h2>
+      <p>Imaginary Universe for Astronomy Enthusiasts</p>
     </div>
-    <div class="artifact-grid">
-    <a class="artifact" href="./programs/ComparisonMatrix.html">
-      <div class="artifact-icon" style="color:#f5a742">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<rect x="3" y="3" width="8" height="8"></rect><rect x="13" y="3" width="8" height="8"></rect>
-<rect x="3" y="13" width="8" height="8"></rect><rect x="13" y="13" width="8" height="8"></rect>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Cognitive Tool</span>
-        <h2>Comparison Matrix</h2>
-        <p>When intuition fails, structure steps in — not to decide, but to reveal trade-offs you were avoiding.</p>
-      </div>
-      <span class="artifact-index">N.04</span>
-      <span class="arrow">&rarr;</span>
-    </a>
 
-    <a class="artifact" href="./programs/MirrorSimulator.html">
-      <div class="artifact-icon" style="color:#ff6f91">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<path d="M12 3l7 18H5z"></path><path d="M12 21V3" stroke-dasharray="2 2"></path>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Perception Probe</span>
-        <h2>Mirror Simulator</h2>
-        <p>Observation alters outcomes. The mirror is not neutral. Neither are you.</p>
-      </div>
-      <span class="artifact-index">N.03</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+    <span class="artifact-index">N.08</span>
+    <span class="arrow">&rarr;</span>
 
-    <a class="artifact" href="./programs/newnews.html">
-      <div class="artifact-icon" style="color:#c792ea">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<rect x="4" y="3" width="16" height="18" rx="1"></rect>
-<path d="M8 8h8M8 12h8M8 16h5"></path>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Narrative Experiment</span>
-        <h2>News Headlines</h2>
-        <p>Same facts. Different frames. Watch reality bend without breaking.</p>
-      </div>
-      <span class="artifact-index">N.02</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+  </a>
 
-    <a class="artifact" href="./programs/SuccessProbability.html">
-      <div class="artifact-icon" style="color:#69f0ae">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<path d="M3 19h18"></path><path d="M4 19c3-1 4-13 8-13s5 12 8 13"></path>
-</svg>
-      </div>
-      <div class="artifact-text">
-        <span>Flawed Model</span>
-        <h2>Success Probability</h2>
-        <p>Effort, luck, burnout, noise — simplified until the simplification itself becomes the lesson.</p>
-      </div>
-      <span class="artifact-index">N.01</span>
-      <span class="arrow">&rarr;</span>
-    </a>
+  <!-- N.07 -->
+  <a class="artifact" href="./programs/ZygoteBlocks.html">
+
+    <div class="artifact-icon" style="color:#6dd5fa">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="14" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="8.5" y="4" width="7" height="7"></rect>
+      </svg>
     </div>
-    <button class="more-projects" type="button" hidden>
-      <span class="more-label">More projects</span>
-      <span class="more-count"></span>
-      <span class="more-arrow">↓</span>
-    </button>
-  </section>
 
+    <div class="artifact-text">
+      <span>Curiousity of Structure</span>
+      <h2>Zygote Blocks</h2>
+      <p>Reliving our childhood - Stack the blocks!</p>
+    </div>
 
-  <div class="no-results" id="noResults" hidden>
-    <span>NO SIGNAL</span>
-    <h2>Nothing matched that search.</h2>
-    <p>Try a project name, category, or a word from one of its descriptions.</p>
-    <button type="button" id="resetProjects">Reset explorer</button>
-  </div>
+    <span class="artifact-index">N.07</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+
+  <!-- N.06 -->
+  <a class="artifact" href="./programs/trajectory.html">
+
+    <div class="artifact-icon" style="color:#7f7fd5">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 20h18M3 20V4"></path>
+        <path d="M4 18c4-2 8-2 10-8s5-6 7-4"></path>
+        <circle cx="14" cy="7" r="1.1" fill="currentColor" stroke="none"></circle>
+      </svg>
+    </div>
+
+    <div class="artifact-text">
+      <span>Physics</span>
+      <h2>Trajectory Lab</h2>
+      <p>Simply projectile motion. No doubts left.</p>
+    </div>
+
+    <span class="artifact-index">N.06</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+
+  <!-- N.05 -->
+  <a class="artifact" href="./programs/civica.html">
+
+    <div class="artifact-icon" style="color:#91eac9">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"></path>
+        <path d="M10 11v6M14 11v6"></path>
+      </svg>
+    </div>
+
+    <div class="artifact-text">
+      <span>Behavioral System</span>
+      <h2>Civica - Clean Park Game</h2>
+      <p>Incentives, decay, and the uncomfortable truth that morality behaves differently in crowds.</p>
+    </div>
+
+    <span class="artifact-index">N.05</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+
+  <!-- N.04 -->
+  <a class="artifact" href="./programs/ComparisonMatrix.html">
+
+    <div class="artifact-icon" style="color:#f5a742">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="8" height="8"></rect>
+        <rect x="13" y="3" width="8" height="8"></rect>
+        <rect x="3" y="13" width="8" height="8"></rect>
+        <rect x="13" y="13" width="8" height="8"></rect>
+      </svg>
+    </div>
+
+    <div class="artifact-text">
+      <span>Cognitive Tool</span>
+      <h2>Comparison Matrix</h2>
+      <p>When intuition fails, structure steps in — not to decide, but to reveal trade-offs you were avoiding.</p>
+    </div>
+
+    <span class="artifact-index">N.04</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+
+  <!-- N.03 -->
+  <a class="artifact" href="./programs/MirrorSimulator.html">
+
+    <div class="artifact-icon" style="color:#ff6f91">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l7 18H5z"></path>
+        <path d="M12 21V3" stroke-dasharray="2 2"></path>
+      </svg>
+    </div>
+
+    <div class="artifact-text">
+      <span>Perception Probe</span>
+      <h2>Mirror Simulator</h2>
+      <p>Observation alters outcomes. The mirror is not neutral. Neither are you.</p>
+    </div>
+
+    <span class="artifact-index">N.03</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+
+  <!-- N.02 -->
+  <a class="artifact" href="./programs/newnews.html">
+
+    <div class="artifact-icon" style="color:#c792ea">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="3" width="16" height="18" rx="1"></rect>
+        <path d="M8 8h8M8 12h8M8 16h5"></path>
+      </svg>
+    </div>
+
+    <div class="artifact-text">
+      <span>Narrative Experiment</span>
+      <h2>News Headlines</h2>
+      <p>Same facts. Different frames. Watch reality bend without breaking.</p>
+    </div>
+
+    <span class="artifact-index">N.02</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+
+  <!-- N.01 -->
+  <a class="artifact" href="./programs/SuccessProbability.html">
+
+    <div class="artifact-icon" style="color:#69f0ae">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 19h18"></path>
+        <path d="M4 19c3-1 4-13 8-13s5 12 8 13"></path>
+      </svg>
+    </div>
+
+    <div class="artifact-text">
+      <span>Flawed Model</span>
+      <h2>Success Probability</h2>
+      <p>Effort, luck, burnout, noise — simplified until the simplification itself becomes the lesson.</p>
+    </div>
+
+    <span class="artifact-index">N.01</span>
+    <span class="arrow">&rarr;</span>
+
+  </a>
+
 </main>
 
 <footer>
@@ -2392,225 +1962,25 @@ window.addEventListener("scroll", () => {
    REVEAL CARDS
 ========================================================= */
 
-/* =========================================================
-   PROJECT EXPLORER — SEARCH + CATEGORY TABS + MORE PROJECTS
-   Project cards stay plain HTML inside their category section.
-   Add a new .artifact there and the catalogue handles the rest.
-========================================================= */
+const artifacts = document.querySelectorAll(".artifact");
 
-const explorer = document.getElementById("projects");
-const projectSearch = document.getElementById("projectSearch");
-const clearSearch = document.getElementById("clearSearch");
-const searchStatus = document.getElementById("searchStatus");
-const explorerTotal = document.getElementById("explorerTotal");
-const noResults = document.getElementById("noResults");
-const resetProjects = document.getElementById("resetProjects");
-const projectTabs = [...document.querySelectorAll(".project-tab")];
-const projectCategories = [...document.querySelectorAll(".project-category")];
-const projectCards = [...document.querySelectorAll(".project-category .artifact")];
-const PROJECTS_PER_PAGE = 9;
+const revealObserver = new IntersectionObserver((entries) => {
 
-projectCategories.forEach(category=>{
-  const cards = [...category.querySelectorAll(".artifact")];
-  const count = category.querySelector(".category-count");
-  const moreButton = category.querySelector(".more-projects");
-  const moreCount = category.querySelector(".more-count");
+  entries.forEach((entry) => {
 
-  category._cards = cards;
-  category._moreButton = moreButton;
-  category._expanded = false;
-
-  count.textContent = String(cards.length).padStart(2,"0");
-
-  moreButton.addEventListener("click",()=>{
-    category._expanded = !category._expanded;
-    applyProjectExplorer();
-  });
-});
-
-explorerTotal.textContent = `${String(projectCards.length).padStart(2,"0")} PROJECTS`;
-
-let activeProjectFilter = "all";
-
-function projectSearchText(card){
-  return [
-    card.querySelector("span:not(.artifact-index)")?.textContent || "",
-    card.querySelector("h2")?.textContent || "",
-    card.querySelector("p")?.textContent || "",
-    card.getAttribute("href") || "",
-    card.closest(".project-category")?.querySelector(".category-heading h2")?.textContent || "",
-    card.closest(".project-category")?.querySelector(".category-heading p")?.textContent || ""
-  ].join(" ").toLowerCase();
-}
-
-projectCards.forEach(card=>{
-  card._searchText = projectSearchText(card);
-});
-
-function normalizedWords(value){
-  return value.toLowerCase().trim().split(/\s+/).filter(Boolean);
-}
-
-function fuzzyProjectMatch(card, query){
-  if(!query)return true;
-  const words = normalizedWords(query);
-  const haystack = card._searchText;
-
-  return words.every(word=>{
-    if(haystack.includes(word))return true;
-
-    /* Small amount of tolerance for searches such as "astro" -> "astronomy". */
-    const tokens = haystack.split(/[^a-z0-9]+/).filter(Boolean);
-    return tokens.some(token=>{
-      if(token.startsWith(word) || word.startsWith(token))return true;
-      if(word.length < 4 || token.length < 4)return false;
-
-      let distance=0;
-      const limit=Math.max(1,Math.floor(Math.min(word.length,token.length)*.28));
-      const rows=Array.from({length:word.length+1},(_,i)=>i);
-
-      for(let i=1;i<=token.length;i++){
-        let prev=rows[0];
-        rows[0]=i;
-        for(let j=1;j<=word.length;j++){
-          const current=rows[j];
-          rows[j]=Math.min(
-            rows[j]+1,
-            rows[j-1]+1,
-            prev+(token[i-1]===word[j-1]?0:1)
-          );
-          prev=current;
-        }
-      }
-
-      distance=rows[word.length];
-      return distance<=limit;
-    });
-  });
-}
-
-function updateTabUI(){
-  projectTabs.forEach(tab=>{
-    const active=tab.dataset.filter===activeProjectFilter;
-    tab.classList.toggle("is-active",active);
-    tab.setAttribute("aria-selected",String(active));
-  });
-}
-
-function applyProjectExplorer(){
-  const query=projectSearch.value.trim().toLowerCase();
-  const searching=Boolean(query);
-  let visibleTotal=0;
-
-  projectCategories.forEach(category=>{
-    const categoryMatches=activeProjectFilter==="all" || category.dataset.category===activeProjectFilter;
-    const matches=category._cards.filter(card=>categoryMatches && fuzzyProjectMatch(card,query));
-
-    category.classList.toggle("searching",searching);
-    category.classList.toggle("is-hidden",!categoryMatches);
-
-    category._cards.forEach((card,index)=>{
-      const visible=categoryMatches && fuzzyProjectMatch(card,query) &&
-        (searching || category._expanded || index<PROJECTS_PER_PAGE);
-
-      card.classList.toggle("is-filter-hidden",!fuzzyProjectMatch(card,query) || !categoryMatches);
-      card.classList.toggle("is-overflow-hidden",!searching && !category._expanded && index>=PROJECTS_PER_PAGE);
-      card.dataset.explorerVisible=String(visible);
-
-      if(visible)visibleTotal++;
-    });
-
-    const overflowCount=Math.max(0,category._cards.length-PROJECTS_PER_PAGE);
-    const moreButton=category._moreButton;
-    const moreCount=category._moreButton.querySelector(".more-count");
-
-    if(overflowCount>0 && !searching && categoryMatches){
-      moreButton.hidden=false;
-      moreButton.classList.toggle("is-open",category._expanded);
-      moreButton.querySelector(".more-label").textContent=category._expanded ? "Show fewer" : "More projects";
-      moreCount.textContent=`${overflowCount} more`;
-      if(category._expanded)moreCount.textContent="collapse";
-    }else{
-      moreButton.hidden=true;
-      moreButton.classList.remove("is-open");
-    }
-  });
-
-  projectCategories.forEach(category=>{
-    const visibleCards=category._cards.filter(card=>card.dataset.explorerVisible==="true");
-    category.hidden=visibleCards.length===0 && (searching || activeProjectFilter!=="all");
-  });
-
-  noResults.hidden=!searching || visibleTotal>0;
-
-  const resultLabel=visibleTotal===1 ? "project" : "projects";
-  if(searching){
-    searchStatus.textContent=`${visibleTotal} ${resultLabel} found for "${projectSearch.value.trim()}".`;
-  }else if(activeProjectFilter==="all"){
-    searchStatus.textContent=`Showing all ${projectCards.length} projects.`;
-  }else{
-    const selected=projectTabs.find(tab=>tab.dataset.filter===activeProjectFilter);
-    const label=selected?.textContent.trim() || "this category";
-    const count=projectCategories.find(c=>c.dataset.category===activeProjectFilter)?._cards.length || 0;
-    searchStatus.textContent=`Showing ${count} ${count===1?"project":"projects"} in ${label}.`;
-  }
-
-  explorerTotal.textContent=searching
-    ? `${String(visibleTotal).padStart(2,"0")} FOUND`
-    : `${String(projectCards.length).padStart(2,"0")} PROJECTS`;
-
-  document.querySelector(".project-search")?.classList.toggle("has-value",searching);
-  updateTabUI();
-
-  projectCards.forEach(card=>{
-    card.classList.remove("reveal");
-    if(card.dataset.explorerVisible==="true"){
-      requestAnimationFrame(()=>card.classList.add("reveal"));
-    }
-  });
-}
-
-projectTabs.forEach(tab=>{
-  tab.addEventListener("click",()=>{
-    activeProjectFilter=tab.dataset.filter;
-    projectCategories.forEach(category=>{
-      category._expanded=false;
-    });
-    applyProjectExplorer();
-    document.getElementById("projects")?.scrollIntoView({behavior:"smooth",block:"start"});
-  });
-});
-
-projectSearch.addEventListener("input",applyProjectExplorer);
-
-clearSearch.addEventListener("click",()=>{
-  projectSearch.value="";
-  applyProjectExplorer();
-  projectSearch.focus();
-});
-
-resetProjects.addEventListener("click",()=>{
-  projectSearch.value="";
-  activeProjectFilter="all";
-  projectCategories.forEach(category=>category._expanded=false);
-  applyProjectExplorer();
-  projectSearch.focus();
-});
-
-const revealObserver = new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{
     if(entry.isIntersecting){
       entry.target.classList.add("reveal");
       revealObserver.unobserve(entry.target);
     }
+
   });
-},{
+
+}, {
   threshold:.12,
   rootMargin:"0px 0px -50px 0px"
 });
 
-projectCards.forEach(card=>revealObserver.observe(card));
-applyProjectExplorer();
+artifacts.forEach(card => revealObserver.observe(card));
 
 /* =========================================================
    BACKGROUND SPACE CANVAS
