@@ -7,6 +7,7 @@ Errors in the site noted down. Acting upon them.
 This is due to an upcoming project. The problems are being fixed at the earliest, thank you for your patience! 
 
 P.S. Errors fixed. 
+------------------------------------------------------------------------------------------
 
 September 16, 2026
 
