@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Epistemic Loom | Zygote Builder</title>
+    <style>
+        :root {
+            --bg-deep: #030712;
+            --panel-bg: rgba(15, 23, 42, 0.75);
+            --border-glow: rgba(56, 189, 248, 0.3);
+            --accent-cyan: #38bdf8;
+            --accent-purple: #c084fc;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* UI Overlays */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+        }
+
+        .interactive {
+            pointer-events: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .title-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            max-width: 360px;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        p.subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        .controls-hint {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-muted);
+        }
+
+        .hud-stats {
+            display: flex;
+            gap: 16px;
+        }
+
+        .stat-box {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            padding: 12px 18px;
+            border-radius: 10px;
+            text-align: right;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        /* Bottom Toolbox */
+        footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .tool-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            padding: 12px 20px;
+            border-radius: 16px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(192, 132, 252, 0.2));
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        /* Intro Guide Overlay */
+        #intro-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        #intro-modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .modal-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 36px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            text-align: left;
+        }
+
+        .modal-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .instruction-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+
+        .step-num {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 0.75rem;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: var(--bg-deep);
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+        }
+
+        .modal-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Floating Thought Notification */
+        #thought-banner {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--panel-bg);
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        #thought-banner.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+    <!-- Three.js and OrbitControls via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+    <!-- Intro Guide Modal -->
+    <div id="intro-modal">
+        <div class="modal-card">
+            <h2>The Epistemic Loom</h2>
+            <p>Welcome to a sandbox for growing thoughts and spatial crystallizations. Weave ideas, stabilize resonance nodes, and decompress your mind into a structured 3D architecture.</p>
+            
+            <div class="instruction-steps">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div><strong>Click Space:</strong> Click anywhere on the dark void or crystal mesh to spawn new thought-nodes.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div><strong>Weave Resonances:</strong> Click two nodes consecutively to form a dynamic energy tether between them.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div><strong>Harmonize & Collapse:</strong> Use the bottom toolbar to crystallize insights, clear entropy, or shift states.</div>
+                </div>
+            </div>
+
+            <button class="modal-btn" onclick="closeIntro()">Enter The Loom</button>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="ui-layer">
+        <header>
+            <div class="title-card interactive">
+                <h1>The Epistemic Loom</h1>
+                <p class="subtitle">Recursive 3D thought crystallization & structural stress solver.</p>
+                <div class="controls-hint">
+                    <span class="badge">Click: Spawn Node</span>
+                    <span class="badge">Drag: Orbit View</span>
+                </div>
+            </div>
+
+            <div class="hud-stats interactive">
+                <div class="stat-box">
+                    <div class="stat-value" id="node-count">0</div>
+                    <div class="stat-label">Nodes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="tether-count">0</div>
+                    <div class="stat-label">Tethers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="coherence-val">100%</div>
+                    <div class="stat-label">Coherence</div>
+                </div>
+            </div>
+        </header>
+
+        <div id="thought-banner">Insight stabilized: Node connection reinforced.</div>
+
+        <footer>
+            <div class="tool-panel interactive">
+                <button class="btn btn-primary" onclick="spawnCluster()">✨ Seed Cluster</button>
+                <button class="btn" onclick="pulseResonance()">⚡ Pulse Coherence</button>
+                <button class="btn" onclick="openIntroModal()">❓ Guide</button>
+                <button class="btn" onclick="clearLoom()" style="color: #fca5a5; border-color: rgba(252, 165, 165, 0.2);">🗑️ Purge Entropy</button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let nodes = [];
+        let tethers = [];
+        let raycaster, mouse;
+        let selectedNode = null;
+        let coherence = 100;
+
+        const concepts = [
+            "Recursive Loop", "First Principles", "Entropy Vector", "Signal / Noise",
+            "Axiomatic Seed", "Emergent Property", "Deterministic Flow", "Semantic Bridge"
+        ];
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x030712, 0.025);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 15, 30);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            container.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 80;
+            controls.minDistance = 5;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            const pointLight1 = new THREE.PointLight(0x38bdf8, 3, 50);
+            pointLight1.position.set(10, 20, 10);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0xc084fc, 3, 50);
+            pointLight2.position.set(-10, -20, -10);
+            scene.add(pointLight2);
+
+            // Background Grid Starfield / Dust
+            createDustField();
+
+            // Raycasting setup
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('pointerdown', onPointerDown);
+
+            // Spawn initial starter nodes
+            spawnCluster();
+
+            animate();
+        }
+
+        function createDustField() {
+            const particleCount = 400;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 80;
+                positions[i + 1] = (Math.random() - 0.5) * 80;
+                positions[i + 2] = (Math.random() - 0.5) * 80;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const material = new THREE.PointsMaterial({
+                color: 0x38bdf8,
+                size: 0.3,
+                transparent: true,
+                opacity: 0.4
+            });
+
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+        }
+
+        function closeIntro() {
+            const modal = document.getElementById('intro-modal');
+            modal.classList.add('hidden');
+        }
+
+        function openIntroModal() {
+            const modal = document.getElementById('intro-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function showThoughtBanner(text) {
+            const banner = document.getElementById('thought-banner');
+            banner.textContent = text;
+            banner.classList.add('visible');
+            setTimeout(() => {
+                banner.classList.remove('visible');
+            }, 3000);
+        }
+
+        class ThoughtNode {
+            constructor(x, y, z, label) {
+                this.id = Math.random().toString(36).substr(2, 9);
+                this.label = label || concepts[Math.floor(Math.random() * concepts.length)];
+                
+                const geometry = new THREE.IcosahedronGeometry(0.8, 0);
+                const material = new THREE.MeshPhysicalMaterial({
+                    color: Math.random() > 0.5 ? 0x38bdf8 : 0xc084fc,
+                    metalness: 0.2,
+                    roughness: 0.1,
+                    transmission: 0.6,
+                    thickness: 1.2,
+                    transparent: true,
+                    opacity: 0.9
+                });
+
+                this.mesh = new THREE.Mesh(geometry, material);
+                this.mesh.position.set(x, y, z);
+                this.mesh.userData = { parentNode: this };
+                scene.add(this.mesh);
+
+                // Glow ring
+                const ringGeo = new THREE.RingGeometry(1.0, 1.2, 32);
+                const ringMat = new THREE.MeshBasicMaterial({ 
+                    color: 0x38bdf8, 
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                this.ring = new THREE.Mesh(ringGeo, ringMat);
+                this.ring.position.copy(this.mesh.position);
+                this.ring.lookAt(camera.position);
+                scene.add(this.ring);
+
+                nodes.push(this);
+                updateHUD();
+            }
+
+            pulse() {
+                let scale = 1.6;
+                let startTime = Date.now();
+                const animatePulse = () => {
+                    let elapsed = (Date.now() - startTime) / 400;
+                    if (elapsed < 1) {
+                        let currentScale = 1 + (scale - 1) * Math.sin(elapsed * Math.PI);
+                        this.mesh.scale.set(currentScale, currentScale, currentScale);
+                        requestAnimationFrame(animatePulse);
+                    } else {
+                        this.mesh.scale.set(1, 1, 1);
+                    }
+                };
+                animatePulse();
+            }
+
+            destroy() {
+                scene.remove(this.mesh);
+                scene.remove(this.ring);
+                this.mesh.geometry.dispose();
+                this.mesh.material.dispose();
+                this.ring.geometry.dispose();
+                this.ring.material.dispose();
+            }
+        }
+
+        class Tether {
+            constructor(nodeA, nodeB) {
+                this.nodeA = nodeA;
+                this.nodeB = nodeB;
+
+                const geometry = new THREE.BufferGeometry();
+                const material = new THREE.LineBasicMaterial({
+                    color: 0x38bdf8,
+                    transparent: true,
+                    opacity: 0.6,
+                    linewidth: 2
+                });
+
+                this.line = new THREE.Line(geometry, material);
+                scene.add(this.line);
+                this.updatePosition();
+
+                tethers.push(this);
+                updateHUD();
+            }
+
+            updatePosition() {
+                const positions = new Float32Array([
+                    this.nodeA.mesh.position.x, this.nodeA.mesh.position.y, this.nodeA.mesh.position.z,
+                    this.nodeB.mesh.position.x, this.nodeB.mesh.position.y, this.nodeB.mesh.position.z
+                ]);
+                this.line.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                this.line.geometry.attributes.position.needsUpdate = true;
+            }
+
+            destroy() {
+                scene.remove(this.line);
+                this.line.geometry.dispose();
+                this.line.material.dispose();
+            }
+        }
+
+        function onPointerDown(event) {
+            // Ignore if clicking UI elements
+            if (event.clientY < 80 || event.clientY > window.innerHeight - 80 || event.clientX < 20 || event.clientX > window.innerWidth - 20) {
+                // Check if inside footer or header boxes
+                if (event.target.closest('.interactive')) return;
+            }
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children);
+
+            let hitNode = null;
+            for (let hit of intersects) {
+                if (hit.object.userData && hit.object.userData.parentNode) {
+                    hitNode = hit.object.userData.parentNode;
+                    break;
+                }
+            }
+
+            if (hitNode) {
+                hitNode.pulse();
+                if (selectedNode && selectedNode !== hitNode) {
+                    // Create tether
+                    new Tether(selectedNode, hitNode);
+                    selectedNode.mesh.material.emissive.setHex(0x000000);
+                    selectedNode = null;
+                    showThoughtBanner("Resonance tether established successfully.");
+                } else if (selectedNode === hitNode) {
+                    selectedNode.mesh.material.emissive.setHex(0x000000);
+                    selectedNode = null;
+                } else {
+                    selectedNode = hitNode;
+                    selectedNode.mesh.material.emissive.setHex(0x38bdf8);
+                    showThoughtBanner(`Node selected: "${hitNode.label}". Pick target.`);
+                }
+            } else {
+                // Spawn new node on an imaginary plane facing camera
+                const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
+                const dir = vector.sub(camera.position).normalize();
+                const distance = 15;
+                const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+
+                const newNode = new ThoughtNode(pos.x, pos.y, pos.z);
+                newNode.pulse();
+
+                if (nodes.length > 1 && Math.random() > 0.3) {
+                    // Automatically connect to nearest node
+                    let nearest = nodes[0];
+                    let minDist = Infinity;
+                    for (let n of nodes) {
+                        if (n === newNode) continue;
+                        let dist = n.mesh.position.distanceTo(newNode.mesh.position);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearest = n;
+                        }
+                    }
+                    if (nearest) {
+                        new Tether(newNode, nearest);
+                    }
+                }
+                showThoughtBanner("New thought node crystallized in space.");
+            }
+        }
+
+        function spawnCluster() {
+            const count = 4;
+            const center = new THREE.Vector3(
+                (Math.random() - 0.5) * 10,
+                (Math.random() - 0.5) * 10,
+                (Math.random() - 0.5) * 10
+            );
+
+            let firstNew = null;
+            for (let i = 0; i < count; i++) {
+                const offset = new THREE.Vector3(
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8
+                );
+                const n = new ThoughtNode(center.x + offset.x, center.y + offset.y, center.z + offset.z);
+                if (!firstNew) firstNew = n;
+                if (nodes.length > 1) {
+                    const target = nodes[Math.floor(Math.random() * nodes.length)];
+                    if (target !== n) new Tether(n, target);
+                }
+            }
+            showThoughtBanner("Seed cluster deployed into the epistemic lattice.");
+        }
+
+        function pulseResonance() {
+            nodes.forEach((n, idx) => {
+                setTimeout(() => n.pulse(), idx * 80);
+            });
+            coherence = Math.min(100, coherence + 15);
+            updateHUD();
+            showThoughtBanner("System coherence wave initiated.");
+        }
+
+        function clearLoom() {
+            tethers.forEach(t => t.destroy());
+            tethers = [];
+            nodes.forEach(n => n.destroy());
+            nodes = [];
+            selectedNode = null;
+            coherence = 100;
+            updateHUD();
+            showThoughtBanner("Entropy purged. Loom reset.");
+        }
+
+        function updateHUD() {
+            document.getElementById('node-count').textContent = nodes.length;
+            document.getElementById('tether-count').textContent = tethers.length;
+            document.getElementById('coherence-val').textContent = coherence + '%';
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        let clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Gently rotate nodes and align rings
+            nodes.forEach((node, index) => {
+                node.mesh.rotation.x += 0.005;
+                node.mesh.rotation.y += 0.008;
+                node.ring.lookAt(camera.position);
+
+                // Floating sine bob
+                node.mesh.position.y += Math.sin(elapsedTime * 2 + index) * 0.002;
+                node.ring.position.copy(node.mesh.position);
+            });
+
+            // Update tether lines
+            tethers.forEach(t => t.updatePosition());
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
