@@ -49,7 +49,7 @@ The technology changes depending on what the experiment needs.
 
 Currently, that includes things like:
 
-`HTML` · `CSS` · `JavaScript` · `Three.js` · `Cannon.js` · `Browser APIs`
+`HTML` · `CSS` · `JavaScript` · `Three.js` · `Cannon.js` · `Browser APIs` · `Python`
 
 No framework loyalty.
 No unnecessary complexity.
