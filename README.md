@@ -17,7 +17,7 @@ The name comes from putting two extreme scales together.
 
 That is the idea behind **Astronomy × Biology.**
 
-But Zygote is not really about staying inside two subjects.
+But Zygote Builder is not really about staying inside two subjects.
 
 Some experiments are scientific.
 Some are educational.
