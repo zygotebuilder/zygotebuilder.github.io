@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zygote Dictionary — New era, New Dictionary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<header>
+  <div class="brand"><span class="logo" aria-hidden="true">Z</span><div><h1>Zygote Dictionary</h1><p class="quote">New era, New Dictionary</p></div></div>
+  <div class="stats" aria-live="polite"><b id="lvl">Lv 1</b><span class="bar"><i id="xpbar"></i></span><span id="streak"></span></div>
+</header>
+<nav role="tablist">
+  <button class="tab on" data-v="lib">Library</button>
+  <button class="tab" data-v="forge">Word Forge</button>
+  <button class="tab" data-v="new">Newly constructed <em id="nc">0</em></button>
+  <button class="tab" data-v="mine">My words <em id="mc">0</em></button>
+</nav>
+<main>
+<section id="lib" class="view on">
+  <div class="book">
+    <input id="q" type="search" placeholder="Search the dictionary…" aria-label="Search words" autocomplete="off">
+    <div id="az" class="az"></div>
+    <ul id="list" class="entries"></ul>
+    <div class="pager"><button id="prev">‹ Prev</button><span id="pg"></span><button id="next">Next ›</button></div>
+    <div class="prog"><i id="prog"></i></div>
+  </div>
+</section>
+<section id="forge" class="view">
+  <div class="book">
+    <h2>Word Forge</h2>
+    <p class="hint">Add two or more real words, then fuse them into something new.</p>
+    <div class="adder"><input id="wi" placeholder="Type a dictionary word" autocomplete="off" aria-label="Add a word"><button id="add">Add</button><button id="dice" title="Roll two random words">🎲 Roll</button><button id="daily" title="Today's challenge">☀ Daily</button></div>
+    <div id="tiles" class="tiles"></div>
+    <div id="cands" class="cands"></div>
+    <label>Your word <input id="nw" maxlength="24" placeholder="Fused word appears here — edit freely" autocomplete="off"></label>
+    <label>Meaning <textarea id="nm" maxlength="140" rows="2" placeholder="One line. You decide what it means."></textarea></label>
+    <div class="row"><span id="score" class="score"></span><button id="pub" class="go">Publish</button></div>
+    <p id="msg" class="msg" role="status"></p>
+  </div>
+</section>
+<section id="new" class="view"><div class="book"><h2>Newly constructed words</h2><ul id="nl" class="entries"></ul></div></section>
+<section id="mine" class="view"><div class="book"><h2>My words</h2><p class="hint">Saved on this device — yours to keep.</p><div class="row"><button id="exp">Copy my words as JSON</button></div><ul id="ml" class="entries"></ul></div></section>
+</main>
+<script src="app.js"></script>
+</body></html>
