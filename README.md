@@ -66,7 +66,7 @@ For simple ones:
 
 **Open → Explore → Tinker.**
 
-Some experiments need a local server. For those:
+Some experiments may need a local server. For those:
 
 ```bash
 python -m http.server
