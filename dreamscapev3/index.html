@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Dreamscape: Panchabhūta — Zygote Builder</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div id="app">
+<canvas id="sky"></canvas><canvas id="c3d"></canvas><div class="vignette"></div>
+<header class="topbar">
+ <div class="brand"><div class="logo"></div><div><b>Dreamscape: Panchabhūta</b><small id="rulerTag">Five worlds. One dharma.</small></div></div>
+ <div class="resources" id="resourceBar"></div>
+ <nav class="navbtns"><button data-open="tech">🧠 Tech</button><button data-open="deeds">🏆 Deeds</button><button data-open="chronicle">📜 Chronicle</button><button data-open="data">⚙ Data</button></nav>
+</header>
+<div class="viewtoggle"><button id="vSystem" class="active">◐ Star Map</button><button id="vWorld">👑 Walk the World</button></div>
+<section class="panel left-dock" id="leftDock"><div class="paneltitle"><span id="pTitle"></span><small id="pEpi"></small></div><div class="body" id="statsBody"></div></section>
+<section class="panel right-dock" id="rightDock"><div class="paneltitle"><span>⚒ Build &amp; Govern</span></div><div class="body" id="buildBody"></div></section>
+<div class="bottombar"><button id="claimBtn" style="display:none"></button><button class="primary" id="councilBtn">☸ Convene Council</button></div>
+<div class="walkhint" id="walkHint">← → move · Space: ruler speaks · Esc: star map</div>
+<div id="court"><div class="who" id="cWho"></div><p id="cTxt"></p><div id="cBtns"></div></div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="modalcard"><div class="modalhead"><div><h2 id="mTitle"></h2><p id="mSub"></p></div><button class="close" id="mClose">×</button></div><div id="mBody"></div></div></div>
+</div><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="game.js"></script><script src="extras.js"></script></body></html>
