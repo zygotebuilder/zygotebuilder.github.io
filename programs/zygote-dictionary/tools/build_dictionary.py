@@ -16,3 +16,5 @@ for w, d in raw.items():
 words = sorted(out.items())
 json.dump(words, open("data/words.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 print(len(words), "words written")
+
+
