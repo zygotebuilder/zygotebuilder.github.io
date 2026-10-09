@@ -1,0 +1,65 @@
+ <!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Dreamscape: Panchabhūta — Zygote Builder</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- 1 · Scene layers (2D star map, 3D worlds, vignette) -->
+  <canvas id="sky"></canvas>
+  <canvas id="c3d"></canvas>
+  <div class="vignette"></div>
+
+  <!-- 2 · Heads-up display: brand + resources, then command toolbar -->
+  <div class="hud">
+    <header class="topbar">
+      <div class="brand"><div class="logo"></div><div><b>Dreamscape: Panchabhūta</b><small id="rulerTag">Five worlds. One dharma.</small></div></div>
+      <div class="resources" id="resourceBar" aria-live="polite"></div>
+    </header>
+    <nav class="navbtns toolbar" aria-label="Royal commands">
+      <button data-open="tech">🧠 Tech</button>
+      <button data-open="deeds">🏆 Deeds</button>
+      <button data-open="chronicle">📜 Chronicle</button>
+      <button data-open="data">⚙ Data</button>
+      <!-- Mahamatya, Dyson, Space Agency and 🔊 are added here by story.js / agency.js / extras.js -->
+    </nav>
+  </div>
+
+  <!-- 3 · View switch -->
+  <div class="viewtoggle">
+    <button id="vSystem" class="active">◐ Star Map</button>
+    <button id="vWorld">👑 Walk the World</button>
+  </div>
+
+  <!-- 4 · Side docks -->
+  <aside class="panel left-dock" id="leftDock"><div class="paneltitle"><span id="pTitle"></span><small id="pEpi"></small></div><div class="body" id="statsBody"></div></aside>
+  <aside class="panel right-dock" id="rightDock"><div class="paneltitle"><span>⚒ Build &amp; Govern</span></div><div class="body" id="buildBody"></div></aside>
+
+  <!-- 5 · Bottom actions -->
+  <footer class="bottombar">
+    <button id="claimBtn" style="display:none"></button>
+    <button class="primary" id="councilBtn">☸ Convene Council</button>
+  </footer>
+
+  <!-- 6 · Overlays -->
+  <div class="walkhint" id="walkHint">W/↑ walk · A/D turn · E talk · Space: ruler speaks · Esc: star map</div>
+  <section id="court" aria-live="polite"><div class="who" id="cWho"></div><p id="cTxt"></p><div id="cBtns"></div></section>
+  <div class="toast" id="toast"></div>
+  <div class="modal" id="modal"><div class="modalcard">
+    <div class="modalhead"><div><h2 id="mTitle"></h2><p id="mSub"></p></div><button class="close" id="mClose" aria-label="Close">×</button></div>
+    <div id="mBody"></div>
+  </div></div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="game.js"></script>
+<script src="extras.js"></script>
+<script src="story.js"></script>
+<script src="agency.js"></script>
+</body>
+</html>
