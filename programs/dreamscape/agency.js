@@ -1,0 +1,45 @@
+/* Dreamscape v5: Antariksha Sangathan (space agency): satellites, Tamasi intelligence, codex and interludes of the alien side */
+(()=>{"use strict";
+if(!window.DS3||!window.DS||!window.DS_story)return;
+const D=DS,X=DS3,T=X.T,$=id=>document.getElementById(id),S=()=>D.S,A=()=>X.addr();
+const KIND={orbital:["Orbital Survey",60,0,2],deep:["Deep-Space Probe",150,3,4],tamasi:["Tamasi Watch (Proxima Tamas)",240,8,8]};
+const NAMES={orbital:["Aryabhata","Bhaskara","Rohini","Cartosat","Insat"],deep:["Chandra","Mangal","Aditya","Shukra","Guru"],tamasi:["Drishti","Netra","Garuda","Rishi","Akash-Netra"]};
+function ag(){const s=S();if(!s.agency)s.agency={sats:[],intel:0,n:0,next:Date.now()+20000,seen:[],cnt:0};return s.agency}
+ag();
+function launch(kind){const a=ag(),k=KIND[kind];a.n++;a.cnt++;a.sats.push({n:NAMES[kind][a.n%5]+"-"+a.n,kind,t0:Date.now(),eta:k[1]*1000,intel:k[2],data:k[3],done:0});if(a.sats.length>40)a.sats.splice(0,a.sats.length-40)}
+/* codex: Tamasi lore unlocked by intelligence gathered */
+const LORE=[
+ [0,"The Shattered Asteroid","Ages ago a vast asteroid split in two. One shard struck the Sun's third world — Earth — and from that fire our people arose. The other shard fell on a world circling a distant star."],
+ [10,"The Twin Shard","Our telescopes find a living civilisation on that second world: the Tamasi. They call the asteroid the Ulka-Pinda. Their biology matches ours — they are humans, raised apart."],
+ [25,"The Sabha of Seven","The Tamasi are ruled by Samrat Kalavarman and a Sabha of Seven. Two voices matter most: Marshal Vyaghra, who wants conquest, and High Priestess Mandakini, who wants reunion."],
+ [40,"A Dying Star","Proxima Tamas flares violently every few years. Three harvests have burned. The Tamasi are not villains by nature — they are starving, and they have seen our green worlds."],
+ [55,"Ulka-Dhātu","Both worlds hold a rare alloy from the asteroid's core. The Tamasi forge ships of it; so can we. It is also the key to a star-engine: the Dyson sphere."],
+ [70,"The Tamasi Faith","They teach that Earth is 'the lost twin' who kept the sun's blessing. Mandakini's faith calls for the twins to unite; Vyaghra's calls for the twin to be taken."],
+ [90,"The Open Door","Our listeners confirm it: if Earth offers an equal hand, Mandakini can turn the Sabha. Dharma, not force, is the stronger key."]];
+const INTER=[
+ [25,"The Sabha Debates",[["Samrat Kalavarman","The third harvest has burned. Our sun is failing."],["Marshal Vyaghra","The twin world has a living sun and green fields. We have the ships. Take it."],["High Priestess Mandakini","They are our brothers of the same fire. Send word before we send warships."],["Samrat Kalavarman","The Sabha will weigh the twin's ruler before it decides."],{c:[["Send a secret blessing to Mandakini","Relations +10, Dharma +2",()=>{DS_story.init().rel+=10;S().dharmaIndex+=2;return[["High Priestess Mandakini","A message from the twin throne… so there is a hand held out."]]}],["Stay silent and watch","No change",()=>[]]]}]],
+ [45,"The Fleet of Ulka",[["Marshal Vyaghra","Ten ships of Ulka-dhātu stand ready. One strike, and the twin world is ours."],["High Priestess Mandakini","And their ships equal ours. A war between twins burns both suns."],["Samrat Kalavarman","Marshal, you may probe their defences. Nothing more — yet."],{c:[["Warn the Samrat of mutual ruin (Sāma)","Threat −10, Relations +8",()=>{const st=DS_story.init();st.threat=Math.max(0,st.threat-10);st.rel+=8;return[["Samrat Kalavarman","The twin throne speaks sense… I shall remember it."]]}],["Feed false reports to the Marshal (Bheda)","Threat −15, Dharma −3",()=>{const st=DS_story.init();st.threat=Math.max(0,st.threat-15);S().dharmaIndex-=3;return[["Marshal Vyaghra","Their defences are stronger than I thought…"]]}]]}]],
+ [70,"The Star-Engine",[["Samrat Kalavarman","The ulka-dhātu blueprints are clear: a sphere to hold a whole sun."],["High Priestess Mandakini","The twins found the same blueprint. Whoever builds alone, the other will resent. Build together — or race in peace."],["Marshal Vyaghra","Race, then. The winner commands the sun."],{c:[["Propose a joint sphere project","Relations +10; Dyson progress +3% (if peace)",()=>{const st=DS_story.init();st.rel+=10;if(st.ch>=5)st.dyson.h=Math.min(100,st.dyson.h+3);return[["High Priestess Mandakini","Then the twins shall build as one."]]}],["Race alone","Tamasi progress slows by 2%",()=>{const st=DS_story.init();st.dyson.a=Math.max(0,st.dyson.a-2);return[["Marshal Vyaghra","A fair race. May the better builder win."]]}]]}]]];
+function open(){const a=ag(),st=DS_story.init(),act=a.sats.filter(x=>!x.done).length,now=Date.now();
+ const sats=a.sats.slice(-8).reverse().map(x=>`<div class="sat"><span>🛰 ${x.n} · ${KIND[x.kind][0]}</span><span>${x.done?"✔ reported":Math.max(0,Math.ceil((x.t0+x.eta-now)/1000))+"s"}</span></div>`).join("")||"<p style='font-size:12px;color:var(--muted)'>No satellites yet.</p>";
+ const lore=LORE.filter(l=>a.intel>=l[0]).map(l=>`<div class="codex"><b>${l[1]}</b><br>${l[2]}</div>`).join("");
+ const nextL=LORE.find(l=>a.intel<l[0]);
+ const inter=INTER.filter(i=>a.intel>=i[0]&&!a.seen.includes(i[0])).map(i=>`<button class="opt" data-it="${i[0]}"><b>📡 Intercepted: ${i[1]}</b><span>Watch the Tamasi court in secret</span></button>`).join("");
+ D.show("🛰 Antariksha Sangathan",`Space Agency · ${a.cnt} satellites launched · ${act} in flight`,`<div class="lbl"><span>Intelligence on the Tamasi</span><span>${a.intel.toFixed(0)}%</span></div><div class="bar"><i style="width:${a.intel}%;background:#66ffcc"></i></div>
+ <p style="font-size:12px;color:var(--muted)">Satellites launch automatically about once a minute. Manual launches cost ⚡ from Bhūmi Minor.</p>
+ <div class="grid"><button class="card go" data-l="orbital">🛰 Orbital Survey<br><small>⚡20 · 1 min</small></button><button class="card go" data-l="deep">🔭 Deep Probe<br><small>⚡40 · 2.5 min</small></button><button class="card go" data-l="tamasi" style="grid-column:1/-1">👁 Tamasi Watch<br><small>⚡60 · 4 min · +8% intel</small></button></div>
+ ${inter}<h3 style="margin:14px 0 4px;font-size:13px">Satellites</h3>${sats}<h3 style="margin:14px 0 4px;font-size:13px">Codex${nextL?` <small style="color:var(--muted)">(next entry at ${nextL[0]}%)</small>`:""}</h3>${lore}`);
+ document.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{const k=b.dataset.l,c={orbital:20,deep:40,tamasi:60}[k],p=S().planets[0];if(p.energy<c)return D.toast("Need ⚡"+c+" on Bhūmi Minor.");p.energy-=c;launch(k);D.toast("🚀 "+NAMES[k][ag().n%5]+" launched");open();D.save()});
+ document.querySelectorAll("[data-it]").forEach(b=>b.onclick=()=>{const th=+b.dataset.it,it=INTER.find(i=>i[0]===th);a.seen.push(th);D.closeModal();DS_story.scene(it[2].slice(),()=>{D.chron("📡 Intercepted Tamasi transmission: "+it[1]+".");D.save()},1)})}
+/* tick: arrivals, regular auto-launches */
+setInterval(()=>{const s=S();if(!s||!s.onboarded)return;const a=ag(),now=Date.now();
+ a.sats.forEach(x=>{if(!x.done&&now>=x.t0+x.eta){x.done=1;s.data+=x.data;const o=a.intel;a.intel=Math.min(100,a.intel+x.intel);D.chron(`🛰 ${x.n} reported: +${x.data} 📡${x.intel?`, +${x.intel}% intel`:""}.`);if(LORE.some(l=>o<l[0]&&a.intel>=l[0]))D.toast("📜 New Tamasi codex entry unlocked");else D.toast(`🛰 ${x.n} reported +${x.data} 📡`)}});
+ if(now>=a.next){const kinds=["orbital","deep","tamasi"];launch(kinds[a.cnt%3===2?2:a.cnt%2]);a.next=now+60000;if(a.cnt-(a.cnt>3?0:0)>0&&a.sats.filter(x=>!x.done).length>8)a.next=now+120000}},1000);
+/* HUD, nav, sky satellites, radar dish */
+const hud=window.DS_hud;window.DS_hud=()=>{hud&&hud();const a=S().agency;if(a)$("resourceBar").insertAdjacentHTML("beforeend",`<div class="res">🛰 <b>${a.sats.filter(x=>!x.done).length}</b> · 👁 <b>${a.intel|0}%</b></div>`)};
+const b=document.createElement("button");b.textContent="🛰 Space Agency";b.onclick=open;document.querySelector(".navbtns").prepend(b);
+const old=window.DS_legacy;window.DS_legacy=(sc,pi,st)=>{const f=old?old(sc,pi,st):null,sats=[];
+ ag().sats.filter(s=>!s.done).slice(-6).forEach((s,k)=>{const g=new T.Group();g.add(X.mesh(new T.BoxGeometry(.8,.8,1.2),X.M3(0xcccccc,{metalness:.8}),0,0,0));g.add(X.mesh(new T.BoxGeometry(3,.05,.9),X.M3(0x1a3a8a,{emissive:0x0a2a6a,metalness:.7}),0,0,0));g.add(X.mesh(new T.SphereGeometry(.15,6,6),new T.MeshBasicMaterial({color:0xff4040}),0,.6,0));sc.add(g);sats.push({g,k})});
+ let dish=null;if(pi===0){dish=new T.Group();dish.add(X.mesh(new T.CylinderGeometry(.5,.8,6,10),X.M3(0xdddddd),0,3,0));const bowl=X.mesh(new T.SphereGeometry(3,18,10,0,6.3,0,1.2),X.M3(0xf4f4f4,{side:T.DoubleSide,metalness:.5}),0,7,0);bowl.rotation.x=-.9;dish.add(bowl);dish.add(X.mesh(new T.BoxGeometry(8,3,6),X.M3(0xe8dcc0),-6,1.5,0));dish.add(X.mesh(new T.BoxGeometry(7,.3,5),X.M3(0xff9933),-6,3.2,0));dish.position.set(-26,X.Hh(-26,-8),-8);sc.add(dish)}
+ return(t,dt,p)=>{f&&f(t,dt,p);sats.forEach(({g,k})=>{const an=t*.05+k*1.1;g.position.set(Math.cos(an)*70,60+k*3,Math.sin(an)*70);g.rotation.y=an});if(dish)dish.children[1].rotation.z=t*.3}};
+})();
