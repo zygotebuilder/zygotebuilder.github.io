@@ -49,18 +49,18 @@ let near=null,talking=null;
 const counsel=()=>{const s=S(),st=init(),o=[];o.push(`Dharma stands at ${s.dharmaIndex.toFixed(0)}. ${s.dharmaIndex<-50?"Beware, "+A()+": at −100 I am bound by the Arthashastra to dethrone you.":"The throne is secure while dharma holds."}`);
  o.push(st.ch<=1?"Terraform Bhūmi Minor, then claim a second world and travel there by rocket.":st.ch===2?"Claim a third world. The Tamasi will soon make their move.":st.ch===3?`The Tamasi threat stands at ${st.threat|0}%. Raise Raksha Kavach shields and rule with care.`:st.ch===4?"The parley with the Tamasi awaits, "+A()+".":"Contribute to the Dyson sphere (🌞) before the Tamasi finish it.");
  o.push("Every ruling you make leaves a mark on the worlds. Walk among your people and see it.");return o};
-window.DS_legacy=(sc,pi,stt)=>{const st=init(),npcs=[],sauc=[],mv=[];near=null;talking=null;
+window.DS_legacy=(sc,pi,stt)=>{const st=init(),npcs=[],sauc=[],mv=[],wl=-2+S().planets[pi].water*.017;near=null;talking=null;
  const addP=(g,x,z,m,who,lines)=>{g.position.set(x,X.Hh(x,z),z);sc.add(g);const n={g,hx:x,hz:z,m,tm:0,a:Math.random()*6,who,lines};if(m==="sit")g.userData.sit=true;npcs.push(n);return n};
  const mm=X.person(0x3a5fa8,false,false);addP(mm,-4,9,"stand","Mahamatya",counsel);
  if(st.ch>=5){const a=X.person(0x2a6a5a,false,false,{alien:1});addP(a,4,9,"stand","Tamasi Envoy",["Envoy: We are the same blood, split by one asteroid. Your shard fell on Earth; ours on Tamasi.","Envoy: Equal in strength, we chose peace. May the sphere reward the better builder."])}
- st.legacy.filter(l=>l.p===pi).forEach((l,idx)=>{const d=LEG[l.id];if(!d)return;const g=build(d.parts),a=idx*.95+2.2,r=24+(idx%3)*7,x=Math.cos(a)*r,z=Math.sin(a)*r;g.position.set(x,X.Hh(x,z),z);g.rotation.y=-a+1.57;sc.add(g);
+ st.legacy.filter(l=>l.p===pi).forEach((l,idx)=>{const d=LEG[l.id];if(!d)return;const g=build(d.parts);let a=idx*.95+2.2,r=24+(idx%3)*7,x,z,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.45;tr++}while(X.Hh(x,z)<wl+.6&&tr<14);if(X.Hh(x,z)<wl+.6){r=16;x=Math.cos(a)*r;z=Math.sin(a)*r}g.position.set(x,X.Hh(x,z),z);g.rotation.y=-a+1.57;sc.add(g);
   if(l.id==="drones")mv.push(t=>g.children.forEach((c,k)=>{c.position.set(Math.cos(t*.8+k*2)*5,6+k,Math.sin(t*.8+k*2)*5)}));
   for(let k=0;k<(d.ppl.n||0);k++){const p=X.person([0xff9933,0x3a8fd6,0xe85a8a,0x74a84a][k%4],k%2===1,false);p.scale.setScalar(.9);addP(p,x+(k-1)*1.6,z+3,d.ppl.m,d.n,d.lines)}});
  if(st.ch>=2&&st.ch<5)for(let k=0;k<Math.min(4,1+(st.threat/30|0));k++){const g=new T.Group();g.add(X.mesh(new T.SphereGeometry(4,16,10),X.M3(0x8a98a0,{metalness:.8,roughness:.3}))).scale.set(1,.28,1);g.add(X.mesh(new T.SphereGeometry(1.7,12,8),X.M3(0x66ffcc,{transparent:true,opacity:.7,emissive:0x2a8a6a}),0,.6,0));const lt=new T.PointLight(0x66ffcc,1,40);lt.position.y=-1;g.add(lt);sc.add(g);sauc.push({g,k})}
  return(t,dt,p)=>{let best=null,bd=4.5;
   npcs.forEach((n,k)=>{let m=0;const g=n.g;
-   if(n.m==="mill"){n.tm-=dt;if(n.tm<=0){n.tm=3+Math.random()*4;n.tx=n.hx+(Math.random()-.5)*8;n.tz=n.hz+(Math.random()-.5)*8}const dx=n.tx-g.position.x,dz=n.tz-g.position.z,d=Math.hypot(dx,dz);if(d>.3){m=1;g.position.x+=dx/d*dt*1.3;g.position.z+=dz/d*dt*1.3;g.rotation.y=Math.atan2(dx,dz)}}
-   else if(n.m==="march"){n.a+=dt*.5;const x=n.hx+Math.cos(n.a)*3.5,z=n.hz+Math.sin(n.a)*3.5;g.rotation.y=Math.atan2(x-g.position.x,z-g.position.z);g.position.x=x;g.position.z=z;m=1}
+   if(n.m==="mill"){n.tm-=dt;if(n.tm<=0){n.tm=3+Math.random()*4;n.tx=n.hx+(Math.random()-.5)*8;n.tz=n.hz+(Math.random()-.5)*8;if(X.Hh(n.tx,n.tz)<wl+.3){n.tx=n.hx;n.tz=n.hz}}const dx=n.tx-g.position.x,dz=n.tz-g.position.z,d=Math.hypot(dx,dz);if(d>.3){m=1;g.position.x+=dx/d*dt*1.3;g.position.z+=dz/d*dt*1.3;g.rotation.y=Math.atan2(dx,dz)}}
+   else if(n.m==="march"){n.a+=dt*.5;const x=n.hx+Math.cos(n.a)*3.5,z=n.hz+Math.sin(n.a)*3.5;if(X.Hh(x,z)>=wl+.2){g.rotation.y=Math.atan2(x-g.position.x,z-g.position.z);g.position.x=x;g.position.z=z;m=1}}
    else if(n.who==="Mahamatya"||n.who==="Tamasi Envoy"||n.m==="stand"){g.rotation.y=Math.atan2(p.x-g.position.x,p.z-g.position.z)}
    g.position.y=X.Hh(g.position.x,g.position.z)-(n.m==="sit"?.45:0);X.anim(g,t+k,m,n===talking);
    const d=Math.hypot(g.position.x-p.x,g.position.z-p.z);if(d<bd){bd=d;best=n}});
@@ -114,5 +114,5 @@ function dyson(){const st=init(),d=st.dyson,ok=st.ch>=5;D.show("🌞 Dyson Spher
  if($("dyc"))$("dyc").onclick=()=>{const s=S(),p=s.planets[loc()];if(p.energy<150||s.data<60||s.influence<30)return D.toast("Need ⚡150 on this world, 📡60 and ☸30.");p.energy-=150;s.data-=60;s.influence-=30;d.h=Math.min(100,d.h+2.5);D.renderAll();D.save();dyson()}}
 const nb=document.querySelector(".navbtns");[["🧔 Mahamatya",()=>D.show("Mahamatya's Counsel","Chief Minister of the realm",`<div class="sutra">${counsel().join("</div><div class=\"sutra\">")}</div>`)],["🌞 Dyson",dyson]].forEach(([t,f])=>{const b=document.createElement("button");b.textContent=t;b.onclick=f;nb.appendChild(b)});
 D.DEEDS.push(["peace","Śānti Dūta","Make peace with the Tamasi",s=>s.story&&s.story.ch>=5],["chakravarti","Chakravarti","Complete the Dyson sphere first",s=>s.story&&s.story.dyson.done&&s.story.dyson.h>=100]);
-window.DS_story={scene,init,LEG};
+window.DS_story={scene,init,LEG,defence,S1};
 })();
