@@ -267,8 +267,9 @@ function renderStats(){
 }
 function renderBuild(){
  const p=S.planets[S.selectedPlanet];
- $("buildBody").innerHTML=ORDER.map(k=>{const b=BUILDINGS[k],c=bcost(p,k),lock=b.req&&p.atmosphere<b.req,ok=!lock&&afford(p,c);
+ const html=`<!--${S.selectedPlanet}-->`+ORDER.map(k=>{const b=BUILDINGS[k],c=bcost(p,k),lock=b.req&&p.atmosphere<b.req,ok=!lock&&afford(p,c);
   return`<div class="bld ${lock?"off":""} ${!ok&&!lock?"poor":""}" data-k="${k}"><div class="top"><span>${b.i} ${b.n}</span><em>Lv.${p.buildings[k]}</em></div><p>${b.d}</p><div class="cost">${Object.entries(c).map(([r,v])=>`<span>${r==="energy"?"⚡":r==="biomass"?"🧬":"📡"} ${fmt(v)}</span>`).join("")}</div></div>`}).join("");
+ if(renderBuild.h===html)return;renderBuild.h=html;$("buildBody").innerHTML=html;
  document.querySelectorAll(".bld").forEach(r=>r.onclick=()=>{const k=r.dataset.k,b=BUILDINGS[k],c=bcost(p,k);
   if(b.req&&p.atmosphere<b.req)return toast("Atmosphere must reach "+b.req+"% first.");if(!afford(p,c))return toast("Not enough resources.");
   pay(p,c);p.buildings[k]++;toast(`${b.i} ${b.n} → Lv.${p.buildings[k]}`);renderAll();save()});
