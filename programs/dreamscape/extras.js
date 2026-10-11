@@ -61,7 +61,7 @@ const aides=()=>[person(0x3a5fa8,false,false),person(0xf0f0e0,false,false)];
 
 /* ---------- 3D WORLD ---------- */
 const Hh=(x,z)=>{const r=Math.hypot(x,z);return r<14?0:(Math.sin(x*.05)*Math.cos(z*.04)*5+Math.sin(x*.13+z*.1)*1.5)*Math.min(1,(r-14)/20)};
-const sig=()=>{const S=D.S,p=S.planets[S.selectedPlanet];return S.selectedPlanet+"|"+(S.story&&S.story.legacy?S.story.legacy.length:0)+"|"+(window.DS_story?1:0)+(window.DS_agency?1:0)+"|"+Object.values(p.buildings).join(",")+"|"+(p.biosphere/5|0)+"|"+(p.water/5|0)+"|"+(p.population/6|0)+"|"+(p.pollution/10|0)};
+const sig=()=>{const S=D.S,p=S.planets[S.selectedPlanet];return S.selectedPlanet+"|"+(S.story&&S.story.legacy?S.story.legacy.length:0)+"|"+(window.DS_story?1:0)+(window.DS_agency?1:0)+"|"+(S.story&&S.story.dyson?(S.story.dyson.h/4|0):0)+"|"+(S.end&&S.end.mode||"")+"|"+Object.values(p.buildings).join(",")+"|"+(p.biosphere/5|0)+"|"+(p.water/5|0)+"|"+(p.population/6|0)+"|"+(p.pollution/10|0)};
 function stars(sc,n,r){const a=[];for(let i=0;i<n;i++){const u=rnd()*6.28,v=Math.acos(2*rnd()-1);a.push(r*Math.sin(v)*Math.cos(u),Math.abs(r*Math.cos(v)),r*Math.sin(v)*Math.sin(u))}
  const g=new T.BufferGeometry();g.setAttribute("position",new T.Float32BufferAttribute(a,3));const p=new T.Points(g,new T.PointsMaterial({color:0xffffff,size:1.4,fog:false,transparent:true}));sc.add(p);return p}
 function noiseTex(rep){const c=document.createElement("canvas");c.width=c.height=256;const x=c.getContext("2d"),im=x.createImageData(256,256);for(let i=0;i<65536;i++){const n=Math.sin(i%256*.31)*Math.cos((i>>8)*.27)*.5+Math.random()*.5,v=205+n*50;im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=v;im.data[i*4+3]=255}x.putImageData(im,0,0);const t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rep,rep);t.anisotropy=4;return t}
@@ -69,7 +69,7 @@ function skyDome(top,bot){const m=new T.ShaderMaterial({side:T.BackSide,depthWri
 function buildWalk(st){
  const S=D.S,i=S.selectedPlanet,c=D.PLANETS[i],p=S.planets[i],id=c.id;seed=7+i;st=st&&st.i===i?st:{i,x:0,z:14,a:Math.PI};
  const sc=new T.Scene(),sky=new T.Color(c.sky[1]).lerp(new T.Color(0x1a1008),p.pollution/200);sc.background=sky;sc.fog=new T.Fog(sky,25,140);
- sc.add(new T.HemisphereLight(0xcfe4ff,0x334455,.7));const sun=new T.DirectionalLight(0xfff0d0,1.7);sun.position.set(30,50,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sh=sun.shadow.camera;sh.left=sh.bottom=-45;sh.right=sh.top=45;sh.near=1;sh.far=160;sun.shadow.bias=-.0004;sc.add(sun);sc.add(sun.target);
+ const hemi=new T.HemisphereLight(0xcfe4ff,0x334455,.7);sc.add(hemi);const sun=new T.DirectionalLight(0xfff0d0,1.7);sun.position.set(30,50,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sh=sun.shadow.camera;sh.left=sh.bottom=-45;sh.right=sh.top=45;sh.near=1;sh.far=160;sun.shadow.bias=-.0004;sc.add(sun);sc.add(sun.target);
  const skyM=skyDome(c.sky[0],sky);skyM.add(mesh(new T.SphereGeometry(16,16,12),new T.MeshBasicMaterial({color:0xfff2c0,fog:false}),216,360,144));
  const g=new T.PlaneGeometry(300,300,110,110);g.rotateX(-Math.PI/2);const pa=g.attributes.position,col=[],base=new T.Color(c.col).lerp(new T.Color(0x3f9a4f),p.biosphere/160).lerp(new T.Color(0x2a2018),p.pollution/250);
  for(let k=0;k<pa.count;k++){const x=pa.getX(k),z=pa.getZ(k),s=.85+.3*Math.abs(Math.sin(x*.3)*Math.cos(z*.27));pa.setY(k,Hh(x,z)+(Math.hypot(x,z)>14?Math.sin(x*1.3)*Math.cos(z*1.1)*.18:0));col.push(base.r*s,base.g*s,base.b*s)}
@@ -103,6 +103,7 @@ function buildWalk(st){
  const ex=window.DS_legacy?DS_legacy(sc,i,st):null;const pl=ruler(),fo=aides();sc.add(pl);fo.forEach(f=>sc.add(f));const camr=cam();sc.traverse(o=>{if(o.isMesh&&!o.userData.noShadow&&!(o.material&&o.material.isShaderMaterial)){o.castShadow=true;o.receiveShadow=true}});sc.add(skyM);
  return{scene:sc,cam:camr,st,sg:sig(),ck:0,update(t,dt){
   skyM.position.copy(camr.position);sun.position.set(st.x+30,50,st.z+20);sun.target.position.set(st.x,0,st.z);
+  if(window.DS_env)DS_env(t,{sun,hemi,skyM,sc,st});
   const mv=(keys.ArrowUp||keys.w||held)?1:(keys.ArrowDown||keys.s)?-.6:0;st.a+=((keys.ArrowLeft||keys.a?1:0)-(keys.ArrowRight||keys.d?1:0))*dt*2.2+turn;turn=0;
   const nx=st.x+Math.sin(st.a)*mv*dt*9,nz=st.z+Math.cos(st.a)*mv*dt*9;if(Hh(nx,nz)>=wl+.05){st.x=nx;st.z=nz}const r=Math.hypot(st.x,st.z);if(r>120){st.x*=120/r;st.z*=120/r}
   const y=Math.max(Hh(st.x,st.z),wl);pl.position.set(st.x,y+Math.abs(Math.sin(t*9))*.07*Math.abs(mv),st.z);pl.rotation.y=st.a;anim(pl,t,Math.abs(mv));
