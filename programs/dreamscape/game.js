@@ -79,7 +79,7 @@ function loadState(){
   M.techTier=Object.assign({},F.techTier,P.techTier||{});return M;
  }catch(e){return freshState()}
 }
-const save=()=>{S.lastSaveTime=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}};
+const save=()=>{if(window.__noSave)return;S.lastSaveTime=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}};
 
 /* ---------- HELPERS ---------- */
 const tm=k=>Math.pow(TECHS[k].m,S.techTier[k]||0), tc=k=>Math.ceil(TECHS[k].b*Math.pow(TECHS[k].g,S.techTier[k]||0));
@@ -157,8 +157,10 @@ function openPanel(n){
  if(n==="data"){show("Save Data","Stored in this browser only.",`<textarea id="ex" rows="5" readonly></textarea><button class="go" id="cp">Copy backup</button><textarea id="im" rows="3" placeholder="Paste a backup JSON to restore…"></textarea><button class="go" id="ld">Restore backup</button><button class="go" id="rs" style="background:#7a2b2b">Reset reign</button>`);
   $("ex").value=JSON.stringify(S);
   $("cp").onclick=()=>{$("ex").select();try{navigator.clipboard.writeText($("ex").value)}catch(e){document.execCommand("copy")}toast("Backup copied.")};
-  $("ld").onclick=()=>{try{const o=JSON.parse($("im").value);if(!o.planets)throw 0;localStorage.setItem(SAVE_KEY,JSON.stringify(o));location.reload()}catch(e){toast("Invalid backup.")}};
-  $("rs").onclick=()=>{if(confirm("Erase your reign and restart?")){localStorage.removeItem(SAVE_KEY);location.reload()}}}
+  const sure=(t,m,go)=>{show(t,"",`<p style="line-height:1.6">${m}</p><button class="go" id="cy">Yes, I'm sure</button><button class="go" id="cn" style="background:#2a3a5a">No, go back</button>`);$("cy").onclick=go;$("cn").onclick=()=>openPanel("data")};
+  $("ld").onclick=()=>{let o;try{o=JSON.parse($("im").value.trim());if(!o||!o.planets||!o.planets.length)throw 0}catch(e){return toast("That doesn't look like a valid backup.")}
+   sure("Restore this backup?","This will REPLACE your current reign with the pasted backup. Your current progress will be lost.",()=>{window.__noSave=1;localStorage.setItem(SAVE_KEY,JSON.stringify(o));location.reload()})};
+  $("rs").onclick=()=>sure("Reset your reign?","This permanently erases your reign and restarts from Bhūmi Minor. This cannot be undone.",()=>{window.__noSave=1;localStorage.removeItem(SAVE_KEY);location.reload()})}
 }
 document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openPanel(b.dataset.open));
 
@@ -185,7 +187,7 @@ function drawSystem(t){
  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#050f26");g.addColorStop(1,"#0a1d43");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);starfield(t);
  const cx=W*.5,cy=H*.56,sc=Math.min(W,H)/900;
  const gl=ctx.createRadialGradient(cx,cy,4,cx,cy,150);gl.addColorStop(0,"rgba(255,200,110,.6)");gl.addColorStop(1,"transparent");ctx.fillStyle=gl;ctx.fillRect(cx-150,cy-150,300,300);
- ctx.fillStyle="#ffc15a";ctx.beginPath();ctx.arc(cx,cy,30,0,6.3);ctx.fill();
+ ctx.fillStyle="#ffc15a";ctx.beginPath();ctx.arc(cx,cy,30,0,6.3);ctx.fill();window.DS_sky&&DS_sky(ctx,cx,cy,t,W,H,sc,pos);
  pos=[];
  PLANETS.forEach((c,i)=>{const p=S.planets[i],R=(95+i*47)*sc+30,a=t*.00002*(40/(30+i*14))*40+i*1.4,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R*.55,r=c.size*sc+(p.unlocked?sust(p)*.03:0);
   ctx.strokeStyle=p.unlocked?"rgba(160,205,255,.2)":"rgba(160,205,255,.07)";ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(cx,cy,R,R*.55,0,0,6.3);ctx.stroke();
@@ -303,7 +305,7 @@ function boot(){
   if(cap>60){const d0=S.data,i0=S.influence;fastForward(cap);S.councilTimer=0; // bug fix: no council ambush after offline
    back=`<p>Your empire ran for ${dur(cap)}${el>OFFLINE_CAP?" (capped at 8h)":""}.</p><p>📡 +${fmt(S.data-d0)} · ☸ +${fmt(S.influence-i0)} · 🔥 Day streak ${S.streak}</p>`}}
  setView(S.view||"system");renderAll();save();
- if(!S.onboarded)onboard();else if(back)show("Welcome back, "+rulerTitle(),"",back);
+ if(!S.onboarded)setTimeout(()=>{if(window.DS_guide&&!S.guided)DS_guide(()=>{S.guided=1;onboard()});else onboard()},0);else if(back)show("Welcome back, "+rulerTitle(),"",back);
  setInterval(()=>{tick(1);if(S.councilTimer>=COUNCIL_EVERY&&!modal&&S.onboarded){S.councilTimer=0;openCouncil()}renderAll();if(modal==="Tech")openPanel("tech")},1000);
  setInterval(save,15000);addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")save()});addEventListener("beforeunload",save);
  requestAnimationFrame(render);
