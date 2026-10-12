@@ -1,5 +1,12 @@
 **Newsletter** |
 
+October 12, 2026
+- Dreamscape: Panchabhuta is approaching Version 4 soon, grab the Dyson sphere before others!
+- The solar system models we’ve seen at school don’t tell the real size of solar system.
+ The true size of the solar system, is now scaled (I’ve tried my best, open to review). Check out project N.16 :D
+
+——————————————————————————————————————————
+
 September 23, 2026
 
 Errors in the site noted down. Acting upon them. 
