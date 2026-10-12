@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The True Size of the Solar System</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head><body>
+<canvas id="c"></canvas><div id="labels"></div>
+<header><h1>The True Size of the Solar System</h1><p>Every size and distance at one single scale</p></header>
+<nav id="nav"></nav>
+<aside id="panel">
+ <button id="pause">⏸ Pause</button>
+ <label>Time speed <select id="speed"></select></label>
+ <label><input type="checkbox" id="tOrb" checked> Orbits</label>
+ <label><input type="checkbox" id="tLab" checked> Labels</label>
+ <label><input type="checkbox" id="tBelt" checked> Asteroid &amp; Kuiper belts</label>
+ <label><input type="checkbox" id="tRef" checked> Kármán / LEO / GEO</label>
+</aside>
+<div id="info"></div>
+<div id="moons"></div>
+<div id="hud"></div>
+<div id="zoom"><span>−</span><input type="range" id="zr" min="0" max="1000" value="1000"><span>+</span></div>
+<div id="intro"><div><h2>The True Size of the Solar System</h2>
+<p>Most solar-system maps cheat: planets are drawn huge and squeezed together. Here, <b>sizes and distances share one true scale</b>. The Sun is a ball you can fly to, and the planets are specks in a vast emptiness.</p>
+<p>Drag to rotate · scroll / pinch / slider to zoom · pick a body to fly there.<br>Try Earth, then switch on the Kármán, LEO and GEO lines.</p>
+<button id="go">Begin the journey</button></div></div>
+<script type="module" src="main.js"></script>
+</body></html>
