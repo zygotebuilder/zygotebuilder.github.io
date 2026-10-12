@@ -39,10 +39,7 @@ This restriction applies regardless of the amount of Zygote Builder Code reused.
 
 You may use Zygote Builder Code in personal, educational, research and other non-commercial projects.
 
-If you wish to use Zygote Builder Code commercially, you must obtain prior written permission from:
-
-Pradhyumna Nittala
-pradhyumna.nittala@gmail.com
+If you wish to use Zygote Builder Code commercially, you must obtain prior written permission from Pradhyumna Nittala.
 
 4. *Educational Use*
 
