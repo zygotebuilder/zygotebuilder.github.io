@@ -61,13 +61,13 @@ const aides=()=>[person(0x3a5fa8,false,false),person(0xf0f0e0,false,false)];
 
 /* ---------- 3D WORLD ---------- */
 const Hh=(x,z)=>{const r=Math.hypot(x,z);return r<14?0:(Math.sin(x*.05)*Math.cos(z*.04)*5+Math.sin(x*.13+z*.1)*1.5)*Math.min(1,(r-14)/20)};
-const sig=()=>{const S=D.S,p=S.planets[S.selectedPlanet];return S.selectedPlanet+"|"+(S.story&&S.story.legacy?S.story.legacy.length:0)+"|"+(window.DS_story?1:0)+(window.DS_agency?1:0)+"|"+(S.story&&S.story.dyson?(S.story.dyson.h/4|0):0)+"|"+(S.end&&S.end.mode||"")+"|"+Object.values(p.buildings).join(",")+"|"+(p.biosphere/5|0)+"|"+(p.water/5|0)+"|"+(p.population/6|0)+"|"+(p.pollution/10|0)};
+const sig=()=>{const S=D.S,p=S.planets[S.selectedPlanet];return S.selectedPlanet+"|"+(S.story&&S.story.legacy?S.story.legacy.length:0)+"|"+(window.DS_story?1:0)+(window.DS_agency?1:0)+"|"+(S.story&&S.story.dyson?(S.story.dyson.h/4|0):0)+"|"+(S.end&&S.end.mode||"")+"|"+(S.visit?S.visit.k:"")+"|"+Object.values(p.buildings).join(",")+"|"+(p.biosphere/5|0)+"|"+(p.water/5|0)+"|"+(p.population/6|0)+"|"+(p.pollution/10|0)};
 function stars(sc,n,r){const a=[];for(let i=0;i<n;i++){const u=rnd()*6.28,v=Math.acos(2*rnd()-1);a.push(r*Math.sin(v)*Math.cos(u),Math.abs(r*Math.cos(v)),r*Math.sin(v)*Math.sin(u))}
  const g=new T.BufferGeometry();g.setAttribute("position",new T.Float32BufferAttribute(a,3));const p=new T.Points(g,new T.PointsMaterial({color:0xffffff,size:1.4,fog:false,transparent:true}));sc.add(p);return p}
 function noiseTex(rep){const c=document.createElement("canvas");c.width=c.height=256;const x=c.getContext("2d"),im=x.createImageData(256,256);for(let i=0;i<65536;i++){const n=Math.sin(i%256*.31)*Math.cos((i>>8)*.27)*.5+Math.random()*.5,v=205+n*50;im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=v;im.data[i*4+3]=255}x.putImageData(im,0,0);const t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rep,rep);t.anisotropy=4;return t}
 function skyDome(top,bot){const m=new T.ShaderMaterial({side:T.BackSide,depthWrite:false,fog:false,uniforms:{t:{value:new T.Color(top)},b:{value:new T.Color(bot)}},vertexShader:"varying vec3 p;void main(){p=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",fragmentShader:"uniform vec3 t,b;varying vec3 p;void main(){float h=clamp(p.y*1.4+.1,0.,1.);gl_FragColor=vec4(mix(b,t,pow(h,.7)),1.);}"});const s=new T.Mesh(new T.SphereGeometry(500,24,16),m);s.userData.noShadow=1;s.renderOrder=-1;return s}
 function buildWalk(st){
- const S=D.S,i=S.selectedPlanet,c=D.PLANETS[i],p=S.planets[i],id=c.id;seed=7+i;st=st&&st.i===i?st:{i,x:0,z:14,a:Math.PI};
+ const S=D.S,V=window.DS_visit?DS_visit():null,i=V?V.i:S.selectedPlanet,c=V?V.c:D.PLANETS[i],p=V?V.p:S.planets[i],id=c.id;seed=7+i;st=st&&st.i===i?st:{i,x:0,z:14,a:Math.PI};
  const sc=new T.Scene(),sky=new T.Color(c.sky[1]).lerp(new T.Color(0x1a1008),p.pollution/200);sc.background=sky;sc.fog=new T.Fog(sky,25,140);
  const hemi=new T.HemisphereLight(0xcfe4ff,0x334455,.7);sc.add(hemi);const sun=new T.DirectionalLight(0xfff0d0,1.7);sun.position.set(30,50,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sh=sun.shadow.camera;sh.left=sh.bottom=-45;sh.right=sh.top=45;sh.near=1;sh.far=160;sun.shadow.bias=-.0004;sc.add(sun);sc.add(sun.target);
  const skyM=skyDome(c.sky[0],sky);skyM.add(mesh(new T.SphereGeometry(16,16,12),new T.MeshBasicMaterial({color:0xfff2c0,fog:false}),216,360,144));
@@ -100,7 +100,7 @@ function buildWalk(st){
   if(k==="shield")o.add(mesh(new T.SphereGeometry(3,18,12),M3(0x59e7ff,{transparent:true,opacity:.22,emissive:0x59e7ff,emissiveIntensity:.5}),0,0,0));
   const a=n*.95+.4,r=8+(n%3)*2.6;o.position.set(Math.cos(a)*r,0,Math.sin(a)*r);o.rotation.y=-a;n++;sc.add(o)}});
  for(let k=0;k<Math.min(24,p.population/2);k++){const cz=mesh(new T.ConeGeometry(.3,1.3,6),M3([0xff9933,0x3a8fd6,0xe85a8a,0x74e7a5][k%4]));place(cz,6,30);cz.position.y=.65;cit.push(cz)}
- const ex=window.DS_legacy?DS_legacy(sc,i,st):null;const pl=ruler(),fo=aides();sc.add(pl);fo.forEach(f=>sc.add(f));const camr=cam();sc.traverse(o=>{if(o.isMesh&&!o.userData.noShadow&&!(o.material&&o.material.isShaderMaterial)){o.castShadow=true;o.receiveShadow=true}});sc.add(skyM);
+ const ex=V?(window.DS_tamCity?DS_tamCity(sc,V,st):null):(window.DS_legacy?DS_legacy(sc,i,st):null);const pl=ruler(),fo=aides();sc.add(pl);fo.forEach(f=>sc.add(f));const camr=cam();sc.traverse(o=>{if(o.isMesh&&!o.userData.noShadow&&!(o.material&&o.material.isShaderMaterial)){o.castShadow=true;o.receiveShadow=true}});sc.add(skyM);
  return{scene:sc,cam:camr,st,sg:sig(),ck:0,update(t,dt){
   skyM.position.copy(camr.position);sun.position.set(st.x+30,50,st.z+20);sun.target.position.set(st.x,0,st.z);
   if(window.DS_env)DS_env(t,{sun,hemi,skyM,sc,st});
@@ -158,16 +158,16 @@ function rocket(){const g=new T.Group();
 window.DS_travel=to=>{const S=D.S,from=S.location??S.selectedPlanet,fuel=30*Math.abs(to-from),p=S.planets[from],P=D.PLANETS;
  D.show("Royal Rocket · Pushpak-1",`${P[from].n} → ${P[to].n}`,`<p style="line-height:1.6">Worlds are far apart. ${D.rulerTitle()} and the dignitaries must travel by rocket — the Pushpak-1.</p><p>Fuel needed: ⚡ <b>${fuel}</b> from ${P[from].n}'s reserves (you have ${D.fmt(p.energy)}).</p><button class="go" id="lnch">🚀 Launch</button>`);
  $("lnch").onclick=()=>{if(p.energy<fuel)return D.toast("Not enough Energy on "+P[from].n+" for fuel.");p.energy-=fuel;D.closeModal();travel(from,to)}};
-function travel(from,to){const P=D.PLANETS,cf=P[from],ct=P[to],sc=new T.Scene(),A=addr();sc.background=new T.Color(cf.sky[1]);sc.fog=new T.Fog(cf.sky[1],40,300);
+function travel(from,to){const P=D.PLANETS,X0=typeof to==="object"?to:null,cf=P[from],ct=X0?X0.c:P[to],sc=new T.Scene(),A=addr();sc.background=new T.Color(cf.sky[1]);sc.fog=new T.Fog(cf.sky[1],40,300);
  sc.add(new T.HemisphereLight(0xffffff,0x334455,1));const sun=new T.DirectionalLight(0xfff0d0,1.3);sun.position.set(40,60,60);sc.add(sun);
  const gr=mesh(new T.CircleGeometry(80,40),M3(new T.Color(cf.col)),0,0,0);gr.rotation.x=-Math.PI/2;sc.add(gr);
  const st=stars(sc,400,500);st.material.opacity=0;const rk=rocket();rk.position.set(0,1.2,0);sc.add(rk);
  const ru=ruler(),ai=aides(),cr=[ru,...ai];cr.forEach((q,i)=>{q.position.set(-12-i*2,0,6);sc.add(q)});
- const dest=mesh(new T.SphereGeometry(90,40,30),M3(new T.Color(ct.col).lerp(new T.Color(0x3f9a4f),S_bio(to)),{roughness:1}),0,0,-520);dest.visible=false;sc.add(dest);
+ const dest=mesh(new T.SphereGeometry(90,40,30),M3(new T.Color(ct.col).lerp(new T.Color(0x3f9a4f),X0?X0.bio:S_bio(to)),{roughness:1}),0,0,-520);dest.visible=false;sc.add(dest);
  const halo=mesh(new T.SphereGeometry(96,30,20),new T.MeshBasicMaterial({color:0x8cd2ff,transparent:true,opacity:.22}),0,0,-520);halo.visible=false;sc.add(halo);
  const caps=[[.3,"Mahamatya",`The Pushpak-1 is fueled, ${A}. The dignitaries are boarding.`],[2.6,"Mission Control","T-minus 3 … 2 … 1 …"],[5,"Mission Control","Liftoff! Jai Bharat!"],[9,"Rajguru","\"A king's happiness lies in the happiness of his subjects.\""],[11,"Senapati",`Course set for ${ct.n}, ${A}. ${ct.el}.`],[15,"Pilot","Entering atmosphere. Brace yourselves."]];
  const camr=cam(),END=17.5;let t0=null,done=false,ci=-1;
- const finish=()=>{if(done)return;done=true;const S=D.S;S.location=to;S.selectedPlanet=to;S.view="world";hideSay();musicOverride=null;D.renderAll();D.save();const w=buildWalk();w.walk=1;start(w,false);syncMusic();D.toast("Welcome to "+ct.n+" — "+ct.b);
+ const finish=()=>{if(done)return;done=true;if(X0){hideSay();musicOverride=null;syncMusic();X0.arrive();return}const S=D.S;S.location=to;S.selectedPlanet=to;S.view="world";hideSay();musicOverride=null;D.renderAll();D.save();const w=buildWalk();w.walk=1;start(w,false);syncMusic();D.toast("Welcome to "+ct.n+" — "+ct.b);
   document.getElementById("vWorld").classList.add("active");document.getElementById("vSystem").classList.remove("active")};
  const skip=document.createElement("button");
  const o={scene:sc,cam:camr,lock:1,update(tt){if(t0===null)t0=tt;const t=tt-t0;if(t>=END)return finish();
@@ -181,6 +181,6 @@ function travel(from,to){const P=D.PLANETS,cf=P[from],ct=P[to],sc=new T.Scene(),
   else{const u=t-15,k=Math.min(1,u/2.5);rk.position.z=-315-u*60;sc.background=new T.Color(0x02030a).lerp(new T.Color(ct.sky[1]),k);sc.fog.color.copy(sc.background);camr.position.set(rk.position.x+5,rk.position.y+2.5,rk.position.z+13);camr.lookAt(rk.position.x,rk.position.y,rk.position.z-10)}}};
  musicOverride="travel";syncMusic();start(o,true)}
 const S_bio=i=>D.S.planets[i].biosphere/160;
-window.DS3={T,mesh,M3,Hh,person,anim,start,stop,buildWalk,buildCourt,say,hideSay,addr,setMusic:m=>{musicOverride=m;syncMusic()},busy:()=>courtBusy||!!(cur&&cur.lock)};
+window.DS3={T,mesh,M3,Hh,person,anim,start,stop,buildWalk,buildCourt,say,hideSay,addr,travel,enterWalk:()=>{const w=buildWalk();w.walk=1;start(w,false);syncMusic()},setMusic:m=>{musicOverride=m;syncMusic()},busy:()=>courtBusy||!!(cur&&cur.lock)};
 addEventListener("load",()=>{if(D.S.view==="world")DS_view("world")});addEventListener("pagehide",D.save);addEventListener("blur",()=>{keys={};held=false});
 })();
