@@ -22,6 +22,7 @@
       <div class="resources" id="resourceBar" aria-live="polite"></div>
     </header>
     <nav class="navbtns toolbar" aria-label="Royal commands">
+      <button id="menuBtn" class="primary">☰ Menu</button>
       <button data-open="tech">🧠 Tech</button>
       <button data-open="deeds">🏆 Deeds</button>
       <button data-open="chronicle">📜 Chronicle</button>
@@ -46,7 +47,17 @@
     <button class="primary" id="councilBtn">☸ Convene Council</button>
   </footer>
 
-  <!-- 6 · Overlays -->
+  <!-- 6 · Command Center: every command, grouped (buttons are filled in by ui.js) -->
+  <div class="cmd" id="cmd" aria-hidden="true"><div class="cmdcard">
+    <div class="modalhead"><div><h2>☰ Command Center</h2><p>Every royal command in one place</p></div><button class="close" id="cmdClose" aria-label="Close menu">×</button></div>
+    <section data-sec="empire"><h3>👑 Empire</h3><div class="tiles"></div></section>
+    <section data-sec="space"><h3>🛰 Space &amp; Tamasi</h3><div class="tiles"></div></section>
+    <section data-sec="war"><h3>⚔ War, Peace &amp; Dyson</h3><div class="tiles"></div></section>
+    <section data-sec="sys"><h3>⚙ System</h3><div class="tiles"></div></section>
+  </div></div>
+  <div id="visitBar"><span id="visitTxt"></span><button id="visitBack">🚀 Return to Earth</button></div>
+
+  <!-- 7 · Overlays -->
   <div class="walkhint" id="walkHint">W/↑ walk · A/D turn · E talk · Space: ruler speaks · Esc: star map</div>
   <section id="court" aria-live="polite"><div class="who" id="cWho"></div><p id="cTxt"></p><div id="cBtns"></div></section>
   <div class="toast" id="toast"></div>
@@ -66,5 +77,7 @@
 <script src="endgame.js"></script>
 <script src="diplomacy.js"></script>
 <script src="guide.js"></script>
+<script src="realm.js"></script>
+<script src="ui.js"></script>
 </body>
 </html>
