@@ -24,9 +24,10 @@ function haveli(p){const g=new T.Group();g.add(mesh(new T.BoxGeometry(11,5,8),M3
  [-3.6,3.6].forEach(x=>{const c=chhatri(p,.7);c.position.set(x,5.4,0);g.add(c)});return g}
 function lotus(p){const g=new T.Group(),w=M3(0xfaf6ee,{roughness:.4}),pool=mesh(new T.CircleGeometry(9,32),M3(0x2a8ad0,{metalness:.5,roughness:.1}),0,.1,0);pool.rotation.x=-1.5708;g.add(pool);
  for(let i=0;i<9;i++){const a=i/9*6.283,pt=mesh(new T.SphereGeometry(1,12,10),w,Math.cos(a)*3.2,4,Math.sin(a)*3.2);pt.scale.set(.6,4.2,1.7);pt.rotation.y=-a;pt.rotation.z=-.22;g.add(pt)}g.add(spr(0,6,0,8,0xfff0c0));return g}
-function city(sc,pi,wl){const s=S(),p=s.planets[pi],pal=PAL[D.PLANETS[pi].id]||PAL.bhumi,win=[],upd=[];
- const n=p.unlocked?Math.min(44,Math.round(1+p.population/5+Object.values(p.buildings).reduce((a,b)=>a+b,0)*.7+(p.sustained?6:0))):0;
- let seed=pi*977+13;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+function city(sc,pi,wl){const s=S(),p=s.planets[pi],pal=PAL[D.PLANETS[pi].id]||PAL.bhumi;
+ const n=p.unlocked?Math.min(44,Math.round(1+p.population/5+Object.values(p.buildings).reduce((a,b)=>a+b,0)*.7+(p.sustained?6:0))):0;return layout(sc,pal,n,pi*977+13,wl)}
+function layout(sc,pal,n,seed0,wl){const win=[],upd=[];
+ let seed=seed0;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
  for(let k=0;k<n;k++){let a=k*2.4+rnd()*.3,r=40+Math.sqrt(k)*10,x,z,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.35;tr++}while(X.Hh(x,z)<wl+.8&&tr<16);if(X.Hh(x,z)<wl+.8)continue;
   const q=k/n,u=rnd(),kind=k===0?"dome":k===1?"lotus":q<.35?(u<.5?"haveli":u<.8?"chhatri":"gopuram"):(u<.45?"tower":u<.65?"sky":u<.8?"gopuram":u<.9?"haveli":"dome"),h=14+rnd()*26*(.5+q);
   const g=kind==="dome"?dome(pal):kind==="lotus"?lotus(pal):kind==="gopuram"?gopuram(pal):kind==="haveli"?haveli(pal):kind==="chhatri"?chhatri(pal,2):tower(pal,h,6+rnd()*3,win,kind==="sky");
@@ -36,7 +37,7 @@ function city(sc,pi,wl){const s=S(),p=s.planets[pi],pal=PAL[D.PLANETS[pi].id]||P
   upd.push(t=>cars.forEach((c,i)=>{const a=t*.12-i*.06;c.position.set(Math.cos(a)*R,H+1,Math.sin(a)*R);c.rotation.y=-a-1.5708}))}
  if(n>=26){const ch=new T.Group(),ring=mesh(new T.TorusGeometry(5,.35,8,40),gold(0xffffff),0,0,0);ch.add(ring);for(let i=0;i<24;i++){const a=i/24*6.283,sp=mesh(new T.BoxGeometry(.12,10,.12),gold(0xffffff),0,0,0);sp.rotation.z=a;ch.add(sp)}ch.position.set(-14,9,-42);if(X.Hh(-14,-42)>wl+.5){ch.add(mesh(new T.CylinderGeometry(.8,1.2,9,10),M3(0xf2efe6),0,-4.5,0));sc.add(ch);upd.push(t=>ch.rotation.z=t*.4)}}
  return{win,update:t=>upd.forEach(f=>f(t))}}
-const old=window.DS_legacy;window.DS_legacy=(sc,pi,st)=>{const f=old?old(sc,pi,st):null,wl=-2+S().planets[pi].water*.017,c=city(sc,pi,wl);sc.userData.win=c.win;return(t,dt,p)=>{f&&f(t,dt,p);c.update(t)}};
+window.DS_layout=layout;const old=window.DS_legacy;window.DS_legacy=(sc,pi,st)=>{const f=old?old(sc,pi,st):null,wl=-2+S().planets[pi].water*.017,c=city(sc,pi,wl);sc.userData.win=c.win;return(t,dt,p)=>{f&&f(t,dt,p);c.update(t)}};
 const NC=new T.Color(0x050818),NB=new T.Color(0x0a1230);
 window.DS_env=(t,o)=>{const sc=o.sc,U=sc.userData,u=o.skyM.material.uniforms;
  if(!U.b){U.b={top:u.t.value.clone(),bot:u.b.value.clone(),sun:o.sun.intensity,hemi:o.hemi.intensity};const a=[];for(let i=0;i<500;i++){const th=Math.random()*6.283,v=Math.acos(Math.random());a.push(450*Math.sin(v)*Math.cos(th),450*Math.cos(v),450*Math.sin(v)*Math.sin(th))}
