@@ -1,4 +1,4 @@
-/* Dreamscape v7: Dvandva Yuddha (equal war), dominion over the Dyson sphere, Dyson Era projects, visible star-map progress */
+/* Dreamscape v7: Dvandva Yuddha (war), dominion over the Dyson sphere, Dyson Era projects, visible star-map progress */
 (()=>{"use strict";
 if(!window.DS_story||!window.DS)return;
 const D=DS,X=DS3,S=()=>D.S,$=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),ST=()=>DS_story.init(),A=()=>X.addr();
