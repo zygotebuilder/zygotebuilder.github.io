@@ -1,0 +1,36 @@
+/* TPS Wellness Bot — base styles (shared by wellness.html + report.html) */
+:root{--card-bg:rgba(255,255,255,.93);--text-color:#17324d;--brand-color:#2d8f73;--btn-bg:#2d8f73;--btn-color:#fff;--secondary-bg:#e8eef2;--secondary-color:#17324d;--border-color:#d8e3ea;--option-bg:#fff;--option-border:#dce7ec;--option-selected-bg:#edf9f4;--option-selected-border:#2d8f73;--metric-bg:#f5faf8;--mission-bg:#eff9f5;--mission-border:#2d8f73;--disclaimer-bg:#f7fafb;--disclaimer-color:#5a6b75;--shadow:0 20px 45px rgba(0,0,0,.08)}
+[data-theme=dark]{--card-bg:rgba(24,34,54,.92);--text-color:#f1f5f9;--brand-color:#34d399;--btn-bg:#059669;--secondary-bg:#334155;--secondary-color:#f1f5f9;--border-color:#475569;--option-bg:#1e293b;--option-border:#475569;--option-selected-bg:#064e3b;--option-selected-border:#34d399;--metric-bg:#111827;--mission-bg:#064e3b;--mission-border:#34d399;--disclaimer-bg:#111827;--disclaimer-color:#a3b1c2;--shadow:0 20px 45px rgba(0,0,0,.4)}
+body{margin:0;min-height:100vh;color:var(--text-color);overflow-x:hidden;position:relative;transition:color .3s}
+.app{max-width:900px;margin:auto;padding:32px 20px;position:relative;z-index:2}
+.screen{display:none;min-height:85vh;align-items:center;justify-content:center}.active{display:flex}
+.card{background:var(--card-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:28px;padding:40px;width:100%;box-sizing:border-box;box-shadow:var(--shadow)}
+h1,h2,h3{margin-top:0;letter-spacing:-.5px}
+.brand{text-align:center;font-weight:800;letter-spacing:3px;color:var(--brand-color);font-size:14px;margin-bottom:12px;text-transform:uppercase}
+.center{text-align:center}
+.btn{padding:16px 28px;border:0;border-radius:16px;background:var(--btn-bg);color:var(--btn-color);font-size:17px;font-weight:700;margin:8px;cursor:pointer;box-shadow:0 8px 20px rgba(45,143,115,.3);font-family:inherit}
+.btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.secondary{background:var(--secondary-bg);color:var(--secondary-color);box-shadow:none}
+.field{max-width:600px;margin:0 auto 20px}label{font-size:15px;display:block;margin-bottom:6px}
+input{width:100%;padding:16px;box-sizing:border-box;border:2px solid var(--border-color);background:var(--option-bg);color:var(--text-color);border-radius:14px;font-size:18px;margin:4px 0 16px;font-family:inherit}
+input:focus{outline:none;border-color:var(--brand-color);box-shadow:0 0 0 4px rgba(45,143,115,.15)}
+.camera{max-width:560px;margin:20px auto;background:#000;aspect-ratio:4/3;border-radius:20px;overflow:hidden}
+.camera video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.option{padding:20px;text-align:left;border:2px solid var(--option-border);border-radius:18px;background:var(--option-bg);color:var(--text-color);font-size:16px;cursor:pointer;font-family:inherit}
+.option:hover{border-color:var(--brand-color)}
+.selected{border-color:var(--option-selected-border)!important;background:var(--option-selected-bg)!important}
+.progress{height:10px;background:var(--secondary-bg);border-radius:10px;margin:20px 0;overflow:hidden}
+.progress div{height:100%;background:var(--brand-color);width:0;border-radius:10px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
+.metric{display:flex;justify-content:space-between;align-items:center;background:var(--metric-bg);padding:16px;border-radius:16px;border:1px solid var(--border-color)}
+.stars{white-space:nowrap;color:#f59e0b;font-size:15px;letter-spacing:2px}
+.focus{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}
+.focus span{background:var(--option-selected-bg);border:1px solid var(--option-selected-border);padding:12px 18px;border-radius:14px;font-weight:500;font-size:15px}
+.mission{background:var(--mission-bg);border-left:6px solid var(--mission-border);padding:20px;border-radius:16px;margin-top:20px}
+.takeaway{text-align:center;border:2px dashed var(--border-color);padding:24px;margin-top:24px;border-radius:20px;background:var(--option-bg)}
+#qr{display:block;margin:20px auto;width:200px;height:200px;border-radius:12px;padding:10px;background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.disclaimer{text-align:center;background:var(--disclaimer-bg);padding:16px;margin-top:24px;font-size:13px;line-height:1.55;color:var(--disclaimer-color);border-radius:14px;border:1px solid var(--border-color)}
+.disclaimer.strong{border:2px solid #f59e0b;color:var(--text-color)}
+.theme-toggle{position:fixed;top:20px;right:20px;z-index:1000;background:var(--card-bg);border:2px solid var(--border-color);color:var(--text-color);width:46px;height:46px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+@media(max-width:650px){.options,.metrics{grid-template-columns:1fr}.card{padding:24px}}
