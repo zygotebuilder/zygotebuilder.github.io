@@ -278,6 +278,7 @@
       .dna-container { display: none; }
     }
   </style>
+  <link rel="stylesheet" href="ux.css">
 </head>
 <body>
 
@@ -700,5 +701,6 @@ function makeQR() {
   document.getElementById("qr").src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(dynamicUrl)}`;
 }
 </script>
+  <script src="ux.js"></script>
 </body>
 </html>
