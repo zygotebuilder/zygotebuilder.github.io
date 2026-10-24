@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from datetime import datetime, timezone
 import json
@@ -13,55 +12,120 @@ ROOT = Path(__file__).resolve().parents[2]
 THOUGHTS_FILE = ROOT / "bot" / "archive" / "zybot-thoughts.json"
 HISTORY_FILE = ROOT / "bot" / "archive" / "zybot-history.json"
 
-# Archive safety limits
 MAX_THOUGHTS = 100
+MAX_ARCHIVE_BYTES = 5 * 1024 * 1024
+
 MAX_ITEMS_PER_CATEGORY = 10
 MAX_ITEM_CHARS = 500
-MAX_ARCHIVE_BYTES = 5 * 1024 * 1024  # 5 MB
 
-
-SECTIONS = [
-    ("OBSERVATIONS", "observations"),
-    ("POTENTIAL PROBLEMS", "potential_problems"),
-    ("PATTERNS", "patterns"),
-    ("CREATIVE IDEAS", "creative_ideas"),
-    ("QUESTIONS FOR HUMAN", "questions_for_human"),
-]
+CATEGORIES = (
+    "observations",
+    "potential_problems",
+    "patterns",
+    "creative_ideas",
+    "questions_for_human"
+)
 
 
 def load_json(path, default):
-    """Load JSON safely, avoiding unexpectedly oversized archive files."""
-
     if not path.exists():
         return default
 
     try:
-        file_size = path.stat().st_size
+        size = path.stat().st_size
 
-        if path == THOUGHTS_FILE and file_size > MAX_ARCHIVE_BYTES:
+        if path == THOUGHTS_FILE and size > MAX_ARCHIVE_BYTES:
             print(
-                f"⚠️ Existing thoughts archive is {file_size / (1024 * 1024):.2f} MB."
+                f"⚠️ Existing thoughts archive is "
+                f"{size / (1024 * 1024):.2f} MB."
             )
-            print("⚠️ Starting a fresh bounded archive to prevent another oversized push.")
+            print(
+                "⚠️ Starting a fresh bounded archive. "
+                "The oversized file will not be loaded."
+            )
+            return default
+
+        if size > MAX_ARCHIVE_BYTES:
+            print(f"⚠️ Skipping oversized file: {path.name}")
             return default
 
         return json.loads(path.read_text(encoding="utf-8"))
 
     except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
         print(f"⚠️ Could not load {path.name}: {exc}")
-        print("⚠️ Using the default data instead.")
         return default
 
 
-def save_json(path, data):
-    """Write JSON atomically and enforce the archive size limit."""
+def clean_items(values):
+    if values is None:
+        return []
 
+    if isinstance(values, str):
+        values = [values]
+    elif not isinstance(values, (list, tuple)):
+        values = [values]
+
+    cleaned = []
+
+    for value in values[:MAX_ITEMS_PER_CATEGORY]:
+        if value is None:
+            continue
+
+        if isinstance(value, str):
+            item = value
+        else:
+            try:
+                item = json.dumps(value, ensure_ascii=False)
+            except (TypeError, ValueError):
+                item = str(value)
+
+        item = item.strip()
+
+        if not item:
+            continue
+
+        if len(item) > MAX_ITEM_CHARS:
+            item = item[:MAX_ITEM_CHARS] + "... [truncated]"
+
+        cleaned.append(item)
+
+    return cleaned
+
+
+def save_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
 
     if path == THOUGHTS_FILE:
-        thoughts = data.get("thoughts", [])
+        records = data.get("thoughts", [])
 
-        # Keep the newest records first when reducing the archive.
+        if not isinstance(records, list):
+            records = []
+
+        bounded_records = []
+
+        for record in records[-MAX_THOUGHTS:]:
+            if not isinstance(record, dict):
+                continue
+
+            cleaned_record = {
+                "timestamp": str(record.get("timestamp", ""))[:40],
+                "commit": str(record.get("commit", ""))[:100],
+                "engine": str(record.get("engine", ""))[:100]
+            }
+
+            for category in CATEGORIES:
+                cleaned_record[category] = clean_items(
+                    record.get(category, [])
+                )
+
+            bounded_records.append(cleaned_record)
+
+        data = {
+            "version": 2,
+            "thoughts": bounded_records
+        }
+
+        # Remove the oldest records until the archive is small enough.
         while True:
             serialized = json.dumps(
                 data,
@@ -69,20 +133,20 @@ def save_json(path, data):
                 ensure_ascii=False
             )
 
-            encoded = serialized.encode("utf-8")
-
-            if len(encoded) <= MAX_ARCHIVE_BYTES:
+            if len(serialized.encode("utf-8")) <= MAX_ARCHIVE_BYTES:
                 break
 
-            if not thoughts:
+            if not data["thoughts"]:
                 raise ValueError(
-                    "Unable to save thoughts archive within the size limit."
+                    "Could not fit the thoughts archive within 5 MB."
                 )
 
-            thoughts = thoughts[1:]
-            data["thoughts"] = thoughts
+            data["thoughts"].pop(0)
 
-            print("⚠️ Removed an older thought record to stay within the archive limit.")
+            print(
+                "⚠️ Removed an older thought record "
+                "to enforce the archive size limit."
+            )
 
     else:
         serialized = json.dumps(
@@ -120,162 +184,99 @@ def latest_commit():
     if not isinstance(latest, dict):
         return "unknown"
 
-    return latest.get("commit", "unknown")
-
-
-def clean_category(values):
-    """Normalize AI output and bound every stored text item."""
-
-    if values is None:
-        return []
-
-    if isinstance(values, (str, int, float, bool)):
-        values = [values]
-
-    if not isinstance(values, (list, tuple)):
-        values = [values]
-
-    cleaned = []
-
-    for value in values[:MAX_ITEMS_PER_CATEGORY]:
-        if value is None:
-            continue
-
-        if isinstance(value, str):
-            text = value
-        else:
-            try:
-                text = json.dumps(
-                    value,
-                    ensure_ascii=False
-                )
-            except (TypeError, ValueError):
-                text = str(value)
-
-        text = text.strip()
-
-        if not text:
-            continue
-
-        if len(text) > MAX_ITEM_CHARS:
-            text = text[:MAX_ITEM_CHARS] + "... [truncated]"
-
-        cleaned.append(text)
-
-    return cleaned
+    return str(latest.get("commit", "unknown"))[:100]
 
 
 def main():
-    print("=" * 65)
-    print("🧬 ZYBOT — AI THINKER")
-    print("=" * 65)
+    print("=" * 65, flush=True)
+    print("🧬 ZYBOT — AI THINKER", flush=True)
+    print("=" * 65, flush=True)
 
-    print("\n🔎 Building repository context...")
+    print("\n🔎 Building repository context...", flush=True)
 
     context = build_context()
 
-    print("🟢 Context prepared.")
-    print("\n🧠 Analyzing repository context...")
+    print("🟢 Context prepared.", flush=True)
 
     analysis = analyze(context)
 
     if not isinstance(analysis, dict):
-        print("⚠️ AI analysis did not return a dictionary.")
-        analysis = {
-            "observations": [str(analysis)]
-        }
+        analysis = {}
 
-    # Normalize every category before saving or printing it.
-    cleaned_analysis = {}
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "commit": latest_commit(),
+        "engine": "ZybotRNN (local character-level model)"
+    }
 
-    for _, key in SECTIONS:
-        cleaned_analysis[key] = clean_category(
-            analysis.get(key, [])
+    for category in CATEGORIES:
+        record[category] = clean_items(
+            analysis.get(category, [])
         )
 
     thoughts_history = load_json(
         THOUGHTS_FILE,
-        {
-            "version": 2,
-            "thoughts": []
-        }
+        {"version": 2, "thoughts": []}
     )
 
     if not isinstance(thoughts_history, dict):
-        thoughts_history = {
-            "version": 2,
-            "thoughts": []
-        }
+        thoughts_history = {"version": 2, "thoughts": []}
 
-    existing_thoughts = thoughts_history.get("thoughts", [])
+    records = thoughts_history.get("thoughts", [])
 
-    if not isinstance(existing_thoughts, list):
-        existing_thoughts = []
+    if not isinstance(records, list):
+        records = []
 
-    record = {
-        "timestamp": datetime.now(
-            timezone.utc
-        ).isoformat(),
-
-        "commit": latest_commit(),
-
-        "engine": "Qwen3-0.6B",
-
-        "observations": cleaned_analysis["observations"],
-
-        "potential_problems": cleaned_analysis["potential_problems"],
-
-        "patterns": cleaned_analysis["patterns"],
-
-        "creative_ideas": cleaned_analysis["creative_ideas"],
-
-        "questions_for_human": cleaned_analysis["questions_for_human"]
-    }
-
-    thoughts_history["version"] = 2
     thoughts_history["thoughts"] = (
-        existing_thoughts + [record]
-    )[-MAX_THOUGHTS:]
-
-    print("\n💾 Saving bounded AI thoughts archive...")
-
-    save_json(
-        THOUGHTS_FILE,
-        thoughts_history
+        records[-(MAX_THOUGHTS - 1):] + [record]
     )
 
-    print("\n" + "-" * 65)
-    print("🧠 ZYBOT AI ANALYSIS")
-    print("-" * 65)
+    print("\n💾 Saving bounded AI thoughts archive...", flush=True)
 
-    for title, key in SECTIONS:
-        print(f"\n{title}")
-        print("-" * 40)
+    save_json(THOUGHTS_FILE, thoughts_history)
 
-        values = cleaned_analysis[key]
+    print("\n" + "-" * 65, flush=True)
+    print("🧠 ZYBOT AI ANALYSIS", flush=True)
+    print("-" * 65, flush=True)
+
+    titles = {
+        "observations": "OBSERVATIONS",
+        "potential_problems": "POTENTIAL PROBLEMS",
+        "patterns": "PATTERNS",
+        "creative_ideas": "CREATIVE IDEAS",
+        "questions_for_human": "QUESTIONS FOR HUMAN"
+    }
+
+    for category in CATEGORIES:
+        print(f"\n{titles[category]}", flush=True)
+        print("-" * 40, flush=True)
+
+        values = record[category]
 
         if not values:
-            print("None.")
+            print("None.", flush=True)
             continue
 
         for value in values:
-            print(f"• {value}")
+            print(f"• {value}", flush=True)
 
     archive_size = THOUGHTS_FILE.stat().st_size
 
-    print("\n" + "-" * 65)
+    print("\n" + "-" * 65, flush=True)
     print(
         f"📦 Archive size: {archive_size / 1024:.1f} KB "
-        f"(limit: {MAX_ARCHIVE_BYTES / (1024 * 1024):.0f} MB)"
+        f"(maximum 5 MB)",
+        flush=True
     )
     print(
-        f"📚 Stored thought records: "
-        f"{len(thoughts_history['thoughts'])}/{MAX_THOUGHTS}"
+        f"📚 Stored records: "
+        f"{len(thoughts_history['thoughts'])}/{MAX_THOUGHTS}",
+        flush=True
     )
 
-    print("\n" + "=" * 65)
-    print("🟢 AI Thinker finished.")
-    print("=" * 65)
+    print("\n" + "=" * 65, flush=True)
+    print("🟢 AI Thinker finished.", flush=True)
+    print("=" * 65, flush=True)
 
 
 if __name__ == "__main__":
