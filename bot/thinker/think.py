@@ -1,7 +1,9 @@
+
 from pathlib import Path
 from datetime import datetime, timezone
 import json
 import os
+import subprocess
 
 from context import build_context
 from ai import analyze
@@ -10,21 +12,23 @@ from ai import analyze
 ROOT = Path(__file__).resolve().parents[2]
 
 THOUGHTS_FILE = ROOT / "bot" / "archive" / "zybot-thoughts.json"
-HISTORY_FILE = ROOT / "bot" / "archive" / "zybot-history.json"
 
 MAX_THOUGHTS = 100
 MAX_ARCHIVE_BYTES = 5 * 1024 * 1024
-
 MAX_ITEMS_PER_CATEGORY = 10
 MAX_ITEM_CHARS = 500
+MAX_EVIDENCE_ITEMS = 5
+MAX_EVIDENCE_CHARS = 300
 
 CATEGORIES = (
     "observations",
     "potential_problems",
     "patterns",
     "creative_ideas",
-    "questions_for_human"
+    "questions_for_human",
 )
+
+ENGINE = "Zybot deterministic evidence analyzer"
 
 
 def load_json(path, default):
@@ -32,20 +36,7 @@ def load_json(path, default):
         return default
 
     try:
-        size = path.stat().st_size
-
-        if path == THOUGHTS_FILE and size > MAX_ARCHIVE_BYTES:
-            print(
-                f"⚠️ Existing thoughts archive is "
-                f"{size / (1024 * 1024):.2f} MB."
-            )
-            print(
-                "⚠️ Starting a fresh bounded archive. "
-                "The oversized file will not be loaded."
-            )
-            return default
-
-        if size > MAX_ARCHIVE_BYTES:
+        if path.stat().st_size > MAX_ARCHIVE_BYTES:
             print(f"⚠️ Skipping oversized file: {path.name}")
             return default
 
@@ -56,38 +47,77 @@ def load_json(path, default):
         return default
 
 
+def clean_evidence(values):
+    if not isinstance(values, list):
+        return []
+
+    cleaned = []
+
+    for value in values[:MAX_EVIDENCE_ITEMS]:
+        if not isinstance(value, dict):
+            continue
+
+        source = str(value.get("source", "unknown"))[:80]
+        locator = str(value.get("locator", ""))[:120]
+        detail = str(value.get("detail", ""))[:MAX_EVIDENCE_CHARS]
+
+        cleaned.append({
+            "source": source,
+            "locator": locator,
+            "detail": detail,
+        })
+
+    return cleaned
+
+
+def clean_item(value):
+    """
+    Normalize both legacy string entries and evidence-linked objects.
+    """
+
+    if isinstance(value, str):
+        text = value.strip()
+
+        if not text:
+            return None
+
+        return {
+            "kind": "legacy",
+            "text": text[:MAX_ITEM_CHARS],
+            "evidence": [],
+        }
+
+    if not isinstance(value, dict):
+        return None
+
+    text = value.get("text")
+    if not isinstance(text, str) or not text.strip():
+        return None
+
+    return {
+        "kind": str(value.get("kind", "observation"))[:40],
+        "text": text.strip()[:MAX_ITEM_CHARS],
+        "evidence": clean_evidence(value.get("evidence", [])),
+    }
+
+
 def clean_items(values):
     if values is None:
         return []
 
-    if isinstance(values, str):
+    if isinstance(values, (str, dict)):
         values = [values]
-    elif not isinstance(values, (list, tuple)):
-        values = [values]
+
+    if not isinstance(values, (list, tuple)):
+        return []
 
     cleaned = []
 
     for value in values[:MAX_ITEMS_PER_CATEGORY]:
-        if value is None:
-            continue
+        item = clean_item(value)
 
-        if isinstance(value, str):
-            item = value
-        else:
-            try:
-                item = json.dumps(value, ensure_ascii=False)
-            except (TypeError, ValueError):
-                item = str(value)
-
-        item = item.strip()
-
-        if not item:
-            continue
-
-        if len(item) > MAX_ITEM_CHARS:
-            item = item[:MAX_ITEM_CHARS] + "... [truncated]"
-
-        cleaned.append(item)
+        if item is not None:
+            cleaned.append(item)
 
     return cleaned
 
@@ -95,65 +125,51 @@ def clean_items(values):
 def save_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    if path == THOUGHTS_FILE:
-        records = data.get("thoughts", [])
+    records = data.get("thoughts", [])
+    if not isinstance(records, list):
+        records = []
 
-        if not isinstance(records, list):
-            records = []
+    bounded_records = []
 
-        bounded_records = []
+    for record in records[-MAX_THOUGHTS:]:
+        if not isinstance(record, dict):
+            continue
 
-        for record in records[-MAX_THOUGHTS:]:
-            if not isinstance(record, dict):
-                continue
-
-            cleaned_record = {
-                "timestamp": str(record.get("timestamp", ""))[:40],
-                "commit": str(record.get("commit", ""))[:100],
-                "engine": str(record.get("engine", ""))[:100]
-            }
-
-            for category in CATEGORIES:
-                cleaned_record[category] = clean_items(
-                    record.get(category, [])
-                )
-
-            bounded_records.append(cleaned_record)
-
-        data = {
-            "version": 2,
-            "thoughts": bounded_records
+        cleaned_record = {
+            "timestamp": str(record.get("timestamp", ""))[:40],
+            "commit": str(record.get("commit", ""))[:100],
+            "engine": str(record.get("engine", ""))[:100],
         }
 
-        # Remove the oldest records until the archive is small enough.
-        while True:
-            serialized = json.dumps(
-                data,
-                indent=2,
-                ensure_ascii=False
+        for category in CATEGORIES:
+            cleaned_record[category] = clean_items(
+                record.get(category, [])
             )
 
-            if len(serialized.encode("utf-8")) <= MAX_ARCHIVE_BYTES:
-                break
+        bounded_records.append(cleaned_record)
 
-            if not data["thoughts"]:
-                raise ValueError(
-                    "Could not fit the thoughts archive within 5 MB."
-                )
+    archive = {
+        "version": 3,
+        "thoughts": bounded_records,
+    }
 
-            data["thoughts"].pop(0)
-
-            print(
-                "⚠️ Removed an older thought record "
-                "to enforce the archive size limit."
-            )
-
-    else:
+    while True:
         serialized = json.dumps(
-            data,
+            archive,
             indent=2,
-            ensure_ascii=False
+            ensure_ascii=False,
         )
+
+        if len(serialized.encode("utf-8")) <= MAX_ARCHIVE_BYTES:
+            break
+
+        if not archive["thoughts"]:
+            raise ValueError(
+                "Could not fit the thoughts archive within 5 MB."
+            )
+
+        archive["thoughts"].pop(0)
+        print("⚠️ Removed the oldest thought record to enforce the size limit.")
 
     temp_path = path.with_name(path.name + ".tmp")
 
@@ -165,39 +181,57 @@ def save_json(path, data):
             temp_path.unlink()
 
 
-def latest_commit():
-    history = load_json(
-        HISTORY_FILE,
-        {"runs": []}
-    )
+def current_commit():
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
 
-    if not isinstance(history, dict):
-        return "unknown"
+        if result.returncode == 0:
+            commit = result.stdout.strip()
 
-    runs = history.get("runs", [])
+            if commit:
+                return commit[:100]
 
-    if not isinstance(runs, list) or not runs:
-        return "unknown"
+    except (OSError, subprocess.TimeoutExpired):
+        pass
 
-    latest = runs[-1]
+    return "unknown"
 
-    if not isinstance(latest, dict):
-        return "unknown"
 
-    return str(latest.get("commit", "unknown"))[:100]
+def print_item(item):
+    print(f"• [{item['kind'].upper()}] {item['text']}")
+
+    if not item["evidence"]:
+        print("  Evidence: none attached")
+        return
+
+    for evidence in item["evidence"]:
+        source = evidence["source"]
+        locator = evidence["locator"]
+        detail = evidence["detail"]
+
+        print(f"  Evidence: {source} | {locator}")
+
+        if detail:
+            print(f"    {detail}")
 
 
 def main():
     print("=" * 65, flush=True)
-    print("🧬 ZYBOT — AI THINKER", flush=True)
+    print("ZYBOT — EVIDENCE-BASED THINKER", flush=True)
     print("=" * 65, flush=True)
 
     print("\n🔎 Building repository context...", flush=True)
-
     context = build_context()
-
     print("🟢 Context prepared.", flush=True)
 
+    print("\n🔬 Analyzing available evidence...", flush=True)
     analysis = analyze(context)
 
     if not isinstance(analysis, dict):
@@ -205,8 +239,8 @@ def main():
 
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "commit": latest_commit(),
-        "engine": "ZybotRNN (local character-level model)"
+        "commit": current_commit(),
+        "engine": ENGINE,
     }
 
     for category in CATEGORIES:
@@ -214,29 +248,44 @@ def main():
             analysis.get(category, [])
         )
 
-    thoughts_history = load_json(
+    archive = load_json(
         THOUGHTS_FILE,
-        {"version": 2, "thoughts": []}
+        {"version": 3, "thoughts": []},
     )
 
-    if not isinstance(thoughts_history, dict):
-        thoughts_history = {"version": 2, "thoughts": []}
+    if not isinstance(archive, dict):
+        archive = {"version": 3, "thoughts": []}
 
-    records = thoughts_history.get("thoughts", [])
-
+    records = archive.get("thoughts", [])
     if not isinstance(records, list):
         records = []
 
-    thoughts_history["thoughts"] = (
+    archive["thoughts"] = (
         records[-(MAX_THOUGHTS - 1):] + [record]
     )
 
-    print("\n💾 Saving bounded AI thoughts archive...", flush=True)
+    print("\n💾 Saving bounded thoughts archive...", flush=True)
+    save_json(THOUGHTS_FILE, archive)
 
-    save_json(THOUGHTS_FILE, thoughts_history)
+    # Read back the saved archive to verify the write and final size.
+    saved_archive = load_json(
+        THOUGHTS_FILE,
+        {"version": 3, "thoughts": []},
+    )
+
+    saved_records = (
+        saved_archive.get("thoughts", [])
+        if isinstance(saved_archive, dict)
+        else []
+    )
+
+    if not isinstance(saved_records, list) or not saved_records:
+        raise RuntimeError("The saved thoughts archive could not be verified.")
+
+    saved_record = saved_records[-1]
 
     print("\n" + "-" * 65, flush=True)
-    print("🧠 ZYBOT AI ANALYSIS", flush=True)
+    print("ZYBOT ANALYSIS", flush=True)
     print("-" * 65, flush=True)
 
     titles = {
@@ -244,39 +293,37 @@ def main():
         "potential_problems": "POTENTIAL PROBLEMS",
         "patterns": "PATTERNS",
         "creative_ideas": "CREATIVE IDEAS",
-        "questions_for_human": "QUESTIONS FOR HUMAN"
+        "questions_for_human": "QUESTIONS FOR HUMAN",
     }
 
     for category in CATEGORIES:
         print(f"\n{titles[category]}", flush=True)
         print("-" * 40, flush=True)
 
-        values = record[category]
+        items = clean_items(saved_record.get(category, []))
 
-        if not values:
-            print("None.", flush=True)
+        if not items:
+            print("No evidence-backed findings.", flush=True)
             continue
 
-        for value in values:
-            print(f"• {value}", flush=True)
+        for item in items:
+            print_item(item)
 
     archive_size = THOUGHTS_FILE.stat().st_size
 
     print("\n" + "-" * 65, flush=True)
+    print(f"Engine: {ENGINE}", flush=True)
     print(
-        f"📦 Archive size: {archive_size / 1024:.1f} KB "
+        f"Archive size: {archive_size / 1024:.1f} KB "
         f"(maximum 5 MB)",
-        flush=True
+        flush=True,
     )
     print(
-        f"📚 Stored records: "
-        f"{len(thoughts_history['thoughts'])}/{MAX_THOUGHTS}",
-        flush=True
+        f"Stored records: {len(saved_records)}/{MAX_THOUGHTS}",
+        flush=True,
     )
-
-    print("\n" + "=" * 65, flush=True)
-    print("🟢 AI Thinker finished.", flush=True)
-    print("=" * 65, flush=True)
+    print(f"Commit: {record['commit']}", flush=True)
+    print("\n🟢 Analysis and archive verification finished.", flush=True)
 
 
 if __name__ == "__main__":
