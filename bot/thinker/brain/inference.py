@@ -3,39 +3,44 @@ from pathlib import Path
 from .model import ZybotRNN
 
 
-# inference.py and zybot-brain.json are in the same directory.
-
 BRAIN_DIR = Path(__file__).resolve().parent
-
 MODEL_FILE = BRAIN_DIR / "zybot-brain.json"
 
 
 def load_brain():
-
-    print(f"🧠 Looking for Zybot Brain at:")
-    print(f"   {MODEL_FILE}")
-
     if not MODEL_FILE.exists():
         raise FileNotFoundError(
-            f"Zybot Brain has not been trained yet.\n"
-            f"Expected model file: {MODEL_FILE}"
+            "Zybot's brain has not been trained yet.\n"
+            f"Expected model file: {MODEL_FILE}\n"
+            "Run the training module first."
         )
 
-    print("🧠 Loading Zybot Brain...")
-
-    model = ZybotRNN.load(MODEL_FILE)
-
-    print("🟢 Zybot Brain loaded.")
-
-    return model
+    return ZybotRNN.load(MODEL_FILE)
 
 
 def think(prompt):
+    """
+    Return a generated continuation for the supplied prompt.
+
+    This function uses the local character-level RNN. It does not
+    call an external model or API.
+    """
+
+    if not isinstance(prompt, str) or not prompt.strip():
+        return ""
 
     model = load_brain()
 
     return model.generate(
-        prompt,
+        prompt=prompt.strip(),
         max_length=300,
-        temperature=0.7
+        temperature=0.25,
+        seed=42,
     )
+
+
+if __name__ == "__main__":
+    example = (
+        "The evidence is insufficient to determine the cause."
+    )
+    print(think(example))
