@@ -1,3 +1,4 @@
+
 name: Zybot
 
 on:
@@ -20,12 +21,10 @@ on:
   schedule:
     - cron: "30 12 * * *"
 
-
-# Prevent overlapping Zybot runs from fighting over repository commits.
+# Prevent overlapping Zybot workflow runs.
 concurrency:
   group: zybot-${{ github.ref }}
   cancel-in-progress: false
-
 
 jobs:
 
@@ -43,8 +42,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
 
       - name: Run Zybot Observer
         run: python bot/observer/inspect.py
@@ -61,14 +58,33 @@ jobs:
     permissions:
       contents: read
 
+    outputs:
+      tests_passed: ${{ steps.run-tests.outputs.tests_passed }}
+      failed_count: ${{ steps.run-tests.outputs.failed_count }}
+      passed_count: ${{ steps.run-tests.outputs.passed_count }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          ref: ${{ github.ref_name }}
+          python-version: "3.12"
 
       - name: Run Zybot Tester
+        id: run-tests
+        continue-on-error: true
         run: python bot/tester/test_projects.py
+
+      - name: Upload structured test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zybot-test-results
+          path: bot/tester/test-results.json
+          if-no-files-found: error
+          retention-days: 7
 
 
   # ============================================================
@@ -88,8 +104,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
 
       - name: Check GitHub CLI
         run: gh --version
@@ -101,66 +115,16 @@ jobs:
 
 
   # ============================================================
-  # FIXER
-  # ============================================================
-
-  fixer:
-    name: 🔧 Zybot Fixer
-    needs: test
-
-    if: >
-      needs.test.result == 'success' &&
-      github.event_name != 'pull_request' &&
-      github.ref == 'refs/heads/projects' &&
-      (
-        github.event_name == 'schedule' ||
-        github.event_name == 'push' ||
-        (
-          github.event_name == 'workflow_dispatch' &&
-          inputs.run_fixer == true
-        )
-      )
-
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      pull-requests: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: projects
-
-      - name: Show Fixer context
-        run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Run Fixer: ${{ inputs.run_fixer }}"
-
-      - name: Configure Git
-        run: |
-          git config user.name "Zybot"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Check GitHub CLI
-        run: gh --version
-
-      - name: Run Zybot Fixer
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python bot/fixer/fix.py
-
-
-  # ============================================================
   # ARCHIVIST
   # ============================================================
 
   archivist:
     name: 📚 Zybot Archivist
     needs: test
+
+    if: >
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/projects'
 
     runs-on: ubuntu-latest
 
@@ -202,12 +166,79 @@ jobs:
 
 
   # ============================================================
+  # FIXER
+  # ============================================================
+
+  fixer:
+    name: 🔧 Zybot Fixer
+    needs:
+      - test
+      - archivist
+
+    if: >
+      needs.test.outputs.tests_passed == 'true' &&
+      needs.test.result == 'success' &&
+      needs.archivist.result == 'success' &&
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/projects' &&
+      (
+        github.event_name == 'schedule' ||
+        github.event_name == 'push' ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.run_fixer == true
+        )
+      )
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: projects
+
+      - name: Show Fixer context
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Run Fixer: ${{ inputs.run_fixer }}"
+          echo "Tests passed: ${{ needs.test.outputs.tests_passed }}"
+
+      - name: Configure Git
+        run: |
+          git config user.name "Zybot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Check GitHub CLI
+        run: gh --version
+
+      - name: Run Zybot Fixer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python bot/fixer/fix.py
+
+
+  # ============================================================
   # ZYBOT BRAIN
   # ============================================================
 
   thinker:
     name: 🧠 Zybot AI Thinker
-    needs: archivist
+    needs:
+      - test
+      - archivist
+
+    if: >
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/projects' &&
+      needs.test.result == 'success' &&
+      needs.archivist.result == 'success'
 
     runs-on: ubuntu-latest
 
@@ -248,6 +279,32 @@ jobs:
 
 
       # --------------------------------------------------------
+      # DOWNLOAD TEST RESULTS
+      # --------------------------------------------------------
+
+      - name: Download Zybot Tester results
+        uses: actions/download-artifact@v4
+        with:
+          name: zybot-test-results
+          path: bot/tester
+
+
+      - name: Verify Tester report
+        run: |
+          REPORT="bot/tester/test-results.json"
+
+          if [ ! -s "$REPORT" ]; then
+            echo "❌ Tester report is missing or empty."
+            exit 1
+          fi
+
+          python -c "import json; json.load(open('$REPORT', encoding='utf-8'))"
+
+          echo "🟢 Tester report exists and contains valid JSON."
+          cat "$REPORT"
+
+
+      # --------------------------------------------------------
       # CHECK BRAIN FILES
       # --------------------------------------------------------
 
@@ -282,25 +339,15 @@ jobs:
           echo "Contents of brain directory after training:"
           ls -lah bot/thinker/brain
 
-          echo ""
-          echo "Checking trained model..."
+          MODEL="bot/thinker/brain/zybot-brain.json"
 
-          if [ ! -f bot/thinker/brain/zybot-brain.json ]; then
-            echo "❌ Zybot brain file was NOT created."
-            echo ""
-            echo "Expected:"
-            echo "bot/thinker/brain/zybot-brain.json"
-            echo ""
-            echo "Actual brain directory:"
-            ls -lah bot/thinker/brain
+          if [ ! -s "$MODEL" ]; then
+            echo "❌ Zybot Brain was not created or is empty."
             exit 1
           fi
 
-          echo "🟢 Zybot brain file successfully created."
-
-          echo ""
-          echo "Model information:"
-          ls -lh bot/thinker/brain/zybot-brain.json
+          echo "🟢 Zybot Brain file successfully created."
+          ls -lh "$MODEL"
 
 
       # --------------------------------------------------------
@@ -313,13 +360,8 @@ jobs:
 
           MODEL="bot/thinker/brain/zybot-brain.json"
 
-          if [ ! -f "$MODEL" ]; then
-            echo "❌ Zybot Brain is missing."
-            exit 1
-          fi
-
           if [ ! -s "$MODEL" ]; then
-            echo "❌ Zybot Brain exists but is empty."
+            echo "❌ Zybot Brain is missing or empty."
             exit 1
           fi
 
