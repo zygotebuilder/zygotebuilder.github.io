@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Zygote Builder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
 <style>
 /* ZYGOTE BUILDER v4 — COSMOS x BIOLOGY. All 16 projects, URLs, numbering N.01–N.16, visit counter and newsletter logo preserved.
 Contents of this page shall not be reproduced by any means except the concerned third party apps or URLs. */
@@ -69,14 +69,23 @@ nav button:hover{transform:translateY(-3px)}nav button.on{border-color:var(--cya
 .at h2{font-size:1.35rem;line-height:1.2;font-weight:600;margin-bottom:8px}.at p{color:var(--muted);font-size:.9rem;line-height:1.6}
 .ix{position:absolute;right:20px;top:16px;font-family:var(--mono);font-size:.64rem;color:var(--muted);opacity:.6}
 footer{position:relative;z-index:5;padding:30px 20px 150px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:.78rem}
-.dock{position:fixed;left:0;right:0;bottom:0;height:84px;z-index:90;pointer-events:none;border-radius:26px 26px 0 0;border-bottom:0}
-.tool{position:fixed;z-index:120;width:54px;height:54px;border-radius:50%;cursor:grab;display:grid;place-items:center;font-size:22px;touch-action:none;user-select:none;transition:box-shadow .3s,border-color .3s}
-.tool small{position:absolute;bottom:-15px;font-family:var(--mono);font-size:.5rem;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
-.tool.on{border-color:var(--cyan);box-shadow:0 0 24px rgba(115,216,255,.5)}.tool:active{cursor:grabbing}
-#lens{position:fixed;z-index:110;display:none;border-radius:50%;overflow:hidden;touch-action:none;cursor:grab;border:4px solid var(--cyan);background:var(--bg);box-shadow:0 0 0 3px rgba(0,0,0,.3),0 0 40px rgba(115,216,255,.5),inset 0 0 40px rgba(0,0,0,.35)}
-#lens.hit{border-color:var(--g);box-shadow:0 0 0 3px rgba(0,0,0,.3),0 0 50px var(--g)}
-#lens canvas{position:absolute;inset:0;width:100%;height:100%}#lcl{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
-#lens::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;border:1px solid var(--g);border-radius:50%;box-shadow:0 0 8px var(--g)}
+.dock{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:120;display:flex;gap:12px;padding:10px 16px 24px;border-radius:26px;max-width:98vw}
+.tool{position:relative;width:54px;height:54px;border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:22px;border:1px solid var(--line);background:rgba(255,255,255,.05);transition:.3s}
+.tool:hover{transform:translateY(-4px);border-color:var(--cyan)}.tool small{position:absolute;bottom:-17px;font-family:var(--mono);font-size:.48rem;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+.tool.on{border-color:var(--cyan);box-shadow:0 0 24px rgba(115,216,255,.5)}
+#lens{position:fixed;z-index:110;display:none;border-radius:50%;overflow:hidden;touch-action:none;cursor:grab}
+#lens.mic{border:6px solid #b8bfc9;background:radial-gradient(circle,#f6fffb,#bfe3da);box-shadow:0 0 0 3px #4a5565,0 0 40px rgba(24,150,120,.45),inset 0 0 50px rgba(0,80,70,.5)}
+#lens.tel{border:5px solid #2b3550;background:#01030a;box-shadow:0 0 0 2px #73d8ff,0 0 44px rgba(115,216,255,.5),inset 0 0 60px #000}
+#lens.hit{box-shadow:0 0 0 3px var(--g),0 0 50px var(--g)}
+#lens canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2}
+#lcl{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none;z-index:1}
+#lens.mic #lcl{opacity:.3;filter:sepia(.9) hue-rotate(90deg) saturate(2) blur(.8px)}
+#lens.tel #lcl{opacity:.4;filter:grayscale(1) brightness(.8) contrast(1.5)}
+#lens::before,#lens::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none}
+#lens.mic::before{background:radial-gradient(circle,transparent 45%,rgba(0,60,55,.55))}
+#lens.tel::before{background:radial-gradient(circle,transparent 35%,rgba(0,0,12,.85))}
+#lens.mic::after{background:radial-gradient(circle,transparent 0 7px,rgba(20,120,100,.7) 8px,transparent 9px)}
+#lens.tel::after{opacity:.55;background:linear-gradient(var(--g),var(--g)) 50% 0/1px 100% no-repeat,linear-gradient(var(--g),var(--g)) 0 50%/100% 1px no-repeat,radial-gradient(circle,transparent 0 30%,rgba(124,255,178,.6) 31%,transparent 32%)}
 #info{position:fixed;left:50%;bottom:100px;transform:translate(-50%,30px);width:min(92vw,420px);z-index:130;padding:16px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:.35s}
 #info.show{opacity:1;transform:translate(-50%,0)}#info h3{font-size:1.1rem;margin:2px 0 6px}#info small{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;color:var(--g)}#info p{font-size:.88rem;line-height:1.55;color:var(--muted)}
 #toast{position:fixed;top:70px;left:50%;transform:translate(-50%,-20px);z-index:300;padding:10px 18px;border-radius:99px;font-size:.82rem;opacity:0;transition:.4s;pointer-events:none;max-width:90vw;text-align:center}#toast.show{opacity:1;transform:translate(-50%,0)}
@@ -85,6 +94,14 @@ footer{position:relative;z-index:5;padding:30px 20px 150px;text-align:center;col
 #gate{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px;background:radial-gradient(circle at 50% 40%,#0c1830,#03050b 70%);color:#f1f5ff;transition:opacity .9s,visibility .9s}
 #gate.out{opacity:0;visibility:hidden}#gate h2{font-size:clamp(2rem,7vw,3.6rem);letter-spacing:-.04em}#gate p{color:#9ca8bd;font-size:.9rem;max-width:380px;line-height:1.6}
 #gate button{cursor:pointer;padding:14px 32px;border-radius:99px;border:1px solid #73d8ff;background:rgba(115,216,255,.1);font-family:var(--mono);letter-spacing:.2em;font-size:.8rem;box-shadow:0 0 30px rgba(115,216,255,.3);animation:br 3s infinite}
+#info{bottom:118px}
+#fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px;align-items:end}
+.ex{font-family:"Cinzel Decorative",Georgia,serif;font-weight:700;letter-spacing:.16em;text-align:center;font-size:1.05rem;margin-bottom:12px;text-transform:uppercase;background:linear-gradient(90deg,var(--gold),var(--pink),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,210,126,.35))}.ex:empty{display:none}
+.artifact.big{border-color:rgba(255,210,126,.35)}.big .art{aspect-ratio:16/8}.big h2{font-size:1.7rem}
+#manual{position:fixed;inset:0;z-index:400;display:none;place-items:center;background:rgba(0,0,0,.55);padding:18px}#manual.show{display:grid}
+#manual .bx{width:min(560px,100%);max-height:86vh;overflow:auto;border-radius:24px;padding:24px}#manual h3{font-size:1.4rem}#manual ol{padding-left:20px}#manual li{margin:10px 0;font-size:.9rem;line-height:1.55;color:var(--muted)}#manual li b{color:var(--text)}
+#manual .x{float:right;cursor:pointer;padding:4px 14px;border-radius:99px}.start{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}.start a{padding:10px 18px;border-radius:99px;border:1px solid var(--cyan);color:var(--cyan);text-decoration:none;font-size:.88rem}
+@media(max-width:420px){.dock{gap:8px;padding:8px 10px 22px}.tool{width:46px;height:46px;font-size:19px}}
 @media(max-width:700px){.vl{display:none}.vis{padding:7px 10px}.tg{width:52px}.zs{transform:scale(.8);margin:-16px 0 -6px}.au span{display:none}.au{padding:0 10px}header{padding-top:96px}.sc{display:none}.ix{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 </style></head>
@@ -103,7 +120,7 @@ footer{position:relative;z-index:5;padding:30px 20px 150px;text-align:center;col
 
 <div id="page">
 <header>
- <p class="eb"><span class="dot"></span>Experimental Lab V.4</p>
+ <p class="eb"><span class="dot"></span>Experimental Lab V.4.1</p>
  <div class="zs" id="zs" role="button" tabindex="0" aria-label="Activate the Zygote core">
   <div class="sh" style="width:220px;height:82px;margin:-41px 0 0 -110px;rotate:24deg"></div>
   <div class="sh" style="width:268px;height:122px;margin:-61px 0 0 -134px;rotate:-29deg;border-color:rgba(159,140,255,.25);animation-direction:reverse"></div>
@@ -119,17 +136,27 @@ footer{position:relative;z-index:5;padding:30px 20px 150px;text-align:center;col
  <div class="sc">EXPLORE ↓</div>
 </header>
 <main>
- <p class="mt">CHOOSE YOUR WORLD</p>
+ <section><p class="mt">START HERE · FLAGSHIPS</p><div id="fgrid"></div></section>
+ <p class="mt" style="margin-top:46px">OR CHOOSE YOUR OWN WORLD</p>
  <nav id="tabs"></nav><p class="cd" id="cd"></p>
  <div id="grid"></div>
 </main>
 <footer>Zygote is a beginning, not a destination.</footer>
 </div>
 
-<div class="dock glass"></div>
+<div class="dock glass" id="dock"></div>
 <div id="lens"><canvas id="lc"></canvas><div id="lcl"></div></div>
 <div id="info" class="glass"><small id="it"></small><h3 id="in"></h3><p id="ip"></p></div>
 <div id="toast" class="glass"></div>
+<div id="manual"><div class="bx glass"><button class="x glass" id="mx">Got it</button><h3>Welcome to Zygote Builder</h3><p style="color:var(--muted);font-size:.88rem;margin:4px 0 8px">A lab of interactive worlds. Here is how to explore it.</p><ol>
+<li><b>Start with the flagships.</b> Dreamscape Panchabhuta and the Wellness Bot are the two best places to begin.</li>
+<li><b>Pick a world.</b> Use the tabs to filter projects: Cosmos Lab, Worlds &amp; Games, Life &amp; Society, Mind Experiments. Tap a card to launch it.</li>
+<li><b>Switch universes.</b> The ☾/☼ switch flips between Astronomy (dark) and Biology (light). The music changes with it.</li>
+<li><b>Microscope / Telescope.</b> Tap the first tool, then drag the lens anywhere. The microscope dives into a hidden microscopic world; the telescope looks into deep space. Use the mouse wheel or ZOOM to change magnification.</li>
+<li><b>Discover specimens.</b> Centre the lens on an organism, galaxy or nebula to learn about it and earn XP. The Codex keeps your collection.</li>
+<li><b>Feeling lost?</b> Press SURPRISE to jump into a random project. Press MUSIC to mute or unmute.</li>
+<li><b>Need this guide again?</b> Tap 📖 MANUAL in the bottom bar, any time.</li></ol>
+<div class="start"><a href="./programs/dreamscape">Play Dreamscape</a><a href="./healthbot/wellness.html">Try Wellness Bot</a></div></div></div>
 <div id="codex"><div class="bx glass"><button class="x glass" id="cx">Close</button><h3>Field Codex</h3><p id="cs" style="color:var(--muted);font-size:.85rem;margin-bottom:10px"></p><ul id="cl"></ul></div></div>
 
 <script>
@@ -140,7 +167,14 @@ const sg=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){retu
 const IC={orbit:'<circle cx="12" cy="12" r="4.5"/><ellipse cx="12" cy="12" rx="10" ry="3" transform="rotate(-20 12 12)"/>',book:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>',rocket:'<path d="M14.5 4.5c2.2-2.2 4.7-2.5 5-2.5s.3 2.8-1.9 5.1c-1.1 1.2-2.5 2.1-4 2.6l-3.3 3.3-3.3-3.3 3.3-3.3c.5-1.5 1.4-2.9 2.6-4z"/><circle cx="16.5" cy="5.5" r="1"/><path d="M10.3 9.7L7 10l-.3 3.3M14.3 13.7L14 17l-3.3.3M10 14l-2 2M8 18l-2 2M6 16l-2 2M3 21c3-3 5-4 7-4"/>',heart:'<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/><path d="M12 7v8M9 10l3-3 3 3"/>',layers:'<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>',chat:'<rect x="9.5" y="6.8" width="11" height="7.4" rx="2.6"/><path d="M13 14.2L11.3 17.6 15.4 14.2"/>',blocks:'<rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="8.5" y="4" width="7" height="7"/>',curve:'<path d="M3 20h18M3 20V4M4 18c4-2 8-2 10-8s5-6 7-4"/>',trash:'<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/>',grid:'<rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/>',mirror:'<path d="M12 3l7 18H5zM12 21V3" stroke-dasharray="2 2"/>',bell:'<path d="M3 19h18M4 19c3-1 4-13 8-13s5 12 8 13"/>'};
 const CATS=[["all","All Worlds","Every experiment, one map."],["sp","Cosmos Lab","Scale, orbits and the Moon — look up."],["wd","Worlds & Games","Build, stack, connect and rule."],["li","Life & Society","Health, cities and the futures we pick."],["mi","Mind Experiments","Models that bend how you see."]];
 const CN={sp:"COSMOS LAB",wd:"WORLDS & GAMES",li:"LIFE & SOCIETY",mi:"MIND EXPERIMENTS"};
-/* [href, cat, icon, color, motif, tag, title, desc, N] */
+/* ===== HOW TO ADD A PROJECT =====
+ Copy ONE line below (a line starting with [ and ending with ],), paste it just under the last project, then change the text inside the quotes.
+ Order of the 9 items:  link, section, icon, color, cover-art, small tagline, title, description, number
+   section : sp = Cosmos Lab | wd = Worlds & Games | li = Life & Society | mi = Mind Experiments
+   icon    : orbit book rocket heart layers chat blocks curve trash grid mirror bell
+   cover-art: orbit galaxy moon blocks curve city heart rise nodes chat grid mirror news bell words world
+   SAMPLE LINE:  ["./programs/my-new-game.html","wd","blocks","#6dd5fa","blocks","My tagline","My Game Title","One-line description.","17"],
+ To add a new section, add a line in CATS (and a name in CN) in the same way. */
 const P=[
 ["./programs/truesolar","sp","orbit","#69f0ae","orbit","For science, for truth","The True Size of Solar System","Solar System models are kinda distorted. An attempt is made.","16"],
 ["./programs/zygote-dictionary","wd","book","#c792ea","words","Word, the Builder","Zygote Dictionary","Make your own dictionary, combine words!","15"],
@@ -159,6 +193,8 @@ const P=[
 ["./programs/newnews.html","mi","book","#c792ea","news","Narrative Experiment","News Headlines","Same facts. Different frames. Watch reality bend without breaking.","02"],
 ["./programs/SuccessProbability.html","mi","bell","#69f0ae","bell","Flawed Model","Success Probability","Effort, luck, burnout, noise — simplified until the simplification itself becomes the lesson.","01"]];
 
+/* FLAGSHIPS shown at the top: [project link, special label above the card ("" = none)]. Link must match a project link above. */
+const FLAGSHIPS=[["./programs/dreamscape",""],["./healthbot/wellness.html","Exhibition Exhibit"]];
 /* generative cover art: each motif conveys the project's soul (viewBox 320x180) */
 const ART={
 orbit:c=>`<circle cx="160" cy="90" r="20" fill="${c}"/>`+[0,1,2,3].map(i=>{const rx=44+i*28;return`<ellipse cx="160" cy="90" rx="${rx}" ry="${rx*.3}" fill="none" stroke="${c}" stroke-opacity=".4" transform="rotate(-14 160 90)"/><circle cx="${160+rx*Math.cos(i*1.9)}" cy="${90+rx*.3*Math.sin(i*1.9)}" r="${3+i*1.5}" fill="#fff"/>`}).join(''),
@@ -191,13 +227,14 @@ rankUI();
 /* ---------- CARDS + TABS ---------- */
 const grid=$('#grid'),tabs=$('#tabs');let cur='all';
 grid.innerHTML=P.map(p=>`<a class="artifact glass" href="${p[0]}" data-cat="${p[1]}" style="--c:${p[3]}"><div class="art" style="--c:${p[3]}"><svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${ART[p[4]](p[3])}</svg><span class="cat">${CN[p[1]]}</span><div class="ic" style="color:${p[3]}"><svg viewBox="0 0 24 24">${IC[p[2]]}</svg></div></div><div class="at"><span>${p[5]}</span><h2>${p[6]}</h2><p>${p[7]}</p><i class="ix" style="font-style:normal">N.${p[8]}</i></div></a>`).join('');
-const cards=[...grid.children];
+const cards=[...grid.children],fcards=[];
+FLAGSHIPS.forEach(([h,label])=>{const o=cards.find(c=>c.getAttribute('href')==h);if(!o)return;const w=document.createElement('div');w.innerHTML='<div class="ex">'+label+'</div>';const c=o.cloneNode(true);c.classList.add('big');w.appendChild(c);$('#fgrid').appendChild(w);fcards.push(c)});
 tabs.innerHTML=CATS.map(c=>`<button class="glass${c[0]=='all'?' on':''}" data-t="${c[0]}">${c[1]}<b>${c[0]=='all'?P.length:P.filter(p=>p[1]==c[0]).length}</b></button>`).join('');
 function setTab(t){cur=t;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$('#cd').textContent=CATS.find(c=>c[0]==t)[2];
  cards.forEach(c=>{const m=t=='all'||c.dataset.cat==t;c.style.display=m?'':'none';c.classList.remove('reveal');if(m){void c.offsetWidth;c.classList.add('reveal')}});sfx(520);buildClone()}
 tabs.onclick=e=>{const b=e.target.closest('button');if(b)setTab(b.dataset.t)};
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&e.target.style.display!='none')e.target.classList.add('reveal')}),{threshold:.1});
-cards.forEach(c=>{io.observe(c);
+[...cards,...fcards].forEach(c=>{io.observe(c);
  c.addEventListener('click',()=>addXp(25));
  c.addEventListener('pointermove',e=>{if(e.pointerType!='mouse')return;const r=c.getBoundingClientRect();c.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*10+'deg');c.style.setProperty('--rx',-((e.clientY-r.top)/r.height-.5)*10+'deg')});
  c.addEventListener('pointerleave',()=>{c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg')})});
@@ -207,16 +244,36 @@ $('#cd').textContent=CATS[0][2];
 const fx=$('#fx'),cx=fx.getContext('2d'),dpr=Math.min(devicePixelRatio||1,2);let W,H;
 function size(){W=innerWidth;H=innerHeight;fx.width=W*dpr;fx.height=H*dpr}size();
 const stars=[...Array(180)].map(()=>({x:R()*W,y:R()*H,z:.15+R()*.85,r:.4+R()*1.4,p:R()*6.28,t:.4+R()*1.5}));
-const bio=[...Array(42)].map((_,i)=>{const k=i%2==0,sp=k?[0,1,6,7][(i/2)%4|0]:[2,3,4,5][(i>>1)%4];return{x:R()*W,y:R()*H,vx:(R()-.5)*.5,vy:(R()-.5)*.35,s:9+R()*14+(k?0:4),a:k?1.9+R():1,an:R()*6.28,sp,k,ph:R()*6.28,hue:[196,164,148][i%3]}});
+const bio=[...Array(40)].map((_,i)=>({x:R()*W,y:R()*H,vx:(R()-.5)*.5,vy:(R()-.5)*.35,s:9+R()*6,an:R()*6.28,sp:i%8,ph:R()*6.28}));
 const sky=SKY.map((d,i)=>({x:R()*W,y:R()*H,vx:(R()-.5)*.14,vy:(R()-.5)*.09,s:24+R()*16,sp:i,ph:R()*6.28}));
 let px=0,py=0,vel=0,lastY=scrollY;
 addEventListener('pointermove',e=>{px=(e.clientX/W-.5)*2;py=(e.clientY/H-.5)*2;const z=$('#zs');if(z&&scrollY<H)z.style.transform=`perspective(800px) rotateY(${px*14}deg) rotateX(${-py*12}deg)`},{passive:true});
 function dStars(c,t){stars.forEach(s=>{const a=Math.max(.05,(dark()?.4:.2)+Math.sin(t*.001*s.t+s.p)*.2);c.fillStyle=`rgba(235,245,255,${a})`;c.beginPath();c.arc(s.x-px*s.z*14,s.y-py*s.z*8,s.r*s.z+(vel>6?s.z:0),0,6.283);c.fill()})}
-function dBac(c,b,t){const p=1+Math.sin(t*.0008+b.ph)*.05,L=b.s*b.a*p,Wd=b.s*p;c.save();c.translate(b.x,b.y);c.rotate(b.an+Math.sin(t*.00035+b.ph)*.12);
- c.fillStyle=`hsla(${b.hue},50%,52%,.16)`;c.strokeStyle=`hsla(${b.hue},46%,34%,.55)`;c.lineWidth=.9;c.beginPath();
- if(b.k)c.roundRect(-L/2,-Wd/2,L,Wd,Wd/2);else c.ellipse(0,0,L/2,Wd/2,0,0,6.283);c.fill();c.stroke();
- c.fillStyle=`hsla(${b.hue+12},55%,36%,.45)`;for(let i=0;i<3;i++){c.beginPath();c.arc((i-1)*L*.18,Math.sin(i+b.ph)*Wd*.15,1.1,0,6.283);c.fill()}
- c.beginPath();for(let i=0;i<=24;i++){const u=i/24;c.lineTo(L/2+L*.7*u,Math.sin(u*Math.PI*2.6+t*.004+b.ph)*Wd*.5*u)}c.strokeStyle='rgba(34,116,128,.45)';c.lineWidth=.7;c.stroke();c.restore()}
+const HUE=[330,285,150,200,110,265,35,180];
+/* Each organism follows its real morphology: E. coli rod+flagella, Lactobacillus rod chain, Paramecium slipper+cilia+macronucleus+2 contractile vacuoles,
+   Amoeba pseudopods+nucleus, Euglena spindle+flagellum+eyespot+chloroplasts, Staphylococcus grape cluster, Vibrio comma+polar flagellum, Spirillum helix+tufts */
+function dBac(c,b,t){const s=b.s,sp=b.sp,h=HUE[sp],ph=b.ph;c.save();c.translate(b.x,b.y);c.rotate(b.an);
+ const F=`hsla(${h},60%,60%,.3)`,S=`hsla(${h},55%,28%,.85)`,lw=Math.max(.8,s*.05);c.fillStyle=F;c.strokeStyle=S;c.lineWidth=lw;c.lineCap='round';c.lineJoin='round';
+ const wav=(L,A,k)=>{c.beginPath();for(let i=0;i<=22;i++){const u=i/22;c.lineTo(L*u,Math.sin(u*10+t*.008+ph+(k||0))*A*u)}c.stroke()};
+ const rod=(x,y,L,W)=>{c.beginPath();c.roundRect(x-L/2,y-W/2,L,W,W/2);c.fill();c.stroke()};
+ const dot=(x,y,r,f)=>{c.fillStyle=f;c.beginPath();c.arc(x,y,Math.max(.4,r),0,6.283);c.fill();c.fillStyle=F};
+ if(sp==0){for(let i=0;i<6;i++){c.save();c.translate(-s*.9+i*s*.36,(i%2?1:-1)*s*.3);c.rotate((i%2?1:-1)*(1.2+i*.12));wav(s*1.6,s*.22,i);c.restore()}rod(0,0,s*2.2,s*.75);c.beginPath();for(let i=0;i<14;i++)c.lineTo(-s*.8+i*s*.12,Math.sin(i*1.9)*s*.17);c.strokeStyle='rgba(70,30,90,.6)';c.stroke()}
+ else if(sp==1){for(let i=0;i<4;i++)rod((i-1.5)*s*1.3,Math.sin(i*2)*s*.07,s*1.28,s*.5)}
+ else if(sp==2){c.beginPath();c.moveTo(-1.7*s,0);c.bezierCurveTo(-1.7*s,-1.2*s,.6*s,-.95*s,1.7*s,0);c.bezierCurveTo(.6*s,.95*s,-1.7*s,1.2*s,-1.7*s,0);c.fill();c.stroke();
+  c.lineWidth=.7;for(let i=0;i<36;i++){const a=i/36*6.283,x=Math.cos(a)*1.7*s,y=Math.sin(a)*s*(Math.cos(a)>0?.82:1.08),w=Math.sin(t*.012+i)*s*.05;c.beginPath();c.moveTo(x,y);c.lineTo(x*1.1+w,y*1.18+w);c.stroke()}
+  c.lineWidth=lw;c.beginPath();c.moveTo(1.1*s,-.15*s);c.quadraticCurveTo(.2*s,.1*s,-.2*s,.45*s);c.stroke();
+  dot(.15*s,-.05*s,.38*s,'hsla(280,50%,35%,.55)');dot(.2*s,.25*s,.07*s,'#4a2a6a');
+  [-1.1,1.1].forEach((x,i)=>{const r=s*.17*(1+.4*Math.sin(t*.004+i*3));c.strokeStyle='hsla(200,60%,35%,.9)';c.beginPath();c.arc(x*s,0,r,0,6.283);c.stroke();for(let k=0;k<5;k++){c.beginPath();c.moveTo(x*s,0);c.lineTo(x*s+Math.cos(k*1.256)*r*2.2,Math.sin(k*1.256)*r*2.2);c.stroke()}});
+  [[-.6,.4],[.7,.3],[-.2,-.45],[.5,-.4]].forEach(a=>dot(a[0]*s,a[1]*s,.1*s,'hsla(50,80%,50%,.7)'))}
+ else if(sp==3){c.beginPath();for(let i=0;i<=60;i++){const a=i/60*6.283,r=s*(1.05+.28*Math.sin(3*a+t*.002+ph)+.2*Math.sin(5*a-t*.003)+.15*Math.sin(2*a+t*.0015));i?c.lineTo(Math.cos(a)*r,Math.sin(a)*r):c.moveTo(Math.cos(a)*r,Math.sin(a)*r)}c.closePath();c.fill();c.stroke();
+  dot(.15*s,0,.34*s,'hsla(230,50%,35%,.55)');dot(.15*s,0,.1*s,'rgba(20,20,70,.8)');c.strokeStyle='hsla(200,60%,35%,.9)';c.beginPath();c.arc(-.55*s,.35*s,.2*s*(1+.3*Math.sin(t*.004)),0,6.283);c.stroke();[[.6,.5],[-.3,-.5],[.5,-.45],[-.7,-.1]].forEach(a=>dot(a[0]*s,a[1]*s,.1*s,'hsla(40,70%,50%,.7)'))}
+ else if(sp==4){c.beginPath();c.moveTo(-1.9*s,0);c.bezierCurveTo(-.9*s,-.8*s,.8*s,-.85*s,1.2*s,0);c.bezierCurveTo(.8*s,.85*s,-.9*s,.8*s,-1.9*s,0);c.fill();c.stroke();
+  for(let i=0;i<9;i++)dot((-1.2+i*.28)*s,Math.sin(i*2.3)*.35*s,.12*s,'hsla(120,70%,38%,.8)');dot(-.2*s,0,.27*s,'hsla(260,40%,35%,.55)');dot(.85*s,-.22*s,.1*s,'#e0301e');c.save();c.translate(1.2*s,0);wav(s*2.2,s*.3,0);c.restore()}
+ else if(sp==5){[[0,0],[.8,0],[-.8,0],[.4,.72],[-.4,.72],[.4,-.72],[-.4,-.72]].forEach(a=>{c.beginPath();c.arc(a[0]*s,a[1]*s,.42*s,0,6.283);c.fill();c.stroke()})}
+ else if(sp==6){c.lineWidth=s*.58;c.beginPath();c.arc(0,.8*s,1.1*s,-2.7,-.48);c.stroke();c.lineWidth=s*.44;c.strokeStyle=`hsl(${h},65%,82%)`;c.stroke();c.strokeStyle=S;c.lineWidth=lw;c.save();c.translate(1.1*s*Math.cos(-.48),.8*s+1.1*s*Math.sin(-.48));wav(s*2,s*.25,0);c.restore()}
+ else{c.lineWidth=s*.34;c.beginPath();for(let i=0;i<=30;i++){const x=-1.9*s+i*s*.127,y=Math.sin(i*.55)*.42*s;i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke();c.lineWidth=s*.22;c.strokeStyle=`hsl(${h},65%,80%)`;c.stroke();c.strokeStyle=S;c.lineWidth=Math.max(.7,s*.04);
+  [-1,1].forEach(d=>{for(let k=0;k<3;k++){c.save();c.translate(d*1.9*s,d>0?Math.sin(16.5)*.42*s:0);c.rotate(d>0?-.4+k*.4:3.54-k*.4);wav(s*.9,s*.12,k);c.restore()}})}
+ c.restore()}
 function dSky(c,g,t){const s=g.s,k=g.sp;c.save();c.translate(g.x,g.y);c.rotate(g.ph+t*.00004);
  if([0,1,6,7].includes(k)){c.scale(1,.55);const gr=c.createRadialGradient(0,0,0,0,0,s);gr.addColorStop(0,'rgba(255,240,210,.95)');gr.addColorStop(.3,'rgba(159,140,255,.4)');gr.addColorStop(1,'rgba(115,216,255,0)');c.fillStyle=gr;c.beginPath();c.arc(0,0,s,0,6.283);c.fill();
   c.fillStyle='rgba(200,225,255,.7)';for(let a=0;a<2;a++)for(let i=0;i<22;i++){const u=i*.3+a*3.14,r=i*s/22;c.fillRect(Math.cos(u)*r,Math.sin(u)*r,1.2,1.2)}}
@@ -226,17 +283,30 @@ function dSky(c,g,t){const s=g.s,k=g.sp;c.save();c.translate(g.x,g.y);c.rotate(g
 function scene(c,t){if(dark()){dStars(c,t);sky.forEach(g=>dSky(c,g,t))}else bio.forEach(b=>dBac(c,b,t))}
 const wrap=(v,m)=>v<-50?m+50:v>m+50?-50:v;
 
-/* ---------- LENS (microscope / telescope) ---------- */
-const lens=$('#lens'),lc=$('#lc').getContext('2d'),lcl=$('#lcl');
-const L={on:false,x:0,y:0,r:96,z:2,tgt:null};
+/* ---------- LENS: microscope (inner micro-world, 3D parallax depth) vs telescope (deep space field) ---------- */
+const lens=$('#lens'),lcv=$('#lc'),lc=lcv.getContext('2d'),lcl=$('#lcl');
+const L={on:false,x:0,y:0,r:96,z:4,tgt:null};
+const deepB=[...Array(14)].map(()=>({x:R()*1000,y:R()*1000,s:11+R()*8,an:R()*6.28,sp:R()*8|0,ph:R()*6.28,d:R()}));
+const deepS=[...Array(110)].map(()=>({x:R()*1000,y:R()*1000,d:R(),r:.4+R()*1.1}));
+const deepG=[...Array(8)].map((_,i)=>({x:R()*1000,y:R()*1000,s:16+R()*14,sp:i,ph:R()*6.28,d:.3+R()*.7}));
 function buildClone(){if(!L.on)return;lcl.innerHTML='';const p=$('#page'),c=p.cloneNode(true);c.removeAttribute('id');c.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));c.querySelectorAll('.artifact').forEach(a=>a.classList.add('reveal'));c.style.width=p.offsetWidth+'px';lcl.appendChild(c)}
-function placeLens(){L.r=innerWidth<600?74:98;lens.style.width=lens.style.height=L.r*2+'px';const lcv=$('#lc');lcv.width=lcv.height=L.r*2*dpr;lens.style.left=(L.x-L.r)+'px';lens.style.top=(L.y-L.r)+'px'}
+function placeLens(){L.r=innerWidth<600?74:98;lens.style.width=lens.style.height=L.r*2+'px';lcv.width=lcv.height=L.r*2*dpr;lens.style.left=(L.x-L.r)+'px';lens.style.top=(L.y-L.r)+'px'}
+const zlabel=()=>{T.zoom.el.querySelector('small').textContent='ZOOM '+L.z+'×'};
 function toggleLens(on){L.on=on===undefined?!L.on:on;lens.style.display=L.on?'block':'none';T.lens.el.classList.toggle('on',L.on);
- if(L.on){if(!L.x){L.x=innerWidth<700?innerWidth-90:innerWidth-150;L.y=innerHeight-190}placeLens();buildClone();toast(dark()?'Telescope ready — drag it over stars and galaxies':'Microscope ready — drag it over the microbes')}else{showInfo(null)}sfx(660)}
-function lensFrame(t){const{x,y,r,z}=L,lcv=$('#lc');lc.setTransform(1,0,0,1,0,0);lc.clearRect(0,0,lcv.width,lcv.height);lc.setTransform(dpr*z,0,0,dpr*z,dpr*(r-x*z),dpr*(r-y*z));scene(lc,t);
+ if(L.on){if(!L.x){L.x=innerWidth-L.r-14;L.y=innerHeight-L.r-130}placeLens();buildClone();toast(dark()?'Telescope on — drag it across the sky, centre it on a galaxy':'Microscope on — drag it, centre it on a microbe')}else{L.tgt=null;showInfo(null)}sfx(660)}
+lens.addEventListener('wheel',e=>{e.preventDefault();L.z=Math.min(8,Math.max(2,L.z+(e.deltaY<0?1:-1)));zlabel()},{passive:false});
+function lensFrame(t){const{x,y,r,z}=L,sp=r*3,off=r/2,mic=!dark(),cand=[];
+ lc.setTransform(1,0,0,1,0,0);lc.clearRect(0,0,lcv.width,lcv.height);
+ lc.setTransform(dpr*z,0,0,dpr*z,dpr*(r-x*z),dpr*(r-y*z));scene(lc,t);
+ (mic?bio:sky).forEach(e=>cand.push([Math.hypot(e.x-x,e.y-y)*z,e.s*z*1.3,e.sp]));
+ lc.setTransform(dpr,0,0,dpr,0,0);
+ const Q=(e,k)=>({x:(((e.x-x*k)%sp)+sp)%sp-off,y:(((e.y-y*k)%sp)+sp)%sp-off});
+ if(mic){deepB.slice().sort((a,b)=>a.d-b.d).forEach(e=>{const q=Q(e,.35+.65*e.d),o={x:q.x+Math.sin(t*.0008+e.ph)*6,y:q.y+Math.cos(t*.0007+e.ph)*5,s:e.s*(.55+.9*e.d),an:e.an+t*.0002,sp:e.sp,ph:e.ph};lc.globalAlpha=.45+.55*e.d;dBac(lc,o,t);cand.push([Math.hypot(o.x-r,o.y-r),o.s*1.5,e.sp])});lc.globalAlpha=1}
+ else{deepS.forEach(s=>{const q=Q(s,.15+.85*s.d);lc.fillStyle=`rgba(235,245,255,${.3+.5*s.d})`;lc.beginPath();lc.arc(q.x,q.y,s.r*(.6+s.d),0,6.283);lc.fill()});
+  deepG.forEach(e=>{const q=Q(e,.1+.5*e.d),o={x:q.x,y:q.y,s:e.s*1.3,sp:e.sp,ph:e.ph};dSky(lc,o,t);cand.push([Math.hypot(q.x-r,q.y-r),o.s*1.2,e.sp])})}
  lcl.style.transform=`translate(${r-x*z}px,${r-(y+scrollY)*z}px) scale(${z})`;
- let best=null,bd=1e9;(dark()?sky:bio).forEach(e=>{const d=Math.hypot(e.x-x,e.y-y);if(d<e.s*1.3+14&&d<bd){bd=d;best=e}});
- if(best!==L.tgt){L.tgt=best;lens.classList.toggle('hit',!!best);if(best){const d=(dark()?SKY:BIO)[best.sp];showInfo(d);discover(d[0])}else showInfo(null)}}
+ let best=null,bd=1e9;cand.forEach(c=>{if(c[0]<c[1]&&c[0]<bd){bd=c[0];best=c[2]}});
+ if(best!==L.tgt){L.tgt=best;lens.classList.toggle('hit',best!==null);if(best!==null){const d=(mic?BIO:SKY)[best];showInfo(d);discover(d[0])}else showInfo(null)}}
 function showInfo(d){const i=$('#info');if(!d){i.classList.remove('show');return}$('#it').textContent=d[1].toUpperCase();$('#in').textContent=d[0];$('#ip').textContent=d[2];i.classList.add('show')}
 function discover(n){if(found.includes(n))return;found.push(n);ss('zyg-found',found);addXp(10);toast('New discovery: '+n+'  +10 XP')}
 
@@ -257,7 +327,7 @@ $('#au').onclick=()=>AU.toggle();
 
 /* ---------- THEME ---------- */
 function applyTheme(th){document.body.classList.toggle('light',th=='light');ss('zygote-theme',th);T.lens.el.firstChild.textContent=th=='light'?'🔬':'🔭';T.lens.el.querySelector('small').textContent=th=='light'?'MICROSCOPE':'TELESCOPE';
- if(AU.on)AU.start();L.tgt=null;buildClone();bio.forEach(b=>{b.x=R()*W;b.y=R()*H})}
+ if(AU.on)AU.start();L.tgt=null;lens.classList.remove('mic','tel');lens.classList.add(th=='light'?'mic':'tel');L.z=th=='light'?4:2;if(T.zoom)zlabel();buildClone();bio.forEach(b=>{b.x=R()*W;b.y=R()*H})}
 $('#tg').onclick=()=>{applyTheme(dark()?'light':'dark');sfx(440)};
 
 /* ---------- DRAGGABLE TOOLS ---------- */
@@ -267,9 +337,9 @@ function drag(el,click,moveCb){let sx,sy,ox,oy,mv=false,id=null;
   const nx=Math.min(innerWidth-w,Math.max(0,ox+dx)),ny=Math.min(innerHeight-h,Math.max(0,oy+dy));el.style.left=nx+'px';el.style.top=ny+'px';moveCb&&moveCb(nx+w/2,ny+h/2)});
  const up=e=>{if(id!==e.pointerId)return;id=null;if(!mv&&click)click()};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',()=>{id=null})}
 const T={};
-[['lens','🔬','MICROSCOPE',()=>toggleLens()],['zoom','🔍','ZOOM 2×',()=>{L.z=L.z>=5?2:L.z+1;T.zoom.el.querySelector('small').textContent='ZOOM '+L.z+'×';toast('Magnification '+L.z+'×');sfx(500)}],['codex','🧬','CODEX',()=>openCodex()],['rand','🎲','SURPRISE',()=>{const p=P[R()*P.length|0];toast('Launching '+p[6]+'…');addXp(5);setTimeout(()=>location.href=p[0],900)}]].forEach(([k,ic,lb,fn],i)=>{
- const el=document.createElement('button');el.className='tool glass';el.innerHTML=ic+'<small>'+lb+'</small>';el.title=lb;el.dataset.i=i;document.body.appendChild(el);T[k]={el};drag(el,fn)});
-function dockTools(){Object.values(T).forEach(t=>{if(t.el.dataset.moved)return;const i=+t.el.dataset.i;t.el.style.left=(innerWidth/2+(i-1.5)*74-27)+'px';t.el.style.top=(innerHeight-70)+'px'})}
+/* Fixed bottom bar: these tools cannot be moved. Only the lens itself is draggable. */
+[['lens','🔬','MICROSCOPE',()=>toggleLens()],['zoom','🔍','ZOOM 4×',()=>{L.z=L.z>=8?2:L.z+1;zlabel();toast('Magnification '+L.z+'×');sfx(500)}],['codex','🧬','CODEX',()=>openCodex()],['rand','🎲','SURPRISE',()=>{const p=P[R()*P.length|0];toast('Launching '+p[6]+'…');addXp(5);setTimeout(()=>location.href=p[0],900)}],['man','📖','MANUAL',()=>openManual()]].forEach(([k,ic,lb,fn])=>{
+ const el=document.createElement('button');el.className='tool';el.innerHTML=ic+'<small>'+lb+'</small>';el.title=lb;el.setAttribute('aria-label',lb);el.onclick=fn;$('#dock').appendChild(el);T[k]={el}});
 drag(lens,null,(x,y)=>{L.x=x;L.y=y});
 function openCodex(){$('#cs').textContent=found.length+' of '+(BIO.length+SKY.length)+' specimens discovered · '+xp+' XP';$('#cl').innerHTML=[...BIO,...SKY].map(d=>found.includes(d[0])?`<li><b>${d[0]}</b> — ${d[1]}<span>${d[2]}</span></li>`:`<li style="opacity:.45">??? <span>Undiscovered — find it with the ${BIO.includes(d)?'microscope':'telescope'}.</span></li>`).join('');$('#codex').classList.add('show')}
 $('#cx').onclick=()=>$('#codex').classList.remove('show');$('#codex').onclick=e=>{if(e.target.id=='codex')e.target.classList.remove('show')};
@@ -278,16 +348,20 @@ $('#cx').onclick=()=>$('#codex').classList.remove('show');$('#codex').onclick=e=
 const zs=$('#zs'),pulse=()=>{document.body.classList.remove('flash');void document.body.offsetWidth;document.body.classList.add('flash');sfx(dark()?262:392);setTimeout(()=>document.body.classList.remove('flash'),950)};
 zs.onclick=pulse;zs.onkeydown=e=>{if(e.key=='Enter'||e.key==' '){e.preventDefault();pulse()}};
 addEventListener('scroll',()=>{const m=document.documentElement.scrollHeight-innerHeight;$('#bar').style.width=(m>0?scrollY/m*100:0)+'%';vel=Math.min(40,vel+Math.abs(scrollY-lastY)*.5);lastY=scrollY},{passive:true});
-addEventListener('resize',()=>{size();dockTools();if(L.on){L.x=Math.min(L.x,innerWidth-L.r);L.y=Math.min(L.y,innerHeight-L.r);placeLens();buildClone()}});
+addEventListener('resize',()=>{size();if(L.on){L.x=Math.min(L.x,innerWidth-L.r);L.y=Math.min(L.y,innerHeight-L.r);placeLens();buildClone()}});
 function frame(t){vel*=.92;stars.forEach(s=>{s.y+=(.08+vel*.4)*s.z;if(s.y>H+4){s.y=-4;s.x=R()*W}});
  sky.forEach(g=>{g.x=wrap(g.x+g.vx,W);g.y=wrap(g.y+g.vy,H)});bio.forEach(b=>{b.x=wrap(b.x+b.vx,W);b.y=wrap(b.y+b.vy,H);b.an+=.0008});
  cx.setTransform(dpr,0,0,dpr,0,0);cx.clearRect(0,0,W,H);scene(cx,t);if(L.on)lensFrame(t);requestAnimationFrame(frame)}
 
+function openManual(){$('#manual').classList.add('show');ss('zyg-manual',1)}
+$('#mx').onclick=()=>$('#manual').classList.remove('show');$('#manual').onclick=e=>{if(e.target.id=='manual')e.target.classList.remove('show')};
+$('#manual').querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>addXp(25)));
+addEventListener('keydown',e=>{if(e.key=='Escape')document.querySelectorAll('#codex,#manual').forEach(m=>m.classList.remove('show'))});
 /* ---------- GATE + INIT ---------- */
-$('#enter').onclick=()=>{$('#gate').classList.add('out');AU.toggle(true);setTimeout(()=>toast('Tip: drag the tools anywhere. Try the '+(dark()?'telescope':'microscope')+'.'),1200)};
+$('#enter').onclick=()=>{$('#gate').classList.add('out');AU.toggle(true);setTimeout(()=>{if(!sg('zyg-manual',0))openManual();else toast('Tip: tap 📖 MANUAL any time for a quick guide.')},1000)};
 const saved=sg('zygote-theme',null);T.lens.el.firstChild.textContent='🔬';
 if(saved)applyTheme(saved);else applyTheme(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
-dockTools();setTab('all');requestAnimationFrame(frame);
+setTab('all');requestAnimationFrame(frame);
 
 /* ---------- VISIT COUNTER (original logic preserved) ---------- */
 (function(){const K="forwardbuilder-github-io-zygote-site-visits-v1",B="https://countapi.mileshilliard.com/api/v1",F="zygote_visit_counted",el=$('#vn');const pad=n=>String(n).padStart(6,"0");
