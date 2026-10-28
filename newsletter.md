@@ -1,5 +1,12 @@
 **Newsletter** |
 
+October 28, 2026
+Zygote Builder Version 4.1 is out - but that’s not the catch.
+The homepage itself is a game now, read the manual, and zoom into the worlds!
+
+P.S. - It’s actually Astronomy x Biology!
+**———————————————————————————————————————————————**
+
 October 12, 2026
 - Dreamscape: Panchabhuta is approaching Version 4 soon, grab the Dyson sphere before others!
 - The solar system models we’ve seen at school don’t tell the real size of solar system.
