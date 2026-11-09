@@ -1,5 +1,12 @@
 **Newsletter** |
 
+November 10, 2026
+
+- Zybot | *Coming Soon*
+- Zygote Builder | Film soon on YouTube.
+
+**—————————————————————————————————————————————————————**
+
 October 28, 2026
 
 - Zygote Builder Version 4.1 is out - but that’s not the catch.
