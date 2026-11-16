@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pal v2 · Zygote Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fraunces:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="personal">
+<div class="console">
+  <header>
+    <div class="id"><div class="orb"></div><div><h1>Pal</h1><p id="sub">personal · off the clock</p></div></div>
+    <div class="ctl">
+      <button id="bTasks" class="pill">TASKS <b id="badge">0</b></button>
+      <button id="bMic" class="ib" title="Microphone (transcribe)">🎙</button>
+      <button id="bCam" class="ib" title="Camera">📷</button>
+      <button id="bMusic" class="ib" title="Background music">♪</button>
+      <button id="bBrain" class="ib" title="Smart brain (on-device AI)">🧠</button>
+      <button id="bReset" class="ib" title="Clear session">⟲</button>
+      <div id="sw" class="sw" title="Switch mode"><i></i></div>
+    </div>
+  </header>
+  <div class="stage"><video id="cam" muted playsinline hidden></video>
+    <div class="log" id="log"></div>
+    <div id="caption" class="caption"></div>
+  </div>
+  <div class="drawer" id="drawer">
+    <div class="dh"><span>TASK LIST (this session only)</span><button id="bClose" class="ib">✕</button></div>
+    <div id="tasks" class="tasks"></div>
+  </div>
+  <form id="f"><span>&gt;</span><input id="input" placeholder="say something to Pal…" autocomplete="off"><button>SEND</button></form>
+  <footer>Nothing is saved — no cookies, storage or servers; closing the tab erases everything. Browser speech recognition may use your browser vendor's speech service. Pal isn't a therapist; in danger, contact local emergency services or a crisis line.</footer>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
