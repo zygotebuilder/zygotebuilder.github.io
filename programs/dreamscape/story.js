@@ -1,4 +1,3 @@
-/* Dreamscape v4: storyline (Mahamatya, Tamasi aliens, Dyson sphere), decision legacies shown in-world, NPC dialogue, dethronement */
 (()=>{"use strict";
 if(!window.DS3||!window.DS)return;
 const D=DS,X=DS3,T=X.T,P=D.PLANETS,S=()=>D.S,$=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -51,11 +50,11 @@ const counsel=()=>{const s=S(),st=init(),o=[];o.push(`Dharma stands at ${s.dharm
  o.push("Every ruling you make leaves a mark on the worlds. Walk among your people and see it.");return o};
 window.DS_legacy=(sc,pi,stt)=>{const st=init(),npcs=[],sauc=[],mv=[],wl=-2+S().planets[pi].water*.017;near=null;talking=null;
  const addP=(g,x,z,m,who,lines)=>{g.position.set(x,X.Hh(x,z),z);sc.add(g);const n={g,hx:x,hz:z,m,tm:0,a:Math.random()*6,who,lines};if(m==="sit")g.userData.sit=true;npcs.push(n);return n};
- const mm=X.person(0x3a5fa8,false,false);addP(mm,-4,9,"stand","Mahamatya",counsel);
+ const sp0=window.DS_hab&&!DS_hab(pi)?{suit:1}:null,mm=X.person(0x3a5fa8,false,false,sp0);addP(mm,-4,9,"stand","Mahamatya",counsel);
  if(st.ch>=5){const a=X.person(0x2a6a5a,false,false,{alien:1});addP(a,4,9,"stand","Tamasi Envoy",["Envoy: We are the same blood, split by one asteroid. Your shard fell on Earth; ours on Tamasi.","Envoy: Equal in strength, we chose peace. May the sphere reward the better builder."])}
- st.legacy.filter(l=>l.p===pi).forEach((l,idx)=>{const d=LEG[l.id];if(!d)return;const g=build(d.parts);let a=idx*.95+2.2,r=24+(idx%3)*7,x,z,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.45;tr++}while(X.Hh(x,z)<wl+.6&&tr<14);if(X.Hh(x,z)<wl+.6){r=16;x=Math.cos(a)*r;z=Math.sin(a)*r}g.position.set(x,X.Hh(x,z),z);g.rotation.y=-a+1.57;sc.add(g);
+ st.legacy.filter(l=>l.p===pi).forEach((l,idx)=>{const d=LEG[l.id];if(!d)return;const g=build(d.parts);let a=idx*.95+2.2,r=24+(idx%3)*7,x,z,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.45;tr++}while(X.Hh(x,z)<wl+.6&&tr<14);if(X.Hh(x,z)<wl+.6){r=16;x=Math.cos(a)*r;z=Math.sin(a)*r}g.position.set(x,X.Hh(x,z),z);g.rotation.y=-a+1.57;sc.add(g);if(sc.userData.solid)sc.userData.solid.push({x,z,r:6});
   if(l.id==="drones")mv.push(t=>g.children.forEach((c,k)=>{c.position.set(Math.cos(t*.8+k*2)*5,6+k,Math.sin(t*.8+k*2)*5)}));
-  for(let k=0;k<(d.ppl.n||0);k++){const p=X.person([0xff9933,0x3a8fd6,0xe85a8a,0x74a84a][k%4],k%2===1,false);p.scale.setScalar(.9);addP(p,x+(k-1)*1.6,z+3,d.ppl.m,d.n,d.lines)}});
+  for(let k=0;k<(d.ppl.n||0);k++){const p=X.person([0xff9933,0x3a8fd6,0xe85a8a,0x74a84a][k%4],k%2===1,false,sp0);p.scale.setScalar(.9);addP(p,x+(k-1)*1.6,z+3,d.ppl.m,d.n,d.lines)}});
  if(st.ch>=2&&st.ch<5)for(let k=0;k<Math.min(4,1+(st.threat/30|0));k++){const g=new T.Group();g.add(X.mesh(new T.SphereGeometry(4,16,10),X.M3(0x8a98a0,{metalness:.8,roughness:.3}))).scale.set(1,.28,1);g.add(X.mesh(new T.SphereGeometry(1.7,12,8),X.M3(0x66ffcc,{transparent:true,opacity:.7,emissive:0x2a8a6a}),0,.6,0));const lt=new T.PointLight(0x66ffcc,1,40);lt.position.y=-1;g.add(lt);sc.add(g);sauc.push({g,k})}
  return(t,dt,p)=>{let best=null,bd=4.5;
   npcs.forEach((n,k)=>{let m=0;const g=n.g;
