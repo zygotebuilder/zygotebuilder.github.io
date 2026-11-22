@@ -86,3 +86,8 @@ button:focus-visible{outline:2px solid var(--saffron);outline-offset:2px}
 #visitBar button{padding:7px 12px;border-radius:10px;border:0;background:linear-gradient(100deg,#ff9933,#a87cff);font-weight:700;font-size:12px}
 .visiting .viewtoggle{display:none}.visiting .panel,.visiting .mtog{display:none!important}
 @media(max-width:560px){#visitBar{max-width:96vw;flex-wrap:wrap;justify-content:center}}
+/* ===== v9 ===== */
+.occupied .vignette{background:radial-gradient(ellipse at center,transparent 35%,rgba(120,0,0,.5))}
+.viewtoggle{flex-wrap:wrap;justify-content:center;max-width:96vw}
+.viewtoggle button.active{background:rgba(255,153,51,.25)}
+details summary{outline:none}
