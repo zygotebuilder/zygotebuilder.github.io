@@ -1,4 +1,4 @@
-/* Dreamscape v3: 3D worlds, royal court, Pushpak rocket travel, procedural Indian-raga music. Needs THREE + window.DS from game.js */
+
 (()=>{"use strict";
 if(!window.THREE||!window.DS)return;
 const D=DS,T=THREE,$=id=>document.getElementById(id),cv=$("c3d");
@@ -38,37 +38,44 @@ function say(who,txt){$("court").style.display="block";$("cWho").textContent=who
 const hideSay=()=>$("court").style.display="none";
 
 /* ---------- CHARACTERS ---------- */
-function person(col,q,crown,o){o=o||{};const g=new T.Group(),sk=M3(o.skin||(0xe3a982),{roughness:.6}),cl=M3(col,{roughness:.7}),gold=M3(0xffd56b,{metalness:.7,roughness:.3,emissive:0x332200}),P={};
- const lim=s=>{const l=new T.Group();l.position.set(s*.16,.95,0);l.add(mesh(new T.CylinderGeometry(.1,.08,.9,8),M3(q?0xd8c8b0:0xefe6d4),0,-.45,0));l.add(mesh(new T.BoxGeometry(.16,.08,.28),M3(0x4a2a12),0,-.92,.05));g.add(l);return l};
- P.legL=lim(-1);P.legR=lim(1);
- if(q)g.add(mesh(new T.ConeGeometry(.62,1.1,14),cl,0,.6,0));else g.add(mesh(new T.CylinderGeometry(.3,.38,.6,12),M3(0xefe6d4),0,.78,0));
- const tor=mesh(new T.CylinderGeometry(.27,.33,.75,12),o.alien?M3(0x2b2f6b):cl,0,1.32,0);g.add(tor);P.tor=tor;g.add(mesh(new T.CylinderGeometry(.34,.34,.08,12),gold,0,.98,0));
- const arm=s=>{const a=new T.Group();a.position.set(s*.42,1.62,0);a.add(mesh(new T.CylinderGeometry(.07,.06,.7,8),o.alien?M3(0x2b2f6b):cl,0,-.33,0));a.add(mesh(new T.SphereGeometry(.07,8,8),sk,0,-.72,0));g.add(a);return a};
- P.armL=arm(-1);P.armR=arm(1);g.add(mesh(new T.CylinderGeometry(.08,.09,.12,8),sk,0,1.74,0));
- const hd=mesh(new T.SphereGeometry(.24,16,12),sk,0,1.95,0);g.add(hd);
- [-1,1].forEach(s=>g.add(mesh(new T.SphereGeometry(.03,8,6),M3(0x050505),s*.09,1.97,.2)));
- g.add(mesh(new T.SphereGeometry(.26,12,8,0,6.3,0,1.35),M3(0x1a1010),0,1.99,-.02));
- if(crown){g.add(mesh(new T.CylinderGeometry(.25,.27,.1,12),gold,0,2.2,0));for(let i=0;i<5;i++)g.add(mesh(new T.ConeGeometry(.05,.2,5),gold,Math.cos(i*1.256)*.22,2.34,Math.sin(i*1.256)*.22));
-  g.add(mesh(new T.SphereGeometry(.05,6,6),M3(0xff2255,{emissive:0xaa0022}),0,2.2,.27));g.add(mesh(new T.BoxGeometry(.7,1.2,.05),M3(q?0xff9933:0x8a1c2a),0,1.2,-.3))}
- else if(!o.alien)g.add(mesh(new T.SphereGeometry(.28,12,8),M3(col===0xf0f0e0?0xe8e0d0:0xcc3a2a),0,2.1,0));
- g.add(mesh(new T.TorusGeometry(.2,.02,6,16),gold,0,1.62,.02));g.userData.p=P;return g}
+function person(col,q,crown,o){o=o||{};const g=new T.Group(),P={},su=!!o.suit,skc=o.skin||(o.alien?0xe3a982:[0xe0a878,0xc98a5e,0xb87a50][(col>>3)%3]),sk=M3(skc,{roughness:.55}),W=M3(0xf4f4f6,{roughness:.45,metalness:.1}),cl=M3(col,{roughness:.6}),gd=M3(0xffd56b,{metalness:.8,roughness:.25,emissive:0x332200}),dk=M3(0x1a1210,{roughness:.8}),acc=M3(q?0xff9933:0xf2efe6,{roughness:.6});
+ const cy=(a,b,h,m,x,y,z,s)=>mesh(new T.CylinderGeometry(a,b,h,s||10),m,x,y,z),lat=(pts,m)=>mesh(new T.LatheGeometry(pts.map(p=>new T.Vector2(p[0],p[1])),16),m);
+ const leg=s=>{const l=new T.Group(),m=su?W:q?sk:M3(0xf2eee4);l.position.set(s*.15,.95,0);l.add(cy(.095,.075,.5,m,0,-.25,0));l.add(cy(.075,.06,.45,m,0,-.72,0));l.add(mesh(new T.BoxGeometry(.15,.09,.3),su?M3(0x666a70):M3(0x3a2412),0,-.95,.06));g.add(l);return l};
+ P.legL=leg(-1);P.legR=leg(1);const tor=new T.Group();g.add(tor);P.tor=tor;
+ if(su){tor.add(cy(.28,.25,.72,W,0,1.32,0,14));tor.add(mesh(new T.BoxGeometry(.42,.6,.24),W,0,1.35,-.3));tor.add(mesh(new T.BoxGeometry(.18,.14,.04),M3(0xff9933),0,1.5,.27));tor.add(mesh(new T.BoxGeometry(.14,.1,.04),M3(0x138808),0,1.3,.27));tor.add(cy(.02,.02,.4,M3(0x888888),.15,1.8,-.3,5));tor.add(cy(.3,.3,.1,M3(0x666a70),0,.98,0,14))}
+ else if(q){P.skirt=lat([[.44,.04],[.38,.35],[.3,.7],[.2,.97]],cl);g.add(P.skirt);tor.add(lat([[.3,.97],[.31,1.25],[.28,1.55],[.22,1.7],[.1,1.76]],acc));const pal=mesh(new T.BoxGeometry(.5,.95,.04),acc,0,1.28,.29);pal.rotation.z=.45;tor.add(pal);tor.add(mesh(new T.BoxGeometry(.55,1.1,.04),acc,0,1.2,-.3))}
+ else{tor.add(lat([[.37,.5],[.38,.8],[.34,1.2],[.3,1.5],[.25,1.7],[.12,1.78]],cl));tor.add(cy(.38,.38,.05,gd,0,.52,0,18));tor.add(cy(.13,.14,.07,gd,0,1.76,0));for(let i=0;i<4;i++)tor.add(mesh(new T.SphereGeometry(.022,6,6),gd,0,1.0+i*.17,.3));const sa=mesh(new T.BoxGeometry(.1,.9,.04),acc,0,1.3,.28);sa.rotation.z=.6;tor.add(sa)}
+ const arm=s=>{const a=new T.Group();a.position.set(s*.4,1.68,0);a.add(cy(.07,.06,.36,su?W:cl,0,-.18,0));a.add(cy(.06,.045,.32,su?W:(q?sk:cl),0,-.52,0));a.add(mesh(new T.SphereGeometry(su?.075:.06,8,8),su?W:sk,0,-.72,0));if(q&&!su)a.add(mesh(new T.TorusGeometry(.055,.012,6,10),gd,0,-.66,0));g.add(a);return a};
+ P.armL=arm(-1);P.armR=arm(1);g.add(cy(.08,.09,.14,sk,0,1.8,0,8));
+ const hd=new T.Group();hd.position.y=1.97;g.add(hd);P.head=hd;const hh=mesh(new T.SphereGeometry(.22,18,14),sk);hh.scale.set(.92,1.08,1);hd.add(hh);
+ const nose=mesh(new T.ConeGeometry(.035,.09,5),sk,0,-.01,.21);nose.rotation.x=Math.PI/2;hd.add(nose);
+ [-1,1].forEach(s=>{hd.add(mesh(new T.SphereGeometry(.036,8,6),M3(0xffffff),s*.08,.03,.19));hd.add(mesh(new T.SphereGeometry(.02,8,6),dk,s*.08,.03,.222));hd.add(mesh(new T.BoxGeometry(.075,.012,.02),dk,s*.08,.085,.2));hd.add(mesh(new T.SphereGeometry(.035,6,6),sk,s*.21,0,0));if(q&&!su)hd.add(mesh(new T.SphereGeometry(.022,6,6),gd,s*.215,-.06,0))});
+ hd.add(mesh(new T.BoxGeometry(.08,.014,.02),M3(0x8a2a2a),0,-.09,.2));
+ if(su){hd.add(mesh(new T.SphereGeometry(.33,18,14),new T.MeshPhysicalMaterial({color:0xffe0a0,metalness:.9,roughness:.08,transparent:true,opacity:.42}),0,.02,0));hd.add(mesh(new T.SphereGeometry(.34,14,10,0,6.283,0,1.1),W,0,.04,-.04));hd.add(mesh(new T.SphereGeometry(.04,6,6),new T.MeshBasicMaterial({color:0xffee88}),0,.32,.2))}
+ else{const hm=M3(o.alien?0x2a2a3a:0x15100c);hd.add(mesh(new T.SphereGeometry(.235,14,10,0,6.283,0,1.45),hm,0,.02,-.01));if(q){hd.add(cy(.07,.04,.8,hm,0,-.45,-.2,6));hd.add(mesh(new T.SphereGeometry(.1,8,8),hm,0,-.05,-.23))}
+  if(crown){hd.add(cy(.24,.25,.09,gd,0,.2,0,16));for(let i=0;i<7;i++){const a=i*6.283/7;hd.add(mesh(new T.ConeGeometry(.045,.2,5),gd,Math.cos(a)*.21,.33,Math.sin(a)*.21))}hd.add(mesh(new T.ConeGeometry(.06,.26,6),gd,0,.4,0));hd.add(mesh(new T.SphereGeometry(.035,6,6),M3(0xff2255,{emissive:0xaa0022}),0,.2,.25));if(q)hd.add(mesh(new T.SphereGeometry(.025,6,6),gd,0,.17,.215));tor.add(mesh(new T.BoxGeometry(.7,1.3,.04),M3(q?0xff9933:0x8a1c2a),0,1.1,-.34))}
+  else if(!q&&!o.alien){const tb=mesh(new T.SphereGeometry(.27,14,10),M3(col===0xf0f0e0?0xe8e0d0:0xcc3a2a),0,.1,0);tb.scale.y=.75;hd.add(tb);hd.add(mesh(new T.TorusGeometry(.24,.02,6,16),gd,0,.04,0)).rotation.x=Math.PI/2}
+  tor.add(mesh(new T.TorusGeometry(.2,.02,6,16),gd,0,1.64,.02))}
+ g.userData.p=P;return g}
 function anim(g,t,m,talk){const P=g.userData.p;if(!P)return;
- if(g.userData.sit){P.legL.rotation.x=P.legR.rotation.x=-1.45;P.armL.rotation.x=-.4;P.armR.rotation.x=talk?-1+Math.sin(t*5)*.3:-.4;return}
+ if(g.userData.sit){P.legL.rotation.x=P.legR.rotation.x=-1.45;P.armL.rotation.x=-.4;P.armR.rotation.x=talk?-1+Math.sin(t*5)*.3:-.4;if(P.head)P.head.rotation.y=talk?Math.sin(t*2)*.15:0;return}
  const s=Math.sin(t*9)*m*.8;P.legL.rotation.x=s;P.legR.rotation.x=-s;P.armL.rotation.x=-s*.9;P.armR.rotation.x=s*.9;
- if(talk){P.armR.rotation.x=-1.1+Math.sin(t*5)*.35;P.armR.rotation.z=-.3}else P.armR.rotation.z=0;P.tor.scale.y=1+Math.sin(t*2)*.012*(1-m)}
-const ruler=()=>person(queen()?0xd63a6b:0xff9933,queen(),true);
-const aides=()=>[person(0x3a5fa8,false,false),person(0xf0f0e0,false,false)];
+ if(talk){P.armR.rotation.x=-1.1+Math.sin(t*5)*.35;P.armR.rotation.z=-.3}else P.armR.rotation.z=0;
+ P.tor.scale.y=1+Math.sin(t*2)*.012*(1-m);if(P.skirt)P.skirt.rotation.x=Math.sin(t*9)*m*.05;if(P.head)P.head.rotation.y=talk?Math.sin(t*2.3)*.18:0}
+const ruler=o=>person(queen()?0xd63a6b:0xff9933,queen(),true,o);
+const aides=o=>[person(0x3a5fa8,false,false,o),person(0xf0f0e0,false,false,o)];
 
 /* ---------- 3D WORLD ---------- */
-const Hh=(x,z)=>{const r=Math.hypot(x,z);return r<14?0:(Math.sin(x*.05)*Math.cos(z*.04)*5+Math.sin(x*.13+z*.1)*1.5)*Math.min(1,(r-14)/20)};
-const sig=()=>{const S=D.S,p=S.planets[S.selectedPlanet];return S.selectedPlanet+"|"+(S.story&&S.story.legacy?S.story.legacy.length:0)+"|"+(window.DS_story?1:0)+(window.DS_agency?1:0)+"|"+(S.story&&S.story.dyson?(S.story.dyson.h/4|0):0)+"|"+(S.end&&S.end.mode||"")+"|"+(S.visit?S.visit.k:"")+"|"+Object.values(p.buildings).join(",")+"|"+(p.biosphere/5|0)+"|"+(p.water/5|0)+"|"+(p.population/6|0)+"|"+(p.pollution/10|0)};
+const WV={r:0,s:0},riverX=z=>20+48*Math.sin(z*.018+1.3);
+const Hh=(x,z)=>{const r=Math.hypot(x,z);if(r<14)return 0;let h=(Math.sin(x*.05)*Math.cos(z*.04)*5+Math.sin(x*.13+z*.1)*1.5)*Math.min(1,(r-14)/20);if(WV.r)h-=7*Math.exp(-Math.pow((x-riverX(z))/7,2));if(WV.s)h-=9*Math.exp(-Math.pow((x+105)/14,2));return h};
+const sig=()=>{const S=D.S,p=S.planets[S.selectedPlanet];return S.selectedPlanet+"|"+(S.story&&S.story.legacy?S.story.legacy.length:0)+"|"+(window.DS_story?1:0)+(window.DS_agency?1:0)+"|"+(S.story&&S.story.dyson?(S.story.dyson.h/4|0):0)+"|"+(S.end&&S.end.mode||"")+"|"+(S.visit?S.visit.k:"")+"|"+(p.hab?"H":"")+"|"+Object.values(p.buildings).join(",")+"|"+(p.biosphere/5|0)+"|"+(p.water/5|0)+"|"+(p.population/6|0)+"|"+(p.pollution/10|0)};
 function stars(sc,n,r){const a=[];for(let i=0;i<n;i++){const u=rnd()*6.28,v=Math.acos(2*rnd()-1);a.push(r*Math.sin(v)*Math.cos(u),Math.abs(r*Math.cos(v)),r*Math.sin(v)*Math.sin(u))}
  const g=new T.BufferGeometry();g.setAttribute("position",new T.Float32BufferAttribute(a,3));const p=new T.Points(g,new T.PointsMaterial({color:0xffffff,size:1.4,fog:false,transparent:true}));sc.add(p);return p}
 function noiseTex(rep){const c=document.createElement("canvas");c.width=c.height=256;const x=c.getContext("2d"),im=x.createImageData(256,256);for(let i=0;i<65536;i++){const n=Math.sin(i%256*.31)*Math.cos((i>>8)*.27)*.5+Math.random()*.5,v=205+n*50;im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=v;im.data[i*4+3]=255}x.putImageData(im,0,0);const t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rep,rep);t.anisotropy=4;return t}
 function skyDome(top,bot){const m=new T.ShaderMaterial({side:T.BackSide,depthWrite:false,fog:false,uniforms:{t:{value:new T.Color(top)},b:{value:new T.Color(bot)}},vertexShader:"varying vec3 p;void main(){p=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",fragmentShader:"uniform vec3 t,b;varying vec3 p;void main(){float h=clamp(p.y*1.4+.1,0.,1.);gl_FragColor=vec4(mix(b,t,pow(h,.7)),1.);}"});const s=new T.Mesh(new T.SphereGeometry(500,24,16),m);s.userData.noShadow=1;s.renderOrder=-1;return s}
 function buildWalk(st){
- const S=D.S,V=window.DS_visit?DS_visit():null,i=V?V.i:S.selectedPlanet,c=V?V.c:D.PLANETS[i],p=V?V.p:S.planets[i],id=c.id;seed=7+i;st=st&&st.i===i?st:{i,x:0,z:14,a:Math.PI};
- const sc=new T.Scene(),sky=new T.Color(c.sky[1]).lerp(new T.Color(0x1a1008),p.pollution/200);sc.background=sky;sc.fog=new T.Fog(sky,25,140);
+ const S=D.S,V=window.DS_visit?DS_visit():null,i=V?V.i:S.selectedPlanet,c=V?V.c:D.PLANETS[i],p=V?V.p:S.planets[i],id=c.id;seed=7+i;WV.r=p.water>=20?1:0;WV.s=p.water>=50?1:0;st=st&&st.i===i?st:{i,x:0,z:14,a:Math.PI};
+ const sc=new T.Scene(),sky=new T.Color(c.sky[1]).lerp(new T.Color(0x1a1008),p.pollution/200);sc.background=sky;sc.fog=new T.Fog(sky,25,140);const solids=[];sc.userData.solid=solids;
  const hemi=new T.HemisphereLight(0xcfe4ff,0x334455,.7);sc.add(hemi);const sun=new T.DirectionalLight(0xfff0d0,1.7);sun.position.set(30,50,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sh=sun.shadow.camera;sh.left=sh.bottom=-45;sh.right=sh.top=45;sh.near=1;sh.far=160;sun.shadow.bias=-.0004;sc.add(sun);sc.add(sun.target);
  const skyM=skyDome(c.sky[0],sky);skyM.add(mesh(new T.SphereGeometry(16,16,12),new T.MeshBasicMaterial({color:0xfff2c0,fog:false}),216,360,144));
  const g=new T.PlaneGeometry(300,300,110,110);g.rotateX(-Math.PI/2);const pa=g.attributes.position,col=[],base=new T.Color(c.col).lerp(new T.Color(0x3f9a4f),p.biosphere/160).lerp(new T.Color(0x2a2018),p.pollution/250);
@@ -98,18 +105,18 @@ function buildWalk(st){
   if(k==="purifier"){o.add(mesh(new T.CylinderGeometry(.7,.9,3.5,10),M3(0xffffff),0,1.75,0));o.add(mesh(new T.ConeGeometry(.9,1.4,10),M3(0x9ad0ff),0,4.2,0))}
   if(k==="mandap"){o.add(mesh(new T.BoxGeometry(5,.6,5),M3(0xe8dcc0),0,.3,0));o.add(mesh(new T.BoxGeometry(3,3,3),M3(0xf2e4c8),0,2.1,0));for(let s=0;s<4;s++)o.add(mesh(new T.ConeGeometry(2.2-s*.4,1.6,4),M3(0xff9933,{emissive:0x331a00}),0,4.4+s*1.2,0)).rotation.y=.78;o.add(mesh(new T.SphereGeometry(.35,8,8),M3(0xffd56b,{emissive:0x6a4a00}),0,9.6,0))}
   if(k==="shield")o.add(mesh(new T.SphereGeometry(3,18,12),M3(0x59e7ff,{transparent:true,opacity:.22,emissive:0x59e7ff,emissiveIntensity:.5}),0,0,0));
-  const a=n*.95+.4,r=8+(n%3)*2.6;o.position.set(Math.cos(a)*r,0,Math.sin(a)*r);o.rotation.y=-a;n++;sc.add(o)}});
- for(let k=0;k<Math.min(24,p.population/2);k++){const cz=mesh(new T.ConeGeometry(.3,1.3,6),M3([0xff9933,0x3a8fd6,0xe85a8a,0x74e7a5][k%4]));place(cz,6,30);cz.position.y=.65;cit.push(cz)}
- const ex=V?(window.DS_tamCity?DS_tamCity(sc,V,st):null):(window.DS_legacy?DS_legacy(sc,i,st):null);const pl=ruler(),fo=aides();sc.add(pl);fo.forEach(f=>sc.add(f));const camr=cam();sc.traverse(o=>{if(o.isMesh&&!o.userData.noShadow&&!(o.material&&o.material.isShaderMaterial)){o.castShadow=true;o.receiveShadow=true}});sc.add(skyM);
+  const a=n*.95+.4,r=8+(n%3)*2.6;o.position.set(Math.cos(a)*r,0,Math.sin(a)*r);o.rotation.y=-a;n++;sc.add(o);solids.push({x:o.position.x,z:o.position.z,r:3.4})}});
+ for(let k=0;k<(window.DS_hab&&!DS_hab(i)?0:Math.min(24,p.population/2));k++){const cz=mesh(new T.ConeGeometry(.3,1.3,6),M3([0xff9933,0x3a8fd6,0xe85a8a,0x74e7a5][k%4]));place(cz,6,30);cz.position.y=.65;cit.push(cz)}
+ const ex=V?(window.DS_tamCity?DS_tamCity(sc,V,st):null):(window.DS_legacy?DS_legacy(sc,i,st):null);const sp=window.DS_hab&&!DS_hab(i)?{suit:1}:null,pl=ruler(sp),fo=aides(sp);sc.add(pl);fo.forEach(f=>sc.add(f));const camr=cam();sc.traverse(o=>{if(o.isMesh&&!o.userData.noShadow&&!(o.material&&o.material.isShaderMaterial)){o.castShadow=true;o.receiveShadow=true}});sc.add(skyM);
  return{scene:sc,cam:camr,st,sg:sig(),ck:0,update(t,dt){
   skyM.position.copy(camr.position);sun.position.set(st.x+30,50,st.z+20);sun.target.position.set(st.x,0,st.z);
   if(window.DS_env)DS_env(t,{sun,hemi,skyM,sc,st});
   const mv=(keys.ArrowUp||keys.w||held)?1:(keys.ArrowDown||keys.s)?-.6:0;st.a+=((keys.ArrowLeft||keys.a?1:0)-(keys.ArrowRight||keys.d?1:0))*dt*2.2+turn;turn=0;
-  const nx=st.x+Math.sin(st.a)*mv*dt*9,nz=st.z+Math.cos(st.a)*mv*dt*9;if(Hh(nx,nz)>=wl+.05){st.x=nx;st.z=nz}const r=Math.hypot(st.x,st.z);if(r>120){st.x*=120/r;st.z*=120/r}
+  const nx=st.x+Math.sin(st.a)*mv*dt*9,nz=st.z+Math.cos(st.a)*mv*dt*9;if(Hh(nx,nz)>=wl+.05&&!solids.some(o=>{const d=Math.hypot(nx-o.x,nz-o.z);return d<o.r&&d<Math.hypot(st.x-o.x,st.z-o.z)})){st.x=nx;st.z=nz}const r=Math.hypot(st.x,st.z);if(r>120){st.x*=120/r;st.z*=120/r}
   const y=Math.max(Hh(st.x,st.z),wl);pl.position.set(st.x,y+Math.abs(Math.sin(t*9))*.07*Math.abs(mv),st.z);pl.rotation.y=st.a;anim(pl,t,Math.abs(mv));
   const f=[Math.sin(st.a),Math.cos(st.a)],L=[Math.cos(st.a),-Math.sin(st.a)];
   fo.forEach((q,k)=>{const s=k?-1:1;let tx=st.x-f[0]*2.8+L[0]*2.2*s,tz=st.z-f[1]*2.8+L[1]*2.2*s;if(Hh(tx,tz)<wl+.05){tx=st.x;tz=st.z}const dd=Math.hypot(tx-q.position.x,tz-q.position.z);q.position.x+=(tx-q.position.x)*dt*3;q.position.z+=(tz-q.position.z)*dt*3;q.position.y=Math.max(Hh(q.position.x,q.position.z),wl);q.rotation.y=st.a;anim(q,t+k,Math.min(1,dd*1.2))});
-  const cp=new T.Vector3(st.x-f[0]*8,y+4.6,st.z-f[1]*8);camr.position.lerp(cp,.1);camr.lookAt(st.x,y+1.6,st.z);
+  if(window.DS_topview){camr.position.lerp(new T.Vector3(st.x,y+88,st.z+.01),.12);camr.lookAt(st.x,y,st.z)}else{const cp=new T.Vector3(st.x-f[0]*8,y+4.6,st.z-f[1]*8);camr.position.lerp(cp,.1);camr.lookAt(st.x,y+1.6,st.z)}
   if(wm)wm.position.y=wl+Math.sin(t*1.3)*.12;items.forEach((o,k)=>{o.rotation.y+=dt*.8;if(id==="vayu"||id==="soma")o.position.x+=dt*.6;else if(id==="akasha")o.position.y+=Math.sin(t+k)*.01});
   cit.forEach((o,k)=>o.position.y=.65+Math.abs(Math.sin(t*3+k))*.15);fx.forEach(fn=>fn(dt));if(light)light.intensity=Math.random()<.015?3.5:Math.max(0,light.intensity-dt*8);
   if(ex)ex(t,dt,st,pl);
@@ -155,7 +162,7 @@ function rocket(){const g=new T.Group();
  for(let i=0;i<3;i++){const f=mesh(new T.BoxGeometry(.2,2.4,1.8),M3(0x138808),0,2.6,0);const a=i*2.09;f.position.set(Math.cos(a)*1.4,2.6,Math.sin(a)*1.4);f.rotation.y=-a;g.add(f)}
  g.add(mesh(new T.SphereGeometry(.38,10,10),M3(0x59e7ff,{emissive:0x2a7a9a}),0,7.2,.95));
  const fl=mesh(new T.ConeGeometry(.8,3.8,12),new T.MeshBasicMaterial({color:0xffa030,transparent:true,opacity:.85}),0,0,0);fl.rotation.x=Math.PI;g.add(fl);g.userData.fl=fl;return g}
-window.DS_travel=to=>{const S=D.S,from=S.location??S.selectedPlanet,fuel=30*Math.abs(to-from),p=S.planets[from],P=D.PLANETS;
+window.DS_travel=to=>{const S=D.S,from=S.location??S.selectedPlanet,fuel=Math.ceil(30*Math.abs(to-from)*(1-(window.DS_nav?DS_nav():0))),p=S.planets[from],P=D.PLANETS;
  D.show("Royal Rocket · Pushpak-1",`${P[from].n} → ${P[to].n}`,`<p style="line-height:1.6">Worlds are far apart. ${D.rulerTitle()} and the dignitaries must travel by rocket — the Pushpak-1.</p><p>Fuel needed: ⚡ <b>${fuel}</b> from ${P[from].n}'s reserves (you have ${D.fmt(p.energy)}).</p><button class="go" id="lnch">🚀 Launch</button>`);
  $("lnch").onclick=()=>{if(p.energy<fuel)return D.toast("Not enough Energy on "+P[from].n+" for fuel.");p.energy-=fuel;D.closeModal();travel(from,to)}};
 function travel(from,to){const P=D.PLANETS,X0=typeof to==="object"?to:null,cf=P[from],ct=X0?X0.c:P[to],sc=new T.Scene(),A=addr();sc.background=new T.Color(cf.sky[1]);sc.fog=new T.Fog(cf.sky[1],40,300);
@@ -181,6 +188,6 @@ function travel(from,to){const P=D.PLANETS,X0=typeof to==="object"?to:null,cf=P[
   else{const u=t-15,k=Math.min(1,u/2.5);rk.position.z=-315-u*60;sc.background=new T.Color(0x02030a).lerp(new T.Color(ct.sky[1]),k);sc.fog.color.copy(sc.background);camr.position.set(rk.position.x+5,rk.position.y+2.5,rk.position.z+13);camr.lookAt(rk.position.x,rk.position.y,rk.position.z-10)}}};
  musicOverride="travel";syncMusic();start(o,true)}
 const S_bio=i=>D.S.planets[i].biosphere/160;
-window.DS3={T,mesh,M3,Hh,person,anim,start,stop,buildWalk,buildCourt,say,hideSay,addr,travel,enterWalk:()=>{const w=buildWalk();w.walk=1;start(w,false);syncMusic()},setMusic:m=>{musicOverride=m;syncMusic()},busy:()=>courtBusy||!!(cur&&cur.lock)};
+window.DS3={T,mesh,M3,Hh,person,anim,start,stop,buildWalk,buildCourt,say,hideSay,addr,travel,riverX,WV,enterWalk:()=>{const w=buildWalk();w.walk=1;start(w,false);syncMusic()},setMusic:m=>{musicOverride=m;syncMusic()},busy:()=>courtBusy||!!(cur&&cur.lock)};
 addEventListener("load",()=>{if(D.S.view==="world")DS_view("world")});addEventListener("pagehide",D.save);addEventListener("blur",()=>{keys={};held=false});
 })();
