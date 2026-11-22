@@ -1,4 +1,4 @@
-(()=>{"use strict";
+((()=>{"use strict";
 const $=id=>document.getElementById(id), clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const SAVE_KEY="dreamscape_panchabhuta_v1", OFFLINE_CAP=8*3600, COUNCIL_EVERY=190;
 const fmt=n=>{n=Math.floor(n*10)/10;return Math.abs(n)>=1e6?(n/1e6).toFixed(2)+"M":Math.abs(n)>=1e3?(n/1e3).toFixed(2)+"K":String(n)};
@@ -105,8 +105,8 @@ function tickPlanet(p,dt){
    for(const f of["atmosphere","water","biosphere"]){if(pts<=0)break;if(p[f]<100){const a=Math.min(pts,100-p[f]);p[f]+=a;pts-=a}if(p[f]<100)break}}
  }
  p.popCap=Math.round(b.habitat*18*tm("cities")*(id==="vajra"?1.5:1));
- if(p.atmosphere>=40&&p.water>=15&&p.population<p.popCap)
-  p.population=Math.min(p.popCap,p.population+Math.max(.15,p.biosphere/100)*p.popCap*.012*(id==="prana"?2:1)*dt);
+ if((p.hab===undefined?(p.atmosphere>=40&&p.water>=15):p.hab)&&p.population<p.popCap)
+  p.population=Math.min(p.popCap,p.population+Math.max(.15,p.biosphere/100)*p.popCap*.007*(id==="prana"?2:1)*dt);
  if(p.population>p.popCap)p.population=Math.max(p.popCap,p.population-dt*.05); // bug fix: overpop shrinks
  if(p.population>0){const up=p.population*.018*dt;if(p.biomass>=up)p.biomass-=up;else{p.biomass=0;p.population=Math.max(0,p.population*(1-.01*dt))}}
  const gen=((b.solar+b.bioreactor+b.terraform)*.05*tm("orbital")+p.population*.012)*(id==="vayu"?.5:1);
