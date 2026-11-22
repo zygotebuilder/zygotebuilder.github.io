@@ -1,4 +1,3 @@
-/* Dreamscape v5: Antariksha Sangathan (space agency): satellites, Tamasi intelligence, codex and interludes of the alien side */
 (()=>{"use strict";
 if(!window.DS3||!window.DS||!window.DS_story)return;
 const D=DS,X=DS3,T=X.T,$=id=>document.getElementById(id),S=()=>D.S,A=()=>X.addr();
