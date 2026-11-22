@@ -1,11 +1,10 @@
-/* Dreamscape v7: Dvandva Yuddha (war), dominion over the Dyson sphere, Dyson Era projects, visible star-map progress */
 (()=>{"use strict";
 if(!window.DS_story||!window.DS)return;
 const D=DS,X=DS3,S=()=>D.S,$=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),ST=()=>DS_story.init(),A=()=>X.addr();
 function E(){const s=S();if(!s.end)s.end={mode:null,winner:null,pend:0,proj:[],crowned:0};return s.end}E();
 const tam=()=>S().tam||{fleet:40,mand:20,spies:0},dh=v=>{S().dharmaIndex=clamp(S().dharmaIndex+v,-100,100)};
 const hit=f=>S().planets.forEach(p=>{if(p.unlocked){p.energy*=1-f;p.biomass*=1-f;p.population*=1-f*.6}});
-const MODE={merge:"Merged empire",vassal:"Tamasi are our vassals",partner:"Equal co-stewards",vassalized:"Earth is a Tamasi vassal",absorbed:"Earth merged into the Tamasi realm"};
+const MODE={liberated:"Liberated — the Tamasi were expelled",merge:"Merged empire",vassal:"Tamasi are our vassals",partner:"Equal co-stewards",vassalized:"Earth is a Tamasi vassal",absorbed:"Earth merged into the Tamasi realm"};
 const setMode=(m,txt)=>{const e=E();e.mode=m;e.era=1;D.chron(txt);D.save()};
 const era=()=>{const e=E();return e.mode&&(e.winner==="h"||e.mode==="partner")&&e.mode!=="vassalized"&&e.mode!=="absorbed"};
 window.DS_war=()=>{E().pend=1};
