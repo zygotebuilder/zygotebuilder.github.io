@@ -1,4 +1,4 @@
-/* Dreamscape v7: Tamasi Observatory (3D, view only) + scheduled diplomatic summits between the leaders */
+
 (()=>{"use strict";
 if(!window.DS_story||!window.DS3)return;
 const D=DS,X=DS3,T=X.T,S=()=>D.S,$=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),ST=()=>DS_story.init(),A=()=>X.addr();
