@@ -1,4 +1,4 @@
-/* Dreamscape v6: Tamasi intelligence — star system map, conquests, spy network, peace-treaty requirements */
+
 (()=>{"use strict";
 if(!window.DS_story||!window.DS)return;
 const D=DS,S=()=>D.S,$=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
