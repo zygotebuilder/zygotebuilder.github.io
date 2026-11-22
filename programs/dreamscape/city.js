@@ -1,4 +1,3 @@
-/* Dreamscape v7: modern Indian metropolises (glass towers + shikhara crowns, chhatris, gopurams, havelis, domes, lotus temple, maglev), day/night cycle, Dyson shell in the sky */
 (()=>{"use strict";
 if(!window.DS3||!window.DS)return;
 const D=DS,X=DS3,T=X.T,S=()=>D.S,M3=X.M3,mesh=X.mesh,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -24,20 +23,62 @@ function haveli(p){const g=new T.Group();g.add(mesh(new T.BoxGeometry(11,5,8),M3
  [-3.6,3.6].forEach(x=>{const c=chhatri(p,.7);c.position.set(x,5.4,0);g.add(c)});return g}
 function lotus(p){const g=new T.Group(),w=M3(0xfaf6ee,{roughness:.4}),pool=mesh(new T.CircleGeometry(9,32),M3(0x2a8ad0,{metalness:.5,roughness:.1}),0,.1,0);pool.rotation.x=-1.5708;g.add(pool);
  for(let i=0;i<9;i++){const a=i/9*6.283,pt=mesh(new T.SphereGeometry(1,12,10),w,Math.cos(a)*3.2,4,Math.sin(a)*3.2);pt.scale.set(.6,4.2,1.7);pt.rotation.y=-a;pt.rotation.z=-.22;g.add(pt)}g.add(spr(0,6,0,8,0xfff0c0));return g}
-function city(sc,pi,wl){const s=S(),p=s.planets[pi],pal=PAL[D.PLANETS[pi].id]||PAL.bhumi;
- const n=p.unlocked?Math.min(44,Math.round(1+p.population/5+Object.values(p.buildings).reduce((a,b)=>a+b,0)*.7+(p.sustained?6:0))):0;return layout(sc,pal,n,pi*977+13,wl)}
-function layout(sc,pal,n,seed0,wl){const win=[],upd=[];
- let seed=seed0;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
- for(let k=0;k<n;k++){let a=k*2.4+rnd()*.3,r=40+Math.sqrt(k)*10,x,z,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.35;tr++}while(X.Hh(x,z)<wl+.8&&tr<16);if(X.Hh(x,z)<wl+.8)continue;
-  const q=k/n,u=rnd(),kind=k===0?"dome":k===1?"lotus":q<.35?(u<.5?"haveli":u<.8?"chhatri":"gopuram"):(u<.45?"tower":u<.65?"sky":u<.8?"gopuram":u<.9?"haveli":"dome"),h=14+rnd()*26*(.5+q);
-  const g=kind==="dome"?dome(pal):kind==="lotus"?lotus(pal):kind==="gopuram"?gopuram(pal):kind==="haveli"?haveli(pal):kind==="chhatri"?chhatri(pal,2):tower(pal,h,6+rnd()*3,win,kind==="sky");
-  g.position.set(x,X.Hh(x,z),z);g.rotation.y=-a;g.add(mesh(new T.BoxGeometry(14,5,14),M3(0xcfc6b4,{roughness:.9}),0,-2.3,0));sc.add(g)}
- if(n>=14){const R=36,H=11,seg=48,tr=new T.Group();for(let i=0;i<seg;i++){const a=i/seg*6.283,x=Math.cos(a)*R,z=Math.sin(a)*R,b=mesh(new T.BoxGeometry(5.4,.5,2.4),M3(0x9aa4b0,{metalness:.6}),x,H,z);b.rotation.y=-a-1.5708;tr.add(b);if(i%4===0){const y0=X.Hh(x,z);tr.add(mesh(new T.CylinderGeometry(.5,.7,H-y0,8),M3(0xcfc6b4),x,(H+y0)/2,z))}}sc.add(tr);
-  const cars=[0,1,2,3].map(()=>{const c=mesh(new T.BoxGeometry(4.2,1.4,1.6),M3(0xffffff,{emissive:0xffb347,emissiveIntensity:.4}),0,H+1,0);sc.add(c);return c});
-  upd.push(t=>cars.forEach((c,i)=>{const a=t*.12-i*.06;c.position.set(Math.cos(a)*R,H+1,Math.sin(a)*R);c.rotation.y=-a-1.5708}))}
- if(n>=26){const ch=new T.Group(),ring=mesh(new T.TorusGeometry(5,.35,8,40),gold(0xffffff),0,0,0);ch.add(ring);for(let i=0;i<24;i++){const a=i/24*6.283,sp=mesh(new T.BoxGeometry(.12,10,.12),gold(0xffffff),0,0,0);sp.rotation.z=a;ch.add(sp)}ch.position.set(-14,9,-42);if(X.Hh(-14,-42)>wl+.5){ch.add(mesh(new T.CylinderGeometry(.8,1.2,9,10),M3(0xf2efe6),0,-4.5,0));sc.add(ch);upd.push(t=>ch.rotation.z=t*.4)}}
- return{win,update:t=>upd.forEach(f=>f(t))}}
-window.DS_layout=layout;const old=window.DS_legacy;window.DS_legacy=(sc,pi,st)=>{const f=old?old(sc,pi,st):null,wl=-2+S().planets[pi].water*.017,c=city(sc,pi,wl);sc.userData.win=c.win;return(t,dt,p)=>{f&&f(t,dt,p);c.update(t)}};
+function park(p){const g=new T.Group();g.add(mesh(new T.CylinderGeometry(6,6,.3,20),M3(0x3f8f4e,{roughness:1}),0,.15,0));for(let i=0;i<6;i++){const a=i*1.05,t=new T.Group();t.add(mesh(new T.CylinderGeometry(.2,.3,2.4,6),M3(0x5a3a22),0,1.2,0));t.add(mesh(new T.SphereGeometry(1.4,8,6),M3(0x2f8f4e),0,3,0));t.position.set(Math.cos(a)*4.2,0,Math.sin(a)*4.2);g.add(t)}const c=chhatri(p,.9);c.position.y=.1;g.add(c);return g}
+const CARC=[0xe8e8e8,0xd23a3a,0x2a5ac2,0xf2b134,0x222222,0x3aa86a];
+/* planned city: grid of 26-unit cells, 10-unit avenues with sidewalks and lamps, zoned blocks, vehicles */
+function layout(sc,pal,n,seed0,wl,opt){opt=opt||{};const win=[],upd=[],sol=sc.userData.solid||[];let seed=seed0;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+ const G=26,cells=[];
+ for(let gx=-5;gx<=5;gx++)for(let gz=-5;gz<=5;gz++){const x=gx*G,z=gz*G,d=Math.hypot(x,z);if(d<44||d>118||X.Hh(x,z)<wl+.8)continue;if((opt.avoid||[]).some(a=>Math.hypot(x-a.x,z-a.z)<a.r))continue;cells.push({x,z,d})}
+ cells.sort((a,b)=>a.d-b.d);const use=cells.slice(0,n),segs=new Map(),roadM=M3(0x2a2d33,{roughness:.9}),sideM=M3(0xb8b0a0,{roughness:.9}),paintM=M3(0xf2efe6),h2=(x,z)=>Math.max(X.Hh(x,z),wl+.9);
+ const seg=(x0,z0,x1,z1)=>{const key=[x0,z0,x1,z1].join();if(segs.has(key))return;segs.set(key,{x0,z0,x1,z1});
+  const y0=h2(x0,z0),y1=h2(x1,z1),L=Math.hypot(x1-x0,z1-z0),g=new T.Group(),mx=(x0+x1)/2,mz=(z0+z1)/2,hor=z0===z1,ang=Math.atan2(y1-y0,L);
+  g.add(mesh(new T.BoxGeometry(L+.4,.35,10),roadM,0,0,0));[-5.8,5.8].forEach(o=>g.add(mesh(new T.BoxGeometry(L+.4,.5,1.6),sideM,0,.1,o)));
+  for(let k=-2;k<=2;k++)g.add(mesh(new T.BoxGeometry(3,.05,.25),paintM,k*5,.2,0));
+  [-1,1].forEach(s=>{const lp=new T.Group();lp.add(mesh(new T.CylinderGeometry(.1,.12,5,6),M3(0x555555),0,2.5,0));lp.add(spr(0,5.2,0,3));lp.position.set(s*(L/2-1),0,s*5.9);g.add(lp)});
+  g.position.set(mx,(y0+y1)/2+.05,mz);g.rotation.y=hor?0:-1.5708;g.rotation.z=ang;
+  if(X.Hh(mx,mz)<wl+.5)[-1,1].forEach(s=>sc.add(mesh(new T.CylinderGeometry(.5,.6,Math.max(1,(y0+y1)/2-(wl-3)),8),M3(0xcfc6b4),mx+(hor?s*L/4:0),(wl-3+(y0+y1)/2)/2,mz+(hor?0:s*L/4))));
+  sc.add(g)};
+ use.forEach(c=>[[c.x-13,c.z-13,c.x+13,c.z-13],[c.x-13,c.z+13,c.x+13,c.z+13],[c.x-13,c.z-13,c.x-13,c.z+13],[c.x+13,c.z-13,c.x+13,c.z+13]].forEach(a=>seg(...a)));
+ use.forEach((c,k)=>{const u=rnd(),d=c.d;let g;
+  if(k===0){g=dome(pal);g.scale.setScalar(.62)}else if(k===1){g=lotus(pal);g.scale.setScalar(.6)}else if(k%6===3)g=park(pal);
+  else if(d<68)g=u<.45?haveli(pal):u<.75?gopuram(pal):chhatri(pal,2);else if(d<92)g=u<.6?tower(pal,18+rnd()*22,7+rnd()*2,win,u>.4):u<.8?gopuram(pal):haveli(pal);else g=u<.4?haveli(pal):u<.65?tower(pal,12+rnd()*12,7,win,false):chhatri(pal,2);
+  const y=X.Hh(c.x,c.z);g.position.set(c.x,y,c.z);g.rotation.y=Math.floor(rnd()*4)*1.5708;sc.add(g);sc.add(mesh(new T.BoxGeometry(12,5,12),M3(0xcfc6b4,{roughness:.9}),c.x,y-2.3,c.z));sol.push({x:c.x,z:c.z,r:7.5})});
+ const sg=[...segs.values()];
+ if(sg.length){const cg=new T.BoxGeometry(2.3,.75,1.1),cb=new T.BoxGeometry(1.2,.55,1),bg=new T.BoxGeometry(5,1.4,1.5),cars=[];
+  for(let k=0;k<Math.min(26,sg.length*2);k++){const s=sg[k%sg.length],bus=k%7===0,gr=new T.Group();gr.add(mesh(bus?bg:cg,M3(bus?0xff9933:CARC[k%6],{metalness:.5,roughness:.35}),0,.6,0));if(!bus)gr.add(mesh(cb,M3(0x1a2433,{metalness:.6}),-.1,1.2,0));gr.add(spr(1.2,.6,0,1.4,0xffe9a8));sc.add(gr);cars.push({gr,s,u:rnd(),v:(.05+rnd()*.07)*(rnd()<.5?1:-1),lane:(rnd()<.5?1:-1)*2.2})}
+  upd.push((t,dt)=>cars.forEach(c=>{c.u+=c.v*(dt||0)*2;if(c.u>1)c.u-=1;if(c.u<0)c.u+=1;const s=c.s,x=s.x0+(s.x1-s.x0)*c.u,z=s.z0+(s.z1-s.z0)*c.u,hor=s.z0===s.z1;c.gr.position.set(x+(hor?0:c.lane),h2(x,z)+.25,z+(hor?c.lane:0));c.gr.rotation.y=hor?(c.v>0?0:Math.PI):(c.v>0?-1.5708:1.5708)}))}
+ if(n>=14){const R=35,H=11,seg2=48,tr=new T.Group();for(let i=0;i<seg2;i++){const a=i/seg2*6.283,x=Math.cos(a)*R,z=Math.sin(a)*R,b=mesh(new T.BoxGeometry(5.4,.5,2.4),M3(0x9aa4b0,{metalness:.6}),x,H,z);b.rotation.y=-a-1.5708;tr.add(b);if(i%4===0){const y0=X.Hh(x,z);tr.add(mesh(new T.CylinderGeometry(.5,.7,H-y0,8),M3(0xcfc6b4),x,(H+y0)/2,z))}}sc.add(tr);
+  const cars2=[0,1,2,3].map(()=>{const c=mesh(new T.BoxGeometry(4.2,1.4,1.6),M3(0xffffff,{emissive:0xffb347,emissiveIntensity:.4}),0,H+1,0);sc.add(c);return c});
+  upd.push(t=>cars2.forEach((c,i)=>{const a=t*.12-i*.06;c.position.set(Math.cos(a)*R,H+1,Math.sin(a)*R);c.rotation.y=-a-1.5708}))}
+ if(n>=26){const cp=[[-32,-30],[30,-32],[-32,32]].find(q=>X.Hh(q[0],q[1])>wl+.5);if(cp){const ch=new T.Group();ch.add(mesh(new T.TorusGeometry(5,.35,8,40),gold(0xffffff)));for(let i=0;i<24;i++){const sp=mesh(new T.BoxGeometry(.12,10,.12),gold(0xffffff));sp.rotation.z=i/24*6.283;ch.add(sp)}ch.add(mesh(new T.CylinderGeometry(.8,1.2,9,10),M3(0xf2efe6),0,-4.5,0));ch.position.set(cp[0],X.Hh(cp[0],cp[1])+9,cp[1]);sc.add(ch);sol.push({x:cp[0],z:cp[1],r:2.5});upd.push(t=>ch.rotation.z=t*.4)}}
+ return{win,update:(t,dt)=>upd.forEach(f=>f(t,dt))}}
+window.DS_layout=(sc,pal,n,seed,wl)=>layout(sc,pal,n,seed,wl,{});
+/* research outposts: before a world is habitable only domes, labs and suited crews exist */
+function outpost(sc,pi,wl){const p=S().planets[pi],sol=sc.userData.solid||[],upd=[],lv=Object.values(p.buildings).reduce((a,b)=>a+b,0),n=2+Math.min(6,Math.round(lv*.5)),ds=[],glass=new T.MeshPhysicalMaterial({color:0xaee8ff,transparent:true,opacity:.35,roughness:.05,metalness:.2,emissive:0x1a4a6a,emissiveIntensity:.5});
+ for(let k=0;k<n;k++){let a=k*2.1+.5,r=34+(k%3)*7,x,z,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.4;tr++}while(X.Hh(x,z)<wl+.8&&tr<14);if(X.Hh(x,z)<wl+.8)continue;const y=X.Hh(x,z),g=new T.Group();
+  g.add(mesh(new T.CylinderGeometry(6,6.5,.8,20),M3(0xcfc6b4),0,.4,0));g.add(mesh(new T.SphereGeometry(5,20,12,0,6.283,0,1.57),glass,0,.8,0));g.add(mesh(new T.CylinderGeometry(3,3,2.4,14),M3(0xe8eef4,{metalness:.4}),0,2,0));g.add(spr(0,3,0,7,0xaee8ff));g.position.set(x,y,z);sc.add(g);sol.push({x,z,r:7});
+  const q=ds[ds.length-1];if(q){const L=Math.hypot(x-q.x,z-q.z),tube=mesh(new T.CylinderGeometry(.9,.9,L,10),M3(0xdfe6ee,{metalness:.5}),(x+q.x)/2,y+1,(z+q.z)/2);tube.rotation.z=1.5708;tube.rotation.y=-Math.atan2(z-q.z,x-q.x);sc.add(tube)}ds.push({x,z})}
+ const ct=[[-26,6],[26,6],[0,30]].find(q=>X.Hh(q[0],q[1])>wl+.5);if(ct){const g=new T.Group();g.add(mesh(new T.CylinderGeometry(.4,.7,14,8),M3(0xdddddd),0,7,0));const bowl=mesh(new T.SphereGeometry(2.2,14,8,0,6.283,0,1.2),M3(0xf4f4f4,{side:T.DoubleSide}),0,14,0);bowl.rotation.x=-.8;g.add(bowl);g.add(spr(0,15,0,5,0xff4040));g.position.set(ct[0],X.Hh(ct[0],ct[1]),ct[1]);sc.add(g)}
+ const crew=[];if(ds.length)for(let k=0;k<5;k++){const pr=X.person([0xf4f4f6,0xff9933,0xf4f4f6][k%3],false,false,{suit:1}),d0=ds[k%ds.length];pr.position.set(d0.x+3,X.Hh(d0.x+3,d0.z),d0.z);sc.add(pr);crew.push({g:pr,t:ds[(k+1)%ds.length]})}
+ upd.push((t,dt)=>crew.forEach((c,j)=>{const dx=c.t.x-c.g.position.x,dz=c.t.z-c.g.position.z,d=Math.hypot(dx,dz);if(d<4)c.t=ds[Math.floor(Math.random()*ds.length)];else{c.g.position.x+=dx/d*dt*1.2;c.g.position.z+=dz/d*dt*1.2;c.g.rotation.y=Math.atan2(dx,dz)}c.g.position.y=X.Hh(c.g.position.x,c.g.position.z);X.anim(c.g,t+j,1,false)}));
+ return{win:[],update:(t,dt)=>upd.forEach(f=>f(t,dt))}}
+/* the Mahal: walk up to it to convene the Sabha */
+let NEAR=0;const mb=document.createElement("button");mb.className="go";mb.textContent="🏛 Enter the Mahal — convene the Sabha";Object.assign(mb.style,{position:"absolute",left:"50%",bottom:"130px",transform:"translateX(-50%)",width:"auto",padding:"10px 18px",zIndex:70,display:"none"});document.getElementById("app").appendChild(mb);
+mb.onclick=()=>{if(!X.busy())document.getElementById("councilBtn").click()};setInterval(()=>{mb.style.display=performance.now()-NEAR<400&&S().view==="world"&&!X.busy()?"block":"none"},300);
+const mahalPos=wl=>[[0,-46],[46,0],[0,46],[-46,0],[34,-34]].find(q=>X.Hh(q[0],q[1])>wl+.8)||[0,-46];
+function mahal(pal,sol,pos){const g=new T.Group(),w=M3(0xf2efe6,{roughness:.5}),sd=M3(pal[0],{roughness:.7}),gd=gold(pal[2]);
+ g.add(mesh(new T.BoxGeometry(38,5,44),M3(0xcfc6b4,{roughness:.9}),0,-2,6));[[34,1,22],[30,1,18],[26,1,14]].forEach((s,i)=>g.add(mesh(new T.BoxGeometry(...s),w,0,.5+i,0)));
+ g.add(mesh(new T.BoxGeometry(22,9,12),sd,0,8,-1));g.add(mesh(new T.CylinderGeometry(4.5,4.8,4,24),w,0,14.5,-1));g.add(mesh(new T.SphereGeometry(5.6,28,14,0,6.283,0,1.57),gd,0,16.5,-1));g.add(mesh(new T.CylinderGeometry(.2,.2,4,6),gd,0,23,-1));
+ [-1,1].forEach(s=>{g.add(mesh(new T.BoxGeometry(8,6,11),sd,s*15,6,-1));const c=chhatri(pal,1.3);c.position.set(s*15,9,-1);g.add(c);g.add(mesh(new T.CylinderGeometry(.6,.7,12,10),w,s*17,7,6));g.add(mesh(new T.ConeGeometry(.8,1.8,10),gd,s*17,14,6))});
+ for(let i=-5;i<=5;i++)g.add(mesh(new T.CylinderGeometry(.45,.5,7,10),w,i*2,6.5,5.5));g.add(mesh(new T.BoxGeometry(24,.8,3),w,0,10.2,5.5));g.add(mesh(new T.BoxGeometry(4,6,.4),M3(0x3a1a0a,{emissive:0x331100}),0,6,5.05));
+ [-12,12].forEach(x=>{g.add(mesh(new T.CylinderGeometry(.1,.1,12,6),M3(0x888888),x,6,12));g.add(mesh(new T.BoxGeometry(2.4,1.4,.1),M3(0xff9933,{emissive:0x331800}),x+1.3,11,12))});
+ g.add(mesh(new T.BoxGeometry(34,.15,16),M3(0x3f8f4e,{roughness:1}),0,.1,19));g.add(mesh(new T.BoxGeometry(6,.4,16),M3(0x2a8ad0,{metalness:.5,roughness:.1}),0,.3,17));[-6,-2,2,6].forEach(z=>g.add(mesh(new T.CylinderGeometry(.15,.15,3,6),M3(0xbfe8ff,{transparent:true,opacity:.6}),0,1.8,17+z)));
+ g.add(spr(0,24,-1,14));g.position.set(pos[0],X.Hh(pos[0],pos[1]),pos[1]);g.rotation.y=Math.atan2(-pos[0],-pos[1]);sol.push({x:pos[0],z:pos[1],r:15});
+ return{g,update:(t,p)=>{if(Math.hypot(p.x-pos[0],p.z-pos[1])<26)NEAR=performance.now()}}}
+function cityF(sc,pi,wl,pos){const p=S().planets[pi],pal=PAL[D.PLANETS[pi].id]||PAL.bhumi,n=p.unlocked?Math.min(44,Math.round(1+p.population/5+Object.values(p.buildings).reduce((a,b)=>a+b,0)*.7+(p.sustained?6:0))):0;return layout(sc,pal,n,pi*977+13,wl,{avoid:[{x:pos[0],z:pos[1],r:30}]})}
+const old=window.DS_legacy;window.DS_legacy=(sc,pi,st)=>{const f=old?old(sc,pi,st):null,p=S().planets[pi],wl=-2+p.water*.017,hab=!window.DS_hab||DS_hab(pi),pos=mahalPos(wl),pal=PAL[D.PLANETS[pi].id]||PAL.bhumi,m=mahal(pal,sc.userData.solid||[],pos);sc.add(m.g);
+ const c=hab?cityF(sc,pi,wl,pos):outpost(sc,pi,wl);sc.userData.win=c.win;return(t,dt,pp)=>{f&&f(t,dt,pp);c.update(t,dt);m.update(t,pp)}};
+
 const NC=new T.Color(0x050818),NB=new T.Color(0x0a1230);
 window.DS_env=(t,o)=>{const sc=o.sc,U=sc.userData,u=o.skyM.material.uniforms;
  if(!U.b){U.b={top:u.t.value.clone(),bot:u.b.value.clone(),sun:o.sun.intensity,hemi:o.hemi.intensity};const a=[];for(let i=0;i<500;i++){const th=Math.random()*6.283,v=Math.acos(Math.random());a.push(450*Math.sin(v)*Math.cos(th),450*Math.cos(v),450*Math.sin(v)*Math.sin(th))}
