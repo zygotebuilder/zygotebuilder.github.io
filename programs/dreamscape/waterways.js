@@ -7,7 +7,7 @@ function ship(){const g=new T.Group();g.add(mesh(new T.BoxGeometry(16,2.2,4.4),M
 function ferry(){const g=new T.Group();g.add(mesh(new T.BoxGeometry(8,.7,3.6),M3(0x8a5a2a),0,.35,0));[-3.4,3.4].forEach(x=>[-1.6,1.6].forEach(z=>g.add(mesh(new T.CylinderGeometry(.08,.08,2.2,6),M3(0xcccccc),x,1.5,z))));g.add(mesh(new T.BoxGeometry(8.4,.2,4),M3(0xff9933),0,2.7,0));return g}
 let near=null,nearT=0,ride=null,lastSt=null;
 const btn=document.createElement("button");btn.className="go";Object.assign(btn.style,{position:"absolute",left:"50%",bottom:"130px",transform:"translateX(-50%)",width:"auto",padding:"10px 18px",zIndex:70,display:"none"});document.getElementById("app").appendChild(btn);
-setInterval(()=>{const on=performance.now()-nearT<400&&!ride&&S().view==="world"&&!X.busy();btn.style.display=on?"block":"none";if(on)btn.textContent=near.label},250);
+setInterval(()=>{const on=near&&performance.now()-nearT<400&&!ride&&S().view==="world"&&!X.busy();btn.style.display=on?"block":"none";if(on)btn.textContent=near.label},250);
 btn.onclick=()=>{if(!near||ride||!lastSt)return;ride={a:{x:lastSt.x,z:lastSt.z},b:near.to,t:0,d:near.sea?8:6,boat:near.boat};D.toast(near.sea?"🚢 Setting sail…":"⛵ The ferry departs…")};
 const old=window.DS_legacy;window.DS_legacy=(sc,pi,st)=>{const f=old?old(sc,pi,st):null,p=S().planets[pi];if(!X.WV.r)return f;const wl=-2+p.water*.017,boats=[],opts=[];
  const land=(x,z,dx)=>{for(let k=0;k<12;k++){const xx=x+dx*k*1.5;if(X.Hh(xx,z)>wl+.35)return xx}return null};
