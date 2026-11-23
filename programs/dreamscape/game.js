@@ -1,4 +1,4 @@
-((()=>{"use strict";
+(()=>{"use strict";
 const $=id=>document.getElementById(id), clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const SAVE_KEY="dreamscape_panchabhuta_v1", OFFLINE_CAP=8*3600, COUNCIL_EVERY=190;
 const fmt=n=>{n=Math.floor(n*10)/10;return Math.abs(n)>=1e6?(n/1e6).toFixed(2)+"M":Math.abs(n)>=1e3?(n/1e3).toFixed(2)+"K":String(n)};
@@ -73,12 +73,13 @@ let S=null, queue=[], modal=null;
 const freshPlanet=i=>({unlocked:i===0,sustained:false,atmosphere:i===0?6:0,water:0,biosphere:0,pollution:0,population:0,popCap:0,energy:0,biomass:0,buildings:Object.fromEntries(ORDER.map(k=>[k,0]))});
 const freshState=()=>({version:2,data:20,influence:30,dharmaIndex:0,techTier:Object.fromEntries(Object.keys(TECHS).map(k=>[k,0])),planets:PLANETS.map((_,i)=>freshPlanet(i)),selectedPlanet:0,unlockedAchievements:[],chronicle:[],councilTimer:0,onboarded:false,streak:0,lastVisitDay:null,lastSaveTime:Date.now(),playSeconds:0,view:"system",ruler:null});
 function loadState(){
- try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return freshState();
+ try{const raw=LS.g(SAVE_KEY);if(!raw)return freshState();
   const P=JSON.parse(raw),F=freshState(),M=Object.assign({},F,P);
   M.planets=F.planets.map((f,i)=>{const o=(P.planets&&P.planets[i])||{};return Object.assign({},f,o,{buildings:Object.assign({},f.buildings,o.buildings||{})})});
   M.techTier=Object.assign({},F.techTier,P.techTier||{});return M;
  }catch(e){return freshState()}
 }
+const LS={g:k=>{try{return localStorage.getItem(k)}catch(e){return null}},s:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},r:k=>{try{localStorage.removeItem(k)}catch(e){}}};
 const save=()=>{if(window.__noSave)return;S.lastSaveTime=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}};
 
 /* ---------- HELPERS ---------- */
@@ -159,8 +160,8 @@ function openPanel(n){
   $("cp").onclick=()=>{$("ex").select();try{navigator.clipboard.writeText($("ex").value)}catch(e){document.execCommand("copy")}toast("Backup copied.")};
   const sure=(t,m,go)=>{show(t,"",`<p style="line-height:1.6">${m}</p><button class="go" id="cy">Yes, I'm sure</button><button class="go" id="cn" style="background:#2a3a5a">No, go back</button>`);$("cy").onclick=go;$("cn").onclick=()=>openPanel("data")};
   $("ld").onclick=()=>{let o;try{o=JSON.parse($("im").value.trim());if(!o||!o.planets||!o.planets.length)throw 0}catch(e){return toast("That doesn't look like a valid backup.")}
-   sure("Restore this backup?","This will REPLACE your current reign with the pasted backup. Your current progress will be lost.",()=>{window.__noSave=1;localStorage.setItem(SAVE_KEY,JSON.stringify(o));location.reload()})};
-  $("rs").onclick=()=>sure("Reset your reign?","This permanently erases your reign and restarts from Bhūmi Minor. This cannot be undone.",()=>{window.__noSave=1;localStorage.removeItem(SAVE_KEY);location.reload()})}
+   sure("Restore this backup?","This will REPLACE your current reign with the pasted backup. Your current progress will be lost.",()=>{window.__noSave=1;LS.s(SAVE_KEY,JSON.stringify(o));location.reload()})};
+  $("rs").onclick=()=>sure("Reset your reign?","This permanently erases your reign and restarts from Bhūmi Minor. This cannot be undone.",()=>{window.__noSave=1;LS.r(SAVE_KEY);location.reload()})}
 }
 document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openPanel(b.dataset.open));
 
@@ -240,7 +241,7 @@ function drawRuler(x,y,d,w){
  ctx.fillStyle="#ffd56b";ctx.beginPath();ctx.moveTo(-9,-62);ctx.lineTo(-6,-72);ctx.lineTo(0,-64);ctx.lineTo(6,-72);ctx.lineTo(9,-62);ctx.fill();
  ctx.fillStyle="#ffd56b";ctx.fillRect(-9,-44,18,3);ctx.restore();
 }
-function render(t){if(S){S.view==="system"?drawSystem(t):drawWorld(t)}requestAnimationFrame(render)}
+function render(t){try{if(S){S.view==="system"?drawSystem(t):drawWorld(t)}}catch(e){if(!render.e){render.e=1;console.error(e);window.__fatal&&__fatal("Drawing error: "+e.message)}}requestAnimationFrame(render)}
 cv.addEventListener("pointermove",e=>{mouse.x=clamp((e.clientX/W-.5)*1.2,-1,1)});
 cv.addEventListener("pointerdown",e=>{if(S.view!=="system")return;let best=-1,bd=1e9;pos.forEach(o=>{const d=Math.hypot(e.clientX-o.x,e.clientY-o.y);if(d<o.r+14&&d<bd){bd=d;best=o.i}});
  if(best>=0){if(S.planets[best].unlocked){if(window.DS_travel&&best!==(S.location??S.selectedPlanet))DS_travel(best);else{S.selectedPlanet=best;S.location=best;renderAll()}}else toast("Sustain the previous world to 60% and claim it first.")}});
@@ -295,7 +296,7 @@ $("councilBtn").onclick=()=>{if(S.playSeconds<15)return toast("Give your ministe
 const dur=s=>{s=Math.floor(s);return s>=3600?`${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`:s>=60?`${Math.floor(s/60)}m ${s%60}s`:s+"s"};
 const dayKey=d=>{const t=new Date(d);return t.getFullYear()+"/"+(t.getMonth()+1)+"/"+t.getDate()};
 function boot(){
- const isNew=!localStorage.getItem(SAVE_KEY);S=loadState();
+ const isNew=!LS.g(SAVE_KEY);S=loadState();
  const today=dayKey(Date.now());
  if(S.lastVisitDay!==today){const prev=S.lastVisitDay;
   if(!prev)S.streak=1;else{const diff=Math.round((new Date(today)-new Date(prev.replace(/-/g,"/")))/864e5);S.streak=diff===1?S.streak+1:1}
@@ -311,5 +312,5 @@ function boot(){
  requestAnimationFrame(render);
 }
 window.DS={get S(){return S},get modal(){return modal},PLANETS,SUTRAS,DEEDS,BUILDINGS,rulerTitle,show,closeModal,toast,renderAll,save,fmt,chron,reset(){const f=freshState();Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,f);save()}};
-boot();
+try{boot()}catch(e){console.error(e);window.__fatal&&__fatal("The game hit an error while starting: "+e.message)}
 })();
