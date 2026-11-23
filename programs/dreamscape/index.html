@@ -8,6 +8,12 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="fatal" style="display:none;position:fixed;z-index:9999;left:10px;right:10px;top:10px;padding:12px 14px;border-radius:12px;background:#4a0f18;color:#ffd9d9;font:13px/1.5 system-ui,sans-serif;border:1px solid #ff6b6b;cursor:pointer" title="Tap to dismiss"></div>
+<script>
+(function(){var f=document.getElementById('fatal'),seen={};function show(m){if(seen[m])return;seen[m]=1;f.style.display='block';f.innerHTML+='<div>⚠ '+m+'</div>'}window.__fatal=show;f.onclick=function(){f.style.display='none'};
+window.addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='SCRIPT'){var s=t.getAttribute('src')||'';if(s.indexOf('three')<0)show('A game file failed to load: <b>'+s+'</b>. Upload all game files together into the same folder.')}else show('Script error: '+(e.message||'unknown')+(e.filename?' ('+e.filename.split('/').pop()+':'+e.lineno+')':''))},true);
+window.addEventListener('load',function(){setTimeout(function(){if(!window.DS)show('The game engine did not start — check that game.js is uploaded.');else if(!window.THREE)show('The 3D engine (three.js) could not load, so 3D features are unavailable.')},1200)})})();
+</script>
 <div id="app">
 
   <!-- 1 · Scene layers (2D star map, 3D worlds, vignette) -->
@@ -69,7 +75,8 @@
   </div></div>
 
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
 <script src="game.js"></script>
 <script src="extras.js"></script>
 <script src="story.js"></script>
