@@ -1,8 +1,8 @@
-
+/*  3D worlds, royal court, Pushpak rocket travel, procedural ragam. Needs THREE + window.DS from game.js */
 (()=>{"use strict";
 if(!window.THREE||!window.DS)return;
 const D=DS,T=THREE,$=id=>document.getElementById(id),cv=$("c3d");
-const R=new T.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.25;
+let R;try{R=new T.WebGLRenderer({canvas:cv,antialias:true})}catch(e){window.__fatal&&__fatal("WebGL is not available in this browser, so 3D worlds are disabled. Turn on hardware acceleration or try another browser.");return}R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.25;
 let cur=null,musicOverride=null,keys={},held=false,turn=0,lastX=0,seed=1;
 const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
 const M3=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.8,metalness:.1},o));
