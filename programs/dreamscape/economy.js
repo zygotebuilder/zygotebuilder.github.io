@@ -1,4 +1,4 @@
-/* Dreamscape v9: treasury, taxes, income sources, finance monitor, startups & companies, Budget Sabha (modern monarchy) */
+/*treasury, taxes, income sources, finance monitor, startups & companies, Budget Sabha (modern monarchy) */
 (()=>{"use strict";
 if(!window.DS_story||!window.DS)return;
 const D=DS,S=()=>D.S,$=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -7,7 +7,7 @@ const CO=[["surya","Surya Power Grid","Energy","⚡ +0.8/s per level on Bhūmi"]
 const lv=id=>F().co[id]||0;window.DS_navX=()=>lv("vyom")*.05;
 function calc(){const s=S(),f=F(),st=s.story||{legacy:[]},hp=s.planets.filter(p=>p.unlocked&&p.hab),pop=hp.reduce((a,p)=>a+p.population,0),lev=s.planets.reduce((a,p)=>a+Object.values(p.buildings).reduce((x,y)=>x+y,0),0),csum=CO.reduce((a,c)=>a+lv(c[0]),0),legT=(st.legacy||[]).filter(l=>["exportdock","caravan","bazaar","guildhouse"].includes(l.id)).length;
  const cov=hp.length&&window.DS_phys?hp.reduce((a,p)=>a+DS_phys(s.planets.indexOf(p)).cov,0)/hp.length:30,eff=(.5+Math.max(30,cov)/200)*(1+lv("setu")*.06);
- const it=pop*.0065*f.tax.inc/10*eff,tt=(2+legT*1.1+csum*.8+lv("yatra")*.3)*f.tax.trade/10*.5*eff,pt=lev*.04*f.tax.prop/10*eff,tour=((s.end&&s.end.proj)?s.end.proj.length:0)*.5+((s.realm&&s.realm.mon)?2:0),trib=s.end&&s.end.mode==="vassal"?1.5:0;
+ const it=pop*.0065*f.tax.inc/10*eff,tt=(2+legT*1.1+csum*.8+lv("yatra")*.3+s.planets.reduce((a,p)=>a+(p.cities?p.cities.reduce((x,c)=>x+c.lvl,0):0),0)*1.2)*f.tax.trade/10*.5*eff,pt=lev*.04*f.tax.prop/10*eff,tour=((s.end&&s.end.proj)?s.end.proj.length:0)*.5+((s.realm&&s.realm.mon)?2:0),trib=s.end&&s.end.mode==="vassal"?1.5:0;
  const mil=(window.DS_story?DS_story.defence():0)*.35,adm=.4+pop*.002,su=(s.sci||[]).reduce((a,c)=>a+c.mir+c.mag+c.grv+c.proc+c.comm+c.nav,0)*.05;
  return{inc:it+tt+pt+tour+trib,exp:mil+adm+su,pi:[["Income tax",it],["Trade & tariffs",tt],["Property tax",pt],["Tourism & monuments",tour],["Vassal tribute",trib]],ex:[["Military",mil],["Administration",adm],["Science upkeep",su]],cov:Math.max(30,cov)}}
 setInterval(()=>{const s=S();if(!s||!s.onboarded)return;const f=F(),c=calc(),p0=s.planets[0];f.net=c.inc-c.exp;f.k+=f.net;
