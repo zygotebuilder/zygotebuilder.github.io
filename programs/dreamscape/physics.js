@@ -8,14 +8,14 @@ const sci=i=>{const s=S();if(!s.sci)s.sci=[];while(s.sci.length<8)s.sci.push({mi
 function phys(i){const p=S().planets[i],c=sci(i),b=BASE[i],a=p.atmosphere/100,w=p.water/100,bio=p.biosphere/100,po=p.pollution/100;
  const P=.02+a*1.05+c.proc*.07,o2=clamp(bio*28+a*3-po*2+c.proc*1.2,0,32),co2=clamp(95-a*80-bio*12+po*8,.04,95),n2=Math.max(0,100-o2-co2),t0=b[1],T=lerp(t0,15,clamp(a*.8+w*.2,0,1))+c.mir*6*(t0<0?1:-1),g=lerp(b[0],1,clamp(c.grv*.25,0,1)),rad=b[2]*(1-clamp(c.mag*.22,0,.85))*(1-clamp(a*.6,0,.6)),cov=clamp(c.comm*25+Math.min(6,S().agency?S().agency.cnt:0)*5,0,100);
  const chk=[["Gravity 0.75–1.25 g",g>=.75&&g<=1.25],["Pressure 0.6–1.5 bar",P>=.6&&P<=1.5],["Oxygen 16–25%",o2>=16&&o2<=25],["Temperature −5…38 °C",T>=-5&&T<=38],["Radiation < 1 mSv/day",rad<1],["Oceans ≥ 15%",p.water>=15]];
- return{g,P,o2,co2,n2,T,rad,cov,nav:c.nav,comm:c.comm,chk,ok:chk.every(x=>x[1]),sci:c}}
-window.DS_phys=phys;window.DS_hab=i=>{if(i>=20)return true;const p=S().planets[i];return !!p&&p.hab!==false};
+ return{g,P,o2,co2,n2,T,rad,cov,nav:c.nav,comm:c.comm,chk,ok:chk.every(x=>x[1])||!!p.sustained,sci:c}}
+window.DS_phys=phys;window.DS_habRow=i=>{const p=S().planets[i];if(!p.unlocked)return"";const ph=phys(i);if(p.hab)return`<div class="elem" style="border-color:#74e7a5">🌍 Habitable — citizens may walk freely</div>`;const f=ph.chk.filter(x=>!x[1]).map(x=>x[0]);return`<div class="elem" style="border-color:#ffb347">🧪 Not yet habitable — ${f.length?"fix: "+f.join(", "):"ecology stabilising ("+(p.habT|0)+"/"+(p.sustained?20:90)+"s)"}. Use 🔬 Science.</div>`};window.DS_hab=i=>{if(i>=20)return true;const p=S().planets[i];return !!p&&p.hab!==false};
 window.DS_nav=()=>Math.min(.5,(S().sci||[]).reduce((a,c)=>a+c.nav,0)*.1+(window.DS_navX?DS_navX():0));
 S().planets.forEach(p=>{if(p.hab===undefined)p.hab=p.population>0}); // keep existing settlers
 setInterval(()=>{const s=S();if(!s||!s.onboarded)return;const now=Date.now();
  s.planets.forEach((p,i)=>{if(!p.unlocked)return;const c=sci(i),ph=phys(i),nm=D.PLANETS[i].n;
   if(c.q&&now>=c.q.end){c[c.q.k]++;if(c.q.k==="comet")p.water=Math.min(100,p.water+8);D.toast("🔬 "+PROJ[c.q.k][0]+" complete on "+nm);D.chron(`🔬 ${PROJ[c.q.k][0]} completed on ${nm}.`);c.q=null}
-  if(!p.hab){if(ph.ok){p.habT=(p.habT||0)+1;if(p.habT>=90){p.hab=true;p.badT=0;D.toast("🌍 "+nm+" is now habitable — settlers are arriving");D.chron(`🌍 ${nm} became habitable. Settlers will be transported from other worlds.`)}}else p.habT=0}
+  if(!p.hab){if(ph.ok){p.habT=(p.habT||0)+1;if(p.habT>=(p.sustained?20:90)){p.hab=true;p.badT=0;D.toast("🌍 "+nm+" is now habitable — settlers are arriving");D.chron(`🌍 ${nm} became habitable. Settlers will be transported from other worlds.`)}}else p.habT=0}
   else{if(!ph.ok){p.badT=(p.badT||0)+1;if(p.badT>=120){p.hab=false;p.habT=0;D.chron(`⚠ ${nm} is no longer habitable; settlers evacuate.`)}}else p.badT=0}
   if(p.hab&&p.population<p.popCap){const d=s.planets.filter((q,j)=>j!==i&&q.hab&&q.population>25).sort((a,b)=>b.population-a.population)[0];if(d){const amt=Math.min(.5,p.popCap-p.population);d.population-=amt;p.population+=amt;s.mig={to:i,from:s.planets.indexOf(d),t:now}}}})},1000);
 let cur=0;
