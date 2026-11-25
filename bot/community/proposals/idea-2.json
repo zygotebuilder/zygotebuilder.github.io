@@ -1,0 +1,25 @@
+{
+  "issue": 2,
+  "title": "[Community idea] The Butterfly Effect",
+  "fields": {
+    "Category": "Scientific experiment",
+    "Related program": "Not specified",
+    "Idea description": "Title: The Butterfly Effect — A Tiny Change, a Different Future\n\nBuild an interactive simulation demonstrating sensitive dependence on initial conditions.\n\nTwo particles should begin with nearly identical initial conditions. Let the user adjust the initial difference and observe how their trajectories evolve over time.\n\nRequirements:\n1. Display both trajectories simultaneously.\n2. Allow users to change the initial conditions.\n3. Include a pause, resume and reset control.\n4. Display the difference between the two trajectories over time.\n5. Explain what sensitive dependence on initial conditions means.\n6. Include a simple graph showing how the difference evolves.\n\nEducational objective: Help users understand why some deterministic systems can be difficult to predict over long periods.\n\nAcceptance criteria: The simulation must be scientifically coherent, interactive, responsive, and understandable without external instructions.",
+    "Learning objective": "Educational objective: Help users understand why some deterministic systems can be difficult to predict over long periods.",
+    "Possible mechanics": "Requirements:\n1. Display both trajectories simultaneously.\n2. Allow users to change the initial conditions.\n3. Include a pause, resume and reset control.\n4. Display the difference between the two trajectories over time.\n5. Explain what sensitive dependence on initial conditions means.\n6. Include a simple graph showing how the difference evolves.",
+    "Sources and references": "The Butterfly Effect"
+  },
+  "evaluation": {
+    "score": 8,
+    "maximum": 9,
+    "status": "eligible-for-prototype-scaffold",
+    "missing": [],
+    "limits": [
+      "Rule-based completeness triage, not scientific peer review.",
+      "References are not independently verified.",
+      "A high score is not proof of correctness or acceptance."
+    ]
+  },
+  "generated_by": "Zybot rule-based Community Evaluator",
+  "human_review_required": true
+}
