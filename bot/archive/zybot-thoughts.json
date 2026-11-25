@@ -2,85 +2,6 @@
   "version": 3,
   "thoughts": [
     {
-      "timestamp": "2026-10-26T14:53:23.586280+00:00",
-      "commit": "d2281516a7f9382f608d932927a97500ef49469e",
-      "engine": "Zybot deterministic evidence analyzer",
-      "observations": [
-        {
-          "kind": "fact",
-          "text": "Latest commit: 🤖 Zybot: update archive (author: Zybot; date: Mon Oct 26 14:52:22 2026 +0000).",
-          "evidence": [
-            {
-              "source": "git",
-              "locator": "commit:d2281516a7f9382f608d932927a97500ef49469e",
-              "detail": "Author: Zybot; date: Mon Oct 26 14:52:22 2026 +0000; subject: 🤖 Zybot: update archive"
-            }
-          ]
-        },
-        {
-          "kind": "fact",
-          "text": "The latest change summary lists bot/archive/zybot-history.json as changed.",
-          "evidence": [
-            {
-              "source": "git",
-              "locator": "commit:d2281516a7f9382f608d932927a97500ef49469e",
-              "detail": "Path listed in MOST RECENT GIT CHANGE: bot/archive/zybot-history.json"
-            }
-          ]
-        },
-        {
-          "kind": "fact",
-          "text": "The latest change summary reports 1 file(s) changed, 13 insertion(s), and 13 deletion(s).",
-          "evidence": [
-            {
-              "source": "git",
-              "locator": "commit:d2281516a7f9382f608d932927a97500ef49469e",
-              "detail": "Statistics reported by git show --stat."
-            }
-          ]
-        },
-        {
-          "kind": "fact",
-          "text": "The supplied repository listing contains 77 file paths.",
-          "evidence": [
-            {
-              "source": "repository_structure",
-              "locator": "REPOSITORY STRUCTURE",
-              "detail": "Count derived from paths in the supplied listing."
-            }
-          ]
-        }
-      ],
-      "potential_problems": [],
-      "patterns": [
-        {
-          "kind": "pattern",
-          "text": "the supplied file listing has these common extensions: .html: 31, .js: 18, .py: 15, .css: 7, .json: 6.",
-          "evidence": [
-            {
-              "source": "repository_structure",
-              "locator": "REPOSITORY STRUCTURE",
-              "detail": "Counts computed from the supplied file listing."
-            }
-          ]
-        }
-      ],
-      "creative_ideas": [],
-      "questions_for_human": [
-        {
-          "kind": "question",
-          "text": "Should Zybot ingest the tester's results so future reports can distinguish verified test failures from untested changes?",
-          "evidence": [
-            {
-              "source": "context_limit",
-              "locator": "build_context",
-              "detail": "The supplied context contains no clearly labelled test-results section."
-            }
-          ]
-        }
-      ]
-    },
-    {
       "timestamp": "2026-10-26T15:08:00.054461+00:00",
       "commit": "5feb687f8cf05e4ecf26dda44049b7147011e3aa",
       "engine": "Zybot deterministic evidence analyzer",
@@ -7899,6 +7820,85 @@
         {
           "kind": "pattern",
           "text": "the supplied file listing has these common extensions: .html: 32, .js: 27, .py: 18, .css: 8, .json: 7.",
+          "evidence": [
+            {
+              "source": "repository_structure",
+              "locator": "REPOSITORY STRUCTURE",
+              "detail": "Counts computed from the supplied file listing."
+            }
+          ]
+        }
+      ],
+      "creative_ideas": [],
+      "questions_for_human": [
+        {
+          "kind": "question",
+          "text": "Should Zybot ingest the tester's results so future reports can distinguish verified test failures from untested changes?",
+          "evidence": [
+            {
+              "source": "context_limit",
+              "locator": "build_context",
+              "detail": "The supplied context contains no clearly labelled test-results section."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-25T13:21:30.322432+00:00",
+      "commit": "844e34661cc5af5651052bb6b10d0c588954f606",
+      "engine": "Zybot deterministic evidence analyzer",
+      "observations": [
+        {
+          "kind": "fact",
+          "text": "Latest commit: 🤖 Zybot: update archive (author: Zybot; date: Wed Nov 25 13:20:57 2026 +0000).",
+          "evidence": [
+            {
+              "source": "git",
+              "locator": "commit:844e34661cc5af5651052bb6b10d0c588954f606",
+              "detail": "Author: Zybot; date: Wed Nov 25 13:20:57 2026 +0000; subject: 🤖 Zybot: update archive"
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "text": "The latest change summary lists bot/archive/zybot-history.json as changed.",
+          "evidence": [
+            {
+              "source": "git",
+              "locator": "commit:844e34661cc5af5651052bb6b10d0c588954f606",
+              "detail": "Path listed in MOST RECENT GIT CHANGE: bot/archive/zybot-history.json"
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "text": "The latest change summary reports 1 file(s) changed, 13 insertion(s), and 13 deletion(s).",
+          "evidence": [
+            {
+              "source": "git",
+              "locator": "commit:844e34661cc5af5651052bb6b10d0c588954f606",
+              "detail": "Statistics reported by git show --stat."
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "text": "The supplied repository listing contains 96 file paths.",
+          "evidence": [
+            {
+              "source": "repository_structure",
+              "locator": "REPOSITORY STRUCTURE",
+              "detail": "Count derived from paths in the supplied listing."
+            }
+          ]
+        }
+      ],
+      "potential_problems": [],
+      "patterns": [
+        {
+          "kind": "pattern",
+          "text": "the supplied file listing has these common extensions: .html: 33, .js: 28, .py: 18, .css: 9, .json: 7.",
           "evidence": [
             {
               "source": "repository_structure",
