@@ -23,6 +23,8 @@ The handler:
 
 The scaffold is deliberately labelled as unvalidated. A human must implement and test the actual model before calling it an experiment.
 
+This section is only for the zygotebuilder:
+
 ## GitHub setup
 
 1. Push this repository to GitHub on the `projects` branch.
