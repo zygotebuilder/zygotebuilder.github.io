@@ -2,7 +2,7 @@
 (()=>{"use strict";
 if(!window.DS3||!window.DS)return;
 const D=DS,X=DS3,S=()=>D.S,$=id=>document.getElementById(id),WV=X.WV;
-const NAMES=["Ayodhya","Hastinapur","Indraprastha","Dwarka","Kashi","Ujjain","Pataliputra","Vijayanagara","Mathura","Madurai","Nalanda","Taxila"];
+const NAMES=["Ayodhya","Hastinapur","Indraprastha","Dwarka","Kashi","Ujjain","Pataliputra","Vijayanagara","Mathura","Madurai","Nalanda","Takshashila"];
 let cur=0,pick=null;
 const cities=pi=>{const p=S().planets[pi];if(!p.cities)p.cities=[];return p.cities};
 function withWorld(pi,fn){const sv={r:WV.r,s:WV.s,p:WV.p},p=S().planets[pi];WV.r=p.water>=20?1:0;WV.s=p.water>=50?1:0;WV.p=pi*1.7;try{return fn(-2+p.water*.017)}finally{WV.r=sv.r;WV.s=sv.s;WV.p=sv.p}}
