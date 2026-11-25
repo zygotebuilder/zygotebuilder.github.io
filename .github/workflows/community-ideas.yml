@@ -1,0 +1,42 @@
+name: Zybot Community Ideas
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zybot-community-idea-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  evaluate-and-draft:
+    if: startsWith(github.event.issue.title, '[Community idea]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout projects branch
+        uses: actions/checkout@v4
+        with:
+          ref: projects
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Confirm GitHub CLI
+        run: gh --version
+
+      - name: Evaluate community idea and prepare review PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: python bot/community/handle_idea.py
