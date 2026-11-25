@@ -259,7 +259,7 @@ const bar=(l,v,c,x)=>`<div><div class="lbl"><span>${l}</span><span>${x||v.toFixe
 function renderStats(){
  const p=S.planets[S.selectedPlanet],c=PLANETS[S.selectedPlanet];$("pTitle").textContent=c.n;$("pEpi").textContent=c.el;
  const sc=sust(p);
- $("statsBody").innerHTML=`<div class="elem">✦ ${c.el.split(" ·")[0]} bonus: <b>${c.b}</b></div>`+
+ $("statsBody").innerHTML=`<div class="elem">✦ ${c.el.split(" ·")[0]} bonus: <b>${c.b}</b></div>`+(window.DS_habRow?DS_habRow(S.selectedPlanet):"")+
   bar("⚡ Energy",p.energy/eCap(p)*100,"#ffb24d",`${fmt(p.energy)} / ${eCap(p)}`)+bar("🧬 Biomass",p.biomass/bCap(p)*100,"#74e7a5",`${fmt(p.biomass)} / ${bCap(p)}`)+
   bar("Atmosphere",p.atmosphere,"#59e7ff")+bar("Oceans",p.water,"#59c9ff")+bar("Biosphere",p.biosphere,"#74e7a5")+bar("Pollution",p.pollution,"#ff8b6b")+
   bar("Population",p.popCap?p.population/p.popCap*100:0,"#ff91d5",`${fmt(p.population)} / ${p.popCap}`)+bar("Sustainability",sc,"#ffd56b")+(p.sustained?`<div class="badge">✦ Fully Sustained</div>`:"");
