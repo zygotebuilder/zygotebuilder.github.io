@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07111d">
+  <meta name="description" content="Share an experiment idea with Zygote Builder. Help shape what we explore next.">
+  <title>Community Lab · Zygote Builder</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../../index.html"><span class="mark">Z</span><span>ZYGOTE BUILDER<small>COMMUNITY LAB</small></span></a>
+    <a class="back" href="../../index.html">← Back to the lab</a>
+  </header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">HUMAN INTELLIGENCE × MACHINE ASSISTANCE</p>
+      <h1>Ideas deserve<br><em>an experiment.</em></h1>
+      <p class="intro">What should Zygote Builder explore next? Suggest a simulation, game mechanic, scientific experiment, or an improvement to an existing program. A promising idea should have a path from suggestion to prototype—not disappear into a feedback box.</p>
+      <div class="route"><span>01&nbsp; Suggest</span><i></i><span>02&nbsp; Zybot evaluates</span><i></i><span>03&nbsp; Draft PR</span><i></i><span>04&nbsp; Human approval</span></div>
+    </section>
+
+    <section class="layout">
+      <form id="idea-form" class="panel">
+        <div class="panel-head"><div><p class="eyebrow">SUBMIT A PROPOSAL</p><h2>What are you imagining?</h2></div><span class="index">01 / 04</span></div>
+        <label>Idea title <b>*</b><input id="title" maxlength="100" required placeholder="e.g. Build a planetary climate simulator"></label>
+        <div class="two">
+          <label>Type <b>*</b><select id="category" required><option value="">Choose a category</option><option>New simulation</option><option>New game or mechanic</option><option>Improve an existing program</option><option>Scientific experiment</option><option>Accessibility or usability</option><option>Other</option></select></label>
+          <label>Related program <span class="optional">optional</span><input id="target" maxlength="100" placeholder="e.g. Dreamscape Panchabhuta"></label>
+        </div>
+        <label>Describe the idea <b>*</b><textarea id="description" required minlength="40" maxlength="3000" rows="5" placeholder="What should happen? What would a visitor be able to explore or change?"></textarea><small class="hint">Be concrete. Describe the experience, not just the topic.</small></label>
+        <label>What should someone learn or discover? <b>*</b><textarea id="learning" required minlength="20" maxlength="1500" rows="3" placeholder="What question does this experiment help people investigate?"></textarea></label>
+        <label>How might it work? <span class="optional">optional, but useful</span><textarea id="mechanics" maxlength="2000" rows="3" placeholder="Possible controls, variables, rules, interactions, outcomes…"></textarea></label>
+        <label>Sources or references <span class="optional">optional</span><textarea id="references" maxlength="1500" rows="2" placeholder="Books, papers, datasets, links, or scientific concepts."></textarea></label>
+        <label class="consent"><input id="public" type="checkbox" required><span>I understand this proposal will be public on GitHub, including the text I submit. I will not include private information.</span></label>
+        <button class="submit" type="submit">Send idea to Zybot <span>↗</span></button>
+        <p id="status" class="status" role="status" aria-live="polite">Your idea opens as a GitHub Issue. You will need a GitHub account to submit it.</p>
+      </form>
+
+      <aside class="side">
+        <article class="note"><p class="eyebrow">THE PRINCIPLE</p><h3>AI does not get the final vote.</h3><p>Zybot can organise, evaluate, test, and prepare a draft. People decide what deserves to be built. Community interest is a signal—not proof that an idea is scientifically correct.</p></article>
+        <article class="note"><p class="eyebrow">WHAT HAPPENS NEXT?</p><ol class="steps"><li><b>Intake</b><span>Your suggestion becomes a labelled GitHub Issue.</span></li><li><b>Evaluation</b><span>Zybot checks clarity, educational value, feasibility, references, and safety.</span></li><li><b>Draft</b><span>For eligible ideas, Zybot prepares a clearly marked starter prototype and an implementation brief in a Pull Request.</span></li><li><b>Review</b><span>The maintainer reviews, edits, requests changes, or closes it. Zybot cannot merge or publish it.</span></li></ol></article>
+        <article class="caution"><b>Important</b><p>Do not submit passwords, personal details, copyrighted source code you do not own, or instructions for harmful activity. Submissions are public. Zybot treats every submission as untrusted text.</p></article>
+      </aside>
+    </section>
+  </main>
+  <footer><span>Zygote is a beginning, not a destination.</span><a href="../../index.html">Return to Zygote Builder</a></footer>
+  <script src="./app.js" defer></script>
+</body>
+</html>
