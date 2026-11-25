@@ -1,3 +1,4 @@
+/* Storyline (Mahamatya, Tamasi aliens, Dyson sphere), decision legacies shown in-world, NPC dialogue, dethronement */
 (()=>{"use strict";
 if(!window.DS3||!window.DS)return;
 const D=DS,X=DS3,T=X.T,P=D.PLANETS,S=()=>D.S,$=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -52,10 +53,10 @@ window.DS_legacy=(sc,pi,stt)=>{const st=init(),npcs=[],sauc=[],mv=[],wl=-2+S().p
  const addP=(g,x,z,m,who,lines)=>{g.position.set(x,X.Hh(x,z),z);sc.add(g);const n={g,hx:x,hz:z,m,tm:0,a:Math.random()*6,who,lines};if(m==="sit")g.userData.sit=true;npcs.push(n);return n};
  const sp0=window.DS_hab&&!DS_hab(pi)?{suit:1}:null,mm=X.person(0x3a5fa8,false,false,sp0);addP(mm,-4,9,"stand","Mahamatya",counsel);
  if(st.ch>=5){const a=X.person(0x2a6a5a,false,false,{alien:1});addP(a,4,9,"stand","Tamasi Envoy",["Envoy: We are the same blood, split by one asteroid. Your shard fell on Earth; ours on Tamasi.","Envoy: Equal in strength, we chose peace. May the sphere reward the better builder."])}
- st.legacy.filter(l=>l.p===pi).forEach((l,idx)=>{const d=LEG[l.id];if(!d)return;const g=build(d.parts);let a=idx*.95+2.2,r=24+(idx%3)*7,x,z,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.45;tr++}while(X.Hh(x,z)<wl+.6&&tr<14);if(X.Hh(x,z)<wl+.6){r=16;x=Math.cos(a)*r;z=Math.sin(a)*r}g.position.set(x,X.Hh(x,z),z);g.rotation.y=-a+1.57;sc.add(g);if(sc.userData.solid)sc.userData.solid.push({x,z,r:6});
+ st.legacy.filter(l=>l.p===pi).forEach((l,idx)=>{const d=LEG[l.id];if(!d)return;const g=build(d.parts);const SLT=[[-30,-24],[30,-24],[-30,-8],[30,-8],[-30,8],[30,8],[-30,24],[30,24],[-30,40],[30,40],[-48,-8],[48,-8]],sl=SLT[idx%12];let x=sl[0],z=sl[1];if(X.Hh(x,z)<wl+.6){let a=idx*.95+2.2,r=24,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.45;tr++}while(X.Hh(x,z)<wl+.6&&tr<14)}g.position.set(x,X.Hh(x,z),z);g.rotation.y=x<0?1.5708:-1.5708;sc.add(g);sc.add(X.mesh(new T.BoxGeometry(11,3,11),X.M3(0xcfc6b4,{roughness:.9}),x,X.Hh(x,z)-1.4,z));if(sc.userData.solid)sc.userData.solid.push({x,z,r:6});
   if(l.id==="drones")mv.push(t=>g.children.forEach((c,k)=>{c.position.set(Math.cos(t*.8+k*2)*5,6+k,Math.sin(t*.8+k*2)*5)}));
-  for(let k=0;k<(d.ppl.n||0);k++){const p=X.person([0xff9933,0x3a8fd6,0xe85a8a,0x74a84a][k%4],k%2===1,false,sp0);p.scale.setScalar(.9);addP(p,x+(k-1)*1.6,z+3,d.ppl.m,d.n,d.lines)}});
- if(st.ch>=2&&st.ch<5)for(let k=0;k<Math.min(4,1+(st.threat/30|0));k++){const g=new T.Group();g.add(X.mesh(new T.SphereGeometry(4,16,10),X.M3(0x8a98a0,{metalness:.8,roughness:.3}))).scale.set(1,.28,1);g.add(X.mesh(new T.SphereGeometry(1.7,12,8),X.M3(0x66ffcc,{transparent:true,opacity:.7,emissive:0x2a8a6a}),0,.6,0));const lt=new T.PointLight(0x66ffcc,1,40);lt.position.y=-1;g.add(lt);sc.add(g);sauc.push({g,k})}
+  for(let k=0;k<(d.ppl.n||0);k++){const p=X.person([0xff9933,0x3a8fd6,0xe85a8a,0x74a84a][k%4],k%2===1,false,sp0);p.scale.setScalar(.9);addP(p,x+(x<0?7:-7),z+(k-1)*2,d.ppl.m,d.n,d.lines)}});
+ if(st.ch>=2&&st.ch<5)for(let k=0;k<Math.min(4,1+(st.threat/30|0));k++){const g=new T.Group();const dsk=X.mesh(new T.SphereGeometry(4,16,10),X.M3(0x8a98a0,{metalness:.8,roughness:.3}));dsk.scale.set(1,.28,1);g.add(dsk);g.add(X.mesh(new T.SphereGeometry(1.7,12,8),X.M3(0x66ffcc,{transparent:true,opacity:.7,emissive:0x2a8a6a}),0,.6,0));const lt=new T.PointLight(0x66ffcc,1,40);lt.position.y=-1;g.add(lt);sc.add(g);sauc.push({g,k})}
  return(t,dt,p)=>{let best=null,bd=4.5;
   npcs.forEach((n,k)=>{let m=0;const g=n.g;
    if(n.m==="mill"){n.tm-=dt;if(n.tm<=0){n.tm=3+Math.random()*4;n.tx=n.hx+(Math.random()-.5)*8;n.tz=n.hz+(Math.random()-.5)*8;if(X.Hh(n.tx,n.tz)<wl+.3){n.tx=n.hx;n.tz=n.hz}}const dx=n.tx-g.position.x,dz=n.tz-g.position.z,d=Math.hypot(dx,dz);if(d>.3){m=1;g.position.x+=dx/d*dt*1.3;g.position.z+=dz/d*dt*1.3;g.rotation.y=Math.atan2(dx,dz)}}
