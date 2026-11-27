@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Dreamscape: Panchabhūta — Zygote Builder</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="fatal" style="display:none;position:fixed;z-index:9999;left:10px;right:10px;top:10px;padding:12px 14px;border-radius:12px;background:#4a0f18;color:#ffd9d9;font:13px/1.5 system-ui,sans-serif;border:1px solid #ff6b6b;cursor:pointer" title="Tap to dismiss"></div>
+<script>
+(function(){var f=document.getElementById('fatal'),seen={};function show(m){if(seen[m])return;seen[m]=1;f.style.display='block';f.innerHTML+='<div>⚠ '+m+'</div>'}window.__fatal=show;f.onclick=function(){f.style.display='none'};
+window.addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='SCRIPT'){var s=t.getAttribute('src')||'';if(s.indexOf('three')<0)show('A game file failed to load: <b>'+s+'</b>. Upload all game files together into the same folder.')}else show('Script error: '+(e.message||'unknown')+(e.filename?' ('+e.filename.split('/').pop()+':'+e.lineno+')':''))},true);
+window.addEventListener('load',function(){setTimeout(function(){if(!window.DS)show('The game engine did not start — check that game.js is uploaded.');else if(!window.THREE)show('The 3D engine (three.js) could not load, so 3D features are unavailable.')},1200)})})();
+</script>
+<div id="app">
+
+  <!-- 1 · Scene layers (2D star map, 3D worlds, vignette) -->
+  <canvas id="sky"></canvas>
+  <canvas id="c3d"></canvas>
+  <div class="vignette"></div>
+
+  <!-- 2 · Heads-up display: brand + resources, then command toolbar -->
+  <div class="hud">
+    <header class="topbar">
+      <div class="brand"><div class="logo"></div><div><b>Dreamscape: Panchabhūta</b><small id="rulerTag">Five worlds. One dharma.</small></div></div>
+      <div class="resources" id="resourceBar" aria-live="polite"></div>
+    </header>
+    <nav class="navbtns toolbar" aria-label="Royal commands">
+      <button id="menuBtn" class="primary">☰ Menu</button>
+      <button data-open="tech">🧠 Tech</button>
+      <button data-open="deeds">🏆 Deeds</button>
+      <button data-open="chronicle">📜 Chronicle</button>
+      <button data-open="data">⚙ Data</button>
+      <!-- Mahamatya, Dyson, Space Agency and 🔊 are added here by story.js / agency.js / extras.js -->
+    </nav>
+  </div>
+
+  <!-- 3 · View switch -->
+  <div class="viewtoggle">
+    <button id="vSystem" class="active">◐ Star Map</button>
+    <button id="vWorld">👑 Walk the World</button>
+    <button id="vTop" title="Top view (V)">⬒ Top View</button>
+    <button id="vOrbit">🌍 Orbit</button>
+  </div>
+
+  <!-- 4 · Side docks -->
+  <aside class="panel left-dock" id="leftDock"><div class="paneltitle"><span id="pTitle"></span><small id="pEpi"></small></div><div class="body" id="statsBody"></div></aside>
+  <aside class="panel right-dock" id="rightDock"><div class="paneltitle"><span>⚒ Build &amp; Govern</span></div><div class="body" id="buildBody"></div></aside>
+
+  <!-- 5 · Bottom actions -->
+  <footer class="bottombar">
+    <button id="claimBtn" style="display:none"></button>
+    <button class="primary" id="councilBtn">☸ Convene Council</button>
+  </footer>
+
+  <!-- 6 · Command Center: every command, grouped (buttons are filled in by ui.js) -->
+  <div class="cmd" id="cmd" aria-hidden="true"><div class="cmdcard">
+    <div class="modalhead"><div><h2>☰ Command Center</h2><p>Every royal command in one place</p></div><button class="close" id="cmdClose" aria-label="Close menu">×</button></div>
+    <section data-sec="empire"><h3>👑 Empire</h3><div class="tiles"></div></section>
+    <section data-sec="space"><h3>🛰 Space &amp; Tamasi</h3><div class="tiles"></div></section>
+    <section data-sec="war"><h3>⚔ War, Peace &amp; Dyson</h3><div class="tiles"></div></section>
+    <section data-sec="sys"><h3>⚙ System</h3><div class="tiles"></div></section>
+  </div></div>
+  <div id="visitBar"><span id="visitTxt"></span><button id="visitBack">🚀 Return to Earth</button></div>
+
+  <!-- 7 · Overlays -->
+  <div class="walkhint" id="walkHint">W/S walk · A/D turn · Space: ruler speaks · Esc: star map · Use the city navigator for landmarks</div>
+  <section id="court" aria-live="polite"><div class="who" id="cWho"></div><p id="cTxt"></p><div id="cBtns"></div></section>
+  <div class="toast" id="toast"></div>
+  <div class="modal" id="modal"><div class="modalcard">
+    <div class="modalhead"><div><h2 id="mTitle"></h2><p id="mSub"></p></div><button class="close" id="mClose" aria-label="Close">×</button></div>
+    <div id="mBody"></div>
+  </div></div>
+
+</div>
+<script src="three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<script src="game.js"></script>
+<script src="extras.js"></script>
+<script src="story.js"></script>
+<script src="agency.js"></script>
+<script src="tamasi.js"></script>
+<script src="city.js"></script>
+<script src="endgame.js"></script>
+<script src="diplomacy.js"></script>
+<script src="guide.js"></script>
+<script src="realm.js"></script>
+<script src="physics.js"></script>
+<script src="economy.js"></script>
+<script src="waterways.js"></script>
+<script src="orbit.js"></script>
+<script src="maps.js"></script>
+<script src="civilisation.js"></script>
+<script src="lore.js"></script>
+<script src="resist.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
