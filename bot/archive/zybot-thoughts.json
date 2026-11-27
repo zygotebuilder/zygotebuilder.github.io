@@ -2,85 +2,6 @@
   "version": 3,
   "thoughts": [
     {
-      "timestamp": "2026-10-27T15:23:03.807197+00:00",
-      "commit": "23a42131657e3653eeaf9a1ce94ceff9efe0a8af",
-      "engine": "Zybot deterministic evidence analyzer",
-      "observations": [
-        {
-          "kind": "fact",
-          "text": "Latest commit: 🤖 Zybot: update archive (author: Zybot; date: Tue Oct 27 15:22:01 2026 +0000).",
-          "evidence": [
-            {
-              "source": "git",
-              "locator": "commit:23a42131657e3653eeaf9a1ce94ceff9efe0a8af",
-              "detail": "Author: Zybot; date: Tue Oct 27 15:22:01 2026 +0000; subject: 🤖 Zybot: update archive"
-            }
-          ]
-        },
-        {
-          "kind": "fact",
-          "text": "The latest change summary lists bot/archive/zybot-history.json as changed.",
-          "evidence": [
-            {
-              "source": "git",
-              "locator": "commit:23a42131657e3653eeaf9a1ce94ceff9efe0a8af",
-              "detail": "Path listed in MOST RECENT GIT CHANGE: bot/archive/zybot-history.json"
-            }
-          ]
-        },
-        {
-          "kind": "fact",
-          "text": "The latest change summary reports 1 file(s) changed, 13 insertion(s), and 13 deletion(s).",
-          "evidence": [
-            {
-              "source": "git",
-              "locator": "commit:23a42131657e3653eeaf9a1ce94ceff9efe0a8af",
-              "detail": "Statistics reported by git show --stat."
-            }
-          ]
-        },
-        {
-          "kind": "fact",
-          "text": "The supplied repository listing contains 79 file paths.",
-          "evidence": [
-            {
-              "source": "repository_structure",
-              "locator": "REPOSITORY STRUCTURE",
-              "detail": "Count derived from paths in the supplied listing."
-            }
-          ]
-        }
-      ],
-      "potential_problems": [],
-      "patterns": [
-        {
-          "kind": "pattern",
-          "text": "the supplied file listing has these common extensions: .html: 32, .js: 18, .py: 15, .json: 7, .css: 7.",
-          "evidence": [
-            {
-              "source": "repository_structure",
-              "locator": "REPOSITORY STRUCTURE",
-              "detail": "Counts computed from the supplied file listing."
-            }
-          ]
-        }
-      ],
-      "creative_ideas": [],
-      "questions_for_human": [
-        {
-          "kind": "question",
-          "text": "Should Zybot ingest the tester's results so future reports can distinguish verified test failures from untested changes?",
-          "evidence": [
-            {
-              "source": "context_limit",
-              "locator": "build_context",
-              "detail": "The supplied context contains no clearly labelled test-results section."
-            }
-          ]
-        }
-      ]
-    },
-    {
       "timestamp": "2026-10-27T18:10:56.580817+00:00",
       "commit": "080bbdda83ca1d530be2d61e54dd21aeddda6f01",
       "engine": "Zybot deterministic evidence analyzer",
@@ -7867,6 +7788,85 @@
             {
               "source": "git",
               "locator": "commit:efe32da5fd63a4fd89392e4a99ae91680f938483",
+              "detail": "Statistics reported by git show --stat."
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "text": "The supplied repository listing contains 119 file paths.",
+          "evidence": [
+            {
+              "source": "repository_structure",
+              "locator": "REPOSITORY STRUCTURE",
+              "detail": "Count derived from paths in the supplied listing."
+            }
+          ]
+        }
+      ],
+      "potential_problems": [],
+      "patterns": [
+        {
+          "kind": "pattern",
+          "text": "the supplied file listing has these common extensions: .js: 48, .html: 34, .py: 18, .css: 10, .json: 7.",
+          "evidence": [
+            {
+              "source": "repository_structure",
+              "locator": "REPOSITORY STRUCTURE",
+              "detail": "Counts computed from the supplied file listing."
+            }
+          ]
+        }
+      ],
+      "creative_ideas": [],
+      "questions_for_human": [
+        {
+          "kind": "question",
+          "text": "Should Zybot ingest the tester's results so future reports can distinguish verified test failures from untested changes?",
+          "evidence": [
+            {
+              "source": "context_limit",
+              "locator": "build_context",
+              "detail": "The supplied context contains no clearly labelled test-results section."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-11-27T21:32:55.053463+00:00",
+      "commit": "36e1a352168b1f9fe6221f9b5a5874baaf78ad8e",
+      "engine": "Zybot deterministic evidence analyzer",
+      "observations": [
+        {
+          "kind": "fact",
+          "text": "Latest commit: 🤖 Zybot: update archive (author: Zybot; date: Fri Nov 27 21:32:04 2026 +0000).",
+          "evidence": [
+            {
+              "source": "git",
+              "locator": "commit:36e1a352168b1f9fe6221f9b5a5874baaf78ad8e",
+              "detail": "Author: Zybot; date: Fri Nov 27 21:32:04 2026 +0000; subject: 🤖 Zybot: update archive"
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "text": "The latest change summary lists bot/archive/zybot-history.json as changed.",
+          "evidence": [
+            {
+              "source": "git",
+              "locator": "commit:36e1a352168b1f9fe6221f9b5a5874baaf78ad8e",
+              "detail": "Path listed in MOST RECENT GIT CHANGE: bot/archive/zybot-history.json"
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "text": "The latest change summary reports 1 file(s) changed, 13 insertion(s), and 13 deletion(s).",
+          "evidence": [
+            {
+              "source": "git",
+              "locator": "commit:36e1a352168b1f9fe6221f9b5a5874baaf78ad8e",
               "detail": "Statistics reported by git show --stat."
             }
           ]
