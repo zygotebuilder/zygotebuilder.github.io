@@ -1,7 +1,7 @@
 /* Command Center — gathers every command button into one grouped menu so nothing is hidden off-screen */
 (()=>{"use strict";
 const $=id=>document.getElementById(id),nav=document.querySelector(".navbtns"),cmd=$("cmd");if(!nav||!cmd)return;
-const SEC={empire:["Tech","Deeds","Chronicle","Mahamatya","Finance"],space:["Space Agency","Tamasi & Spies","Observatory","Summits","Tamasi Realm","Science","Orbit View","Planet Map"],war:["Dyson","War Council","Resistance"],sys:["Data","Guide","Manual","🔊","🔇"]};
+const SEC={empire:["Tech","Deeds","Chronicle","Mahamatya","Finance","Gazette"],space:["Space Agency","Tamasi & Spies","Observatory","Summits","Tamasi Realm","Science","Orbit View","Planet Map","Moon Expeditions"],war:["Dyson","War Council","Resistance"],sys:["Data","Guide","Manual","🔊","🔇"]};
 const close=()=>{cmd.classList.remove("show");cmd.setAttribute("aria-hidden","true")},open=()=>{cmd.classList.add("show");cmd.setAttribute("aria-hidden","false")};
 const all=[...nav.querySelectorAll("button")].filter(b=>b.id!=="menuBtn"),src={};
 all.forEach(b=>{for(const k in SEC)if(SEC[k].some(t=>b.textContent.includes(t))){document.querySelector(`#cmd [data-sec="${k}"] .tiles`).appendChild(b);b.classList.add("tile");if(!/🔊|🔇/.test(b.textContent))b.addEventListener("click",close);src[b.textContent]=b;break}});
