@@ -59,6 +59,7 @@ function layout(sc,pal,n,seed0,wl,opt){opt=opt||{};const cx=opt.cx||0,cz=opt.cz|
  return{win,update:(t,dt)=>upd.forEach(f=>f(t,dt)),rnd}}
 function highway(sc,wl,a,b,rnd,upd){const hs=new Map(),seg=mkSeg(sc,wl,hs),L=Math.hypot(b.x-a.x,b.z-a.z),k=Math.max(2,Math.round(L/26));let px=a.x,pz=a.z;for(let i=1;i<=k;i++){const x=a.x+(b.x-a.x)*i/k,z=a.z+(b.z-a.z)*i/k;seg(px,pz,x,z,8);px=x;pz=z}fleet(sc,[...hs.values()],Math.min(10,k*2),rnd,upd,wl)}
 window.DS_layout=(sc,pal,n,seed,wl)=>layout(sc,pal,n,seed,wl,{});
+window.DS_H={mkSeg,fleet,label,tower,chhatri,haveli,gopuram,park,dome,lotus,gold,spr,tx,stambh,hY};
 /* research outposts: before a world is habitable only domes, labs and suited crews exist */
 function outpost(sc,pi,wl){const p=S().planets[pi],sol=sc.userData.solid||[],upd=[],lv=Object.values(p.buildings).reduce((a,b)=>a+b,0),n=2+Math.min(6,Math.round(lv*.5)),ds=[],glass=new T.MeshPhysicalMaterial({color:0xaee8ff,transparent:true,opacity:.35,roughness:.05,metalness:.2,emissive:0x1a4a6a,emissiveIntensity:.5});
  for(let k=0;k<n;k++){let a=k*2.1+.5,r=34+(k%3)*7,x,z,tr=0;do{x=Math.cos(a)*r;z=Math.sin(a)*r;a+=.4;tr++}while(X.Hh(x,z)<wl+.8&&tr<14);if(X.Hh(x,z)<wl+.8)continue;const y=X.Hh(x,z),g=new T.Group();
@@ -71,7 +72,7 @@ function outpost(sc,pi,wl){const p=S().planets[pi],sol=sc.userData.solid||[],upd
 /* the Mahal: walk up to it to convene the Sabha */
 let NEAR=0;const mb=document.createElement("button");mb.className="go";mb.textContent="🏛 Enter the Mahal — convene the Sabha";Object.assign(mb.style,{position:"absolute",left:"50%",bottom:"130px",transform:"translateX(-50%)",width:"auto",padding:"10px 18px",zIndex:70,display:"none"});document.getElementById("app").appendChild(mb);
 mb.onclick=()=>{if(!X.busy())document.getElementById("councilBtn").click()};setInterval(()=>{mb.style.display=performance.now()-NEAR<400&&S().view==="world"&&!X.busy()?"block":"none"},300);
-const mahalPos=wl=>[[0,-46],[46,0],[0,46],[-46,0],[34,-34]].find(q=>X.Hh(q[0],q[1])>wl+.8)||[0,-46];
+const mahalPos=wl=>[[0,-66],[66,0],[0,66],[-66,0],[40,-40]].find(q=>X.Hh(q[0],q[1])>wl+.8)||[0,-66];
 function mahal(pal,sol,pos){const g=new T.Group(),w=M3(0xf2efe6,{roughness:.5}),sd=M3(pal[0],{roughness:.7}),gd=gold(pal[2]);
  g.add(mesh(new T.BoxGeometry(38,5,44),M3(0xcfc6b4,{roughness:.9}),0,-2,6));[[34,1,22],[30,1,18],[26,1,14]].forEach((s,i)=>g.add(mesh(new T.BoxGeometry(...s),w,0,.5+i,0)));
  g.add(mesh(new T.BoxGeometry(22,9,12),sd,0,8,-1));g.add(mesh(new T.CylinderGeometry(4.5,4.8,4,24),w,0,14.5,-1));g.add(mesh(new T.SphereGeometry(5.6,28,14,0,6.283,0,1.57),gd,0,16.5,-1));g.add(mesh(new T.CylinderGeometry(.2,.2,4,6),gd,0,23,-1));
@@ -83,7 +84,7 @@ function mahal(pal,sol,pos){const g=new T.Group(),w=M3(0xf2efe6,{roughness:.5}),
  return{g,update:(t,p)=>{if(Math.hypot(p.x-pos[0],p.z-pos[1])<26)NEAR=performance.now()}}}
 function cityF(sc,pi,wl,pos){const p=S().planets[pi],pal=PAL[D.PLANETS[pi].id]||PAL.bhumi,n=p.unlocked?Math.min(36,Math.round(1+p.population/5+Object.values(p.buildings).reduce((a,b)=>a+b,0)*.7+(p.sustained?6:0))):0;return layout(sc,pal,n,pi*977+13,wl,{core:"capital",avoid:[{x:pos[0],z:pos[1],r:30}],dmin:50,dmax:100})}
 const old=window.DS_legacy;window.DS_legacy=(sc,pi,st)=>{const f=old?old(sc,pi,st):null,p=S().planets[pi],wl=-2+p.water*.017,hab=!window.DS_hab||DS_hab(pi),pos=mahalPos(wl),pal=PAL[D.PLANETS[pi].id]||PAL.bhumi,m=mahal(pal,sc.userData.solid||[],pos);sc.add(m.g);
- const c=hab?cityF(sc,pi,wl,pos):outpost(sc,pi,wl),more=[];
+ const c=hab?(window.DS_capital?DS_capital(sc,pi,wl,pos,pal):cityF(sc,pi,wl,pos)):outpost(sc,pi,wl),more=[];
  if(hab)(p.cities||[]).forEach((ct,ci)=>{const L=layout(sc,pal,Math.min(30,4+ct.lvl*4),pi*977+ci*131+97,wl,{cx:ct.x,cz:ct.z,dmin:20,dmax:50,core:"small",name:ct.n});c.win.push(...L.win);more.push(L);highway(sc,wl,{x:0,z:40},{x:ct.x,z:ct.z},c.rnd||L.rnd,more)});
  sc.userData.win=c.win;return(t,dt,pp)=>{f&&f(t,dt,pp);c.update(t,dt);more.forEach(u=>u.update?u.update(t,dt):u(t,dt));m.update(t,pp)}};
 
