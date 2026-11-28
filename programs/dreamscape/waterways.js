@@ -32,8 +32,8 @@ const old=window.DS_legacy;window.DS_legacy=(sc,pi,st)=>{const f=old?old(sc,pi,s
   opts.push({x:fer.a,z:fer.zc,to:{x:fer.b,z:fer.zc},label:"⛵ Passenger ferry — cross the river to the other land",boat:fm,sea:0},{x:fer.b,z:fer.zc,to:{x:fer.a,z:fer.zc},label:"⛵ Passenger ferry — cross the river to the other land",boat:fm,sea:0})}
  /* sea: cargo ships between two seaports, passenger liner to the far continent */
  let lm=null,se=null,sw=null;
- if(X.WV.s){const sp=z=>{const x=land(-92,z,1);return x==null?null:{x,z,dir:-1}};route([-60,60],z=>({x:-105,d:0}),[sp(-60),sp(60)],()=>ship(),60,4);
-  se=land(-92,0,1);sw=land(-118,0,-1);if(se!=null&&sw!=null){lm=liner();sc.add(lm);[se,sw].forEach(x=>sc.add(mesh(new T.BoxGeometry(6,.6,4),M3(0x8a5a2a),x,X.Hh(x,0)+.3,0)));
+ if(X.WV.s){const sp=z=>{const x=land(X.seaX()+18,z,1);return x==null?null:{x,z,dir:-1}};route([-60,60],z=>({x:X.seaX(),d:0}),[sp(-60),sp(60)],()=>ship(),60,4);
+  se=land(X.seaX()+18,0,1);sw=land(X.seaX()-18,0,-1);if(se!=null&&sw!=null){lm=liner();sc.add(lm);[se,sw].forEach(x=>sc.add(mesh(new T.BoxGeometry(6,.6,4),M3(0x8a5a2a),x,X.Hh(x,0)+.3,0)));
    opts.push({x:se,z:0,to:{x:sw,z:0},label:"🚢 Passenger liner — sail to the far continent",boat:lm,sea:1},{x:sw,z:0,to:{x:se,z:0},label:"🚢 Passenger liner — sail to the far continent",boat:lm,sea:1})}}
  return(t,dt,s)=>{f&&f(t,dt,s);lastSt=s;tr.forEach(u=>u(t,dt));pax.forEach((q,k)=>X.anim(q,t+k,0,false));
   if(fm&&!(ride&&ride.boat===fm)){const u=(1+Math.sin(t*.26))/2;fm.position.set(L(fer.a,fer.b,u),wl+.15,fer.zc)}
