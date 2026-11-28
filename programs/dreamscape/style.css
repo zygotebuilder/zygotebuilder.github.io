@@ -91,3 +91,7 @@ button:focus-visible{outline:2px solid var(--saffron);outline-offset:2px}
 .viewtoggle{flex-wrap:wrap;justify-content:center;max-width:96vw}
 .viewtoggle button.active{background:rgba(255,153,51,.25)}
 details summary{outline:none}
+
+/* ===== v10 ===== */
+#ticker{position:absolute;z-index:18;left:50%;bottom:64px;transform:translateX(-50%);max-width:min(720px,92vw);padding:6px 14px;border-radius:12px;background:rgba(8,20,46,.8);border:1px solid var(--line);font-size:12px;color:#ffd9a0;pointer-events:none;transition:opacity .6s;text-align:center}
+.cinema #ticker{display:none}
